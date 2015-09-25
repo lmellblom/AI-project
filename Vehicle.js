@@ -15,7 +15,7 @@ var DNA = function(n) {
 
 	this.crossover = function (partner) {
 		console.log("partner" + partner);
-		// ta hälften från denna partner och sen den andra typ..
+		// take half from one partner and the rest from the other.
 		var crossIndex = Math.floor(this.genes.length/2);
 		var newGenes = new Array();
 		var i;
@@ -26,7 +26,7 @@ var DNA = function(n) {
 
 		/*for (i=0; i<crossIndex; i++) {
 			newGenes[i] = this.genes[i];
-		} 
+		}
 		for(var j = i; j<this.genes.length; j++) {
 			newGenes[j] = partner.genes[j];
 		}*/
@@ -124,7 +124,9 @@ function limitMagnitude(vec, value) {
 	}
 }
 /*
-Perceptron.prototype.train = function(inputs, desired) { // provide the inputs as an array and the desired ouput as an float
+
+ */// provide the inputs as an array and the desired ouput as an float
+Perceptron.prototype.train = function(inputs, desired) { 
 	var guess = this.feedforward(inputs);
 	var error = desired - guess;
 
@@ -134,7 +136,8 @@ Perceptron.prototype.train = function(inputs, desired) { // provide the inputs a
 	}
 }*/
 // train for the vechile
-Perceptron.prototype.train = function(forces, error) { // provide the inputs as an array and the desired ouput as an float
+// provide the inputs as an array and the desired ouput as an float
+Perceptron.prototype.train = function(forces, error) {
 	// adjust the weight according to the error and learning constant. newW = w + dW, där dW = error*input
 	for (var i = 0; i < this.weights.length; i++) {
 		this.weights[i] += this.c * error.x * forces[i].x;
@@ -259,10 +262,14 @@ function setup(){
 
 	movers = new Array();
 	for (var i=0; i<populationSize; i++) {
-		movers[i] = new Vehicle(population[i], getRandom(0+20, width-20), getRandom(0+20, height-20), getRandom(0, 3.0) , getRandom(0,0.4)  );
+		movers[i] = new Vehicle(population[i],
+								getRandom(0+20, width-20),
+								getRandom(0+20, height-20),
+								getRandom(0, 3.0),
+								getRandom(0,0.4));
 	}
 
-	//movers[0] = new Vehicle(3, 420,200, 2.0 , 0.2); //  
+	//movers[0] = new Vehicle(3, 420,200, 2.0 , 0.2); //
 	//movers[1] = new Vehicle(3, 100,30 , 3.0, 0.1);
 	//target = new Victor(100,120);
 
@@ -270,7 +277,9 @@ function setup(){
 	targetColor = fill(getRandomInt(0,255),getRandomInt(0,255),getRandomInt(0,255));
 	for (var i = 0; i<nrOfTargets; i++) {
 		var t = new Object();
-		t.vector = randomTarget(width, height);// new Victor(getRandom(0+targetWidth, width-targetWidth), getRandom(0+targetWidth, height-targetWidth)); // a target vector getRandom
+		// new Victor(getRandom(0+targetWidth, width-targetWidth), getRandom(0+targetWidth, height-targetWidth));
+		// a target vector getRandom
+		t.vector = randomTarget(width, height);
 		t.reward = getRandom(0,4) <= 3 ? true : false;
 		allTargets[i] = t;
 	}
