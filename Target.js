@@ -1,7 +1,8 @@
-var Target = function (x, y) {
+var Target = function (game, x, y) {
 
+	this.game = game;
 	// Inherit from sprite
-	Phaser.Sprite.call(this, GAME.game, x, y, 'diamond');
+	Phaser.Sprite.call(this, game, x, y, 'diamond');
 	this.scale.setTo(0.7);
 	this.anchor.set(0.5);
 	this.isActive = true;	// to be able to know if the target is taken or not.
@@ -14,5 +15,6 @@ var Target = function (x, y) {
 Target.prototype = Object.create(Phaser.Sprite.prototype);
 Target.prototype.constructor = Target;
 
-Target.prototype.update = function() {
+Target.prototype.move = function(dt) {
+	// standing still
 };

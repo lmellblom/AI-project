@@ -1,4 +1,4 @@
-function getRandom(min, max) { 
+function getRandom(min, max) { 
 	return (Math.random() * (max-min) + min); 
 }
 
@@ -45,19 +45,19 @@ DNA.prototype.mutate = function() {
 
 // function that takes two parents and return one child
 var crossover = function(billy, bob) {
-	var crossIndex = Math.floor(getRandom(1,bob.genes.length-2)); 
+	var crossIndex = Math.floor(getRandom(1,bob.genes.length-2));
 	var newGenes = [];
 	var i;
 
 	for (i=0; i<crossIndex; i++){
 		newGenes[i] = billy.genes[i];
 	}
-	for(var j = i; j<bob.genes.length; j++) {
-		newGenes[j] = bob.genes[j];
+	for(; i<bob.genes.length; i++) {
+		newGenes[i] = bob.genes[i];
 	}
 
-	var billybob = new DNA(newGenes); 
-	return billybob; 
+	var billybob = new DNA(newGenes);
+	return billybob;
 };
 
 var dna = new DNA(); 

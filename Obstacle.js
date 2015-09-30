@@ -1,10 +1,10 @@
 /* Obstacle constructor */
-var Obstacle = function (x, y) {
+var Obstacle = function (game, x, y) {
 	this.r = 3.0;
 	// arbitrary values
 	this.maxSpeed = 50;
 
-	this.game = GAME.game;
+	this.game = game;
 	this.position = new Victor(x, y);
 	this.velocity = new Victor(2*Math.random()-1, 2*Math.random()-1)
 		.norm()
@@ -16,11 +16,6 @@ var Obstacle = function (x, y) {
 
 Obstacle.prototype = {
 
-	update: function (){
-		this.move();
-		this.render();
-	},
-
 	render: function (){
 		this.graphics.clear();
 		this.graphics.beginFill(0xFF0000, 0.7);
@@ -28,7 +23,7 @@ Obstacle.prototype = {
 		//this.graphics.drawCircle(this.position.e(1), this.position.e(2), 64);
 	},
 
-	move: function() {
+	move: function(dt) {
 		if( this.position.x > this.game.world.width ||
 			this.position.x < 0 ){
 			this.velocity.x *= -1;
@@ -41,5 +36,7 @@ Obstacle.prototype = {
 			.multiply(new Victor(dt, dt)));
 		this.circle.x = this.position.x;
 		this.circle.y = this.position.y;
+
+		this.render();
 	}
 }
