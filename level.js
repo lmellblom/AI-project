@@ -36,7 +36,6 @@ GAME.Level.prototype = {
 				gameHeight*Math.random()
 			)
 		);
-
 		// the background of everything
 		this.game.stage.backgroundColor = '#D8D8D8';
 

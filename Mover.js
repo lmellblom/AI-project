@@ -36,7 +36,7 @@ Mover.prototype.constructor = Mover;
 Mover.prototype.update = function() {
 	//this.steer();
 	//this.graphics.clear();
-	this.senseEnvironment();
+	//this.senseEnvironment();
 	this.move();
 	this.angle = this.getRotation();
 };
@@ -61,36 +61,14 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 	this.lines.forEach( line => {
 		direction.rotate(-Math.PI / 4);
 		point = direction.clone().add(this.pos);
+		obstacles.forEach((obstacle) => {
+			if(obstacle.circle.contains(point.x, point.y)){
+ 				console.log('inside åhå');
+			}
+		});
 		line.setTo(this.pos.x, this.pos.y, point.x, point.y);
 		GAME.game.debug.geom(line);
 	})
-	// send two rays to the right of looking direction
-/*	direction.rotate(Math.PI / 2);
-	point = direction.clone().add(this.pos);
-	this.lines[0].setTo(this.pos.x, this.pos.y, point.x, point.y);
-	GAME.game.debug.geom(this.lines[0]);
-
-	direction.rotate(-Math.PI / 4);
-	point = direction.clone().add(this.pos);
-	this.lines[1].setTo(this.pos.x, this.pos.y, point.x, point.y);
-	GAME.game.debug.geom(this.lines[1]);
-
-	// send ray forward
-	direction.rotate(-Math.PI / 4);
-	point = direction.clone().add(this.pos);
-	this.lines[2].setTo(this.pos.x, this.pos.y, point.x, point.y);
-	GAME.game.debug.geom(this.lines[2]);
-
-	// send two rays to the left of looking direction
-	direction.rotate(-Math.PI / 4);
-	point = direction.clone().add(this.pos);
-	this.lines[3].setTo(this.pos.x, this.pos.y, point.x, point.y);
-	GAME.game.debug.geom(this.lines[3]);
-
-	direction.rotate(-Math.PI / 4);
-	point = direction.clone().add(this.pos);
-	this.lines[4].setTo(this.pos.x, this.pos.y, point.x, point.y);
-	GAME.game.debug.geom(this.lines[4]);*/
 	// return array with results
 	return this.lines;
 };
