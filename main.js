@@ -4,11 +4,9 @@ see tutorial http://codetowin.io/tutorials/nback-game-states-and-menus/
 // ===================== GLOBAL VARIABELS AND SETTINGS =======================================
 var GAME = GAME || {};
 
-var gameWidth = 600;
-var gameHeight =  400; 
-var qKey;
-var nKey;
-var cursors;
+var gameWidth = 800;
+var gameHeight =  600;
+var dt = 1/60;
 
 GAME.game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, '');
 

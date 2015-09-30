@@ -26,7 +26,7 @@ var DNA = function(n) {
 
 		/*for (i=0; i<crossIndex; i++) {
 			newGenes[i] = this.genes[i];
-		} 
+		}
 		for(var j = i; j<this.genes.length; j++) {
 			newGenes[j] = partner.genes[j];
 		}*/

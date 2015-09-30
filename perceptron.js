@@ -4,13 +4,13 @@ var Perceptron = function(setWeights, c) {
 	this.weights = new Array(setWeights.length); // creates an array with undefined elements
 	this.c = c; // learning constants
 
-	// fill the weights 
+	// fill the weights
 	for (var i = 0; i < setWeights.length; i++) {
-		this.weights[i] = setWeights[i];//getRandom(-1,1); 
+		this.weights[i] = setWeights[i];//getRandom(-1,1);
 	}
 
 }
-// need an vector as an input! 
+// need an vector as an input!
 // NOTE : if the number of weights is larger than number of forces it will crash....
 // felmeddelandet kommer se ut ngt liknande : "Uncaught TypeError: Cannot read property 'clone' of undefined ""
 Perceptron.prototype.feedforward = function(forces) {
@@ -30,6 +30,6 @@ Perceptron.prototype.train = function(forces, error) { // provide the inputs as 
 	// adjust the weight according to the error and learning constant. newW = w + dW, där dW = error*input
 	for (var i = 0; i < this.weights.length; i++) {
 		this.weights[i] += this.c * error.x * forces[i].x;
-		this.weights[i] += this.c * error.y * forces[i].y; 
+		this.weights[i] += this.c * error.y * forces[i].y;
 	}
 }
