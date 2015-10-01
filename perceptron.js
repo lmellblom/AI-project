@@ -6,6 +6,10 @@ var Perceptron = function(weights, c) {
 
 }
 
+Perceptron.prototype.updateWeights = function(weights_) {
+	this.weights = weights_;
+}
+
 Perceptron.prototype.feedforward = function(sensorInput) {
 	var output = [0, 0];
 	sensorInput.forEach(function (input, i) {

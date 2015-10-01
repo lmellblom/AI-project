@@ -10,6 +10,10 @@ var DNA = function(genes_) {
 	this.fitness = 0;
 };
 
+DNA.prototype.setFitness = function(fitness_) {
+	this.fitness = fitness_;
+};
+
 DNA.prototype.randomGenes = function(n) {
 	var genes = [];
 	for (var i=0; i<n; i++) {
@@ -30,6 +34,8 @@ DNA.prototype.mutate = function() {
 	for (var i=0; i<this.genes.length-1; i++) { // the last gene is the bias. should not be mutated
 		if(mutationRate > Math.random()) {
 			this.genes[i] = this.genes[i] + getRandom(-1,1); // if over mutationrate, add something here?
+
+			// make sure that the genes stays between -1 and 1
 			if(this.genes[i]>1) {
 				var over = this.genes[i]-1;
 				this.genes[i] = this.genes[i]-2*over;
@@ -42,9 +48,8 @@ DNA.prototype.mutate = function() {
 	}
 }
 
-
 // function that takes two parents and return one child
-var crossover = function(billy, bob) {
+DNA.crossover = function(billy, bob) {
 	var crossIndex = Math.floor(getRandom(1,bob.genes.length-2));
 	var newGenes = [];
 	var i;
@@ -58,16 +63,6 @@ var crossover = function(billy, bob) {
 
 	var billybob = new DNA(newGenes);
 	return billybob;
+
+
 };
-
-/*var dna = new DNA();
-var dna2 = new DNA();
-dna.print();
-dna2.print();
-
-var child = crossover(dna, dna2);
-child.print();
-child.mutate();
-child.print();*/
-
-

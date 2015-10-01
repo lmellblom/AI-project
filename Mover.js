@@ -10,10 +10,12 @@ var Mover = function (game, theDNA, x, y) {
 
 	this.brain = new Perceptron(theDNA.genes, 0.001); // the learning constant is the 0.01 n är hur många..
 	this.pos = new Victor(x, y);
-	this.speed = 30;
+	this.speed = 50;
 	this.vel = new Victor(this.speed, 0);
 	this.sensorLength = 80;
 	this.numberOfSensors = 5; 
+
+	this.bounceWall = 0;
 
 	// Leave out acceleration for the time being, dont need to add complexity right now.
 	//this.a = new Victor(0.0, 0.0);
@@ -35,6 +37,10 @@ var Mover = function (game, theDNA, x, y) {
 
 	//lines for sensing - for debugging
 	this.lines = Array.from({length: this.numberOfSensors}, () => new Phaser.Line(0, 0, 0, 0));
+
+	// TESTING WITH TIMER!!
+	game.time.events.loop(Phaser.Timer.SECOND, this.updateCounter, this);
+	this.timer = 0; // how long it survived?
 };
 
 // get sprites methods and extend with more methods
@@ -48,6 +54,37 @@ Mover.prototype.constructor = Mover;
 	//this.senseEnvironment();
 
 };*/
+
+Mover.prototype.updateCounter = function() {
+	this.timer++;
+}
+
+Mover.prototype.setRandomPosition = function() {
+	this.pos.x = this.game.width*Math.random();
+	this.pos.y = this.game.height*Math.random();
+}
+
+Mover.prototype.updateBrain = function() {
+	// the dna should already been set on the mover. just call the brain function
+	this.brain.updateWeights(this.DNA.genes); 
+};
+
+Mover.prototype.setFitness = function() {
+	var fit = this.timer + 1;
+	fit = this.bounceWall > 1 ? fit-3 : fit;
+	fit = fit < 0 ? 0 : fit;
+
+	this.DNA.setFitness(fit); // set fitness smallest to 1
+	this.timer = 0; // reset fitness
+	this.bounceWall = 0;
+}
+
+Mover.prototype.died = function() {
+	//console.log("survived " + this.timer);
+	// gör inget här?! kanske göra något sen... 
+	// remove the lines!!! vet inte hur??
+	console.log("Died.. made it : " + this.timer +  " s.");
+}
 
 Mover.prototype.move = function(dt, brainInput) {
 	//this.vel.add(this.a);
@@ -74,11 +111,29 @@ Mover.prototype.move = function(dt, brainInput) {
 			this.vel.norm().multiplyScalar(5);
 	}
 	// Euler step
+
+
+	// quick fix to bounce away from the wall
+	if( this.pos.x > this.game.world.width ||
+			this.pos.x < 0 ){
+			this.vel.x *= -1;
+			this.bounceWall++;
+		} else if (this.pos.y > this.game.world.height ||
+			this.pos.y < 0){
+			this.vel.y *= -1;
+			this.bounceWall++;
+		}
+
 	this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
+	
+
+
 	// reposition sprite
 	this.x = this.pos.x
 	this.y = this.pos.y
 	this.angle = this.getRotation();
+
+	// if going towards the end.. bounce at the walls?
 };
 
 Mover.prototype.senseEnvironment = function(obstacles, targets) {
@@ -101,7 +156,8 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 		point = direction.clone().add(this.pos);
 		// check if any obstacles has this point inside
 		obstacles.forEach((obstacle) => {
-			result[i] = obstacle.circle.contains(point.x, point.y) ? 1 : 0;
+			//result[i] = obstacle.sprite.contains(point.x, point.y) ? 1 : 0;
+			result[i] = Phaser.Math.distance(obstacle.x, obstacle.y, point.x, point.y) <= 50 ? 1 : 0; // 48 since pixel width of the circle? maybe a little bit smaller. 
 		});
 		// draw line
 		line.setTo(this.pos.x, this.pos.y, point.x, point.y);
