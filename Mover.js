@@ -10,7 +10,11 @@ var Mover = function (game, theDNA, x, y) {
 
 	this.brain = new Perceptron(theDNA.genes, 0.001); // the learning constant is the 0.01 n är hur många..
 	this.pos = new Victor(x, y);
-	this.vel = new Victor(3.0, 0.0);
+	this.speed = 30;
+	this.vel = new Victor(this.speed, 0);
+	this.sensorLength = 80;
+	this.numberOfSensors = 5; 
+
 	// Leave out acceleration for the time being, dont need to add complexity right now.
 	//this.a = new Victor(0.0, 0.0);
 	this.r = 3.0;
@@ -30,7 +34,7 @@ var Mover = function (game, theDNA, x, y) {
 	//this.maxSpeed = theDNA.maxSpeed || 3.0;
 
 	//lines for sensing - for debugging
-	this.lines = Array.from({length: 5}, () => new Phaser.Line(0, 0, 0, 0));
+	this.lines = Array.from({length: this.numberOfSensors}, () => new Phaser.Line(0, 0, 0, 0));
 };
 
 // get sprites methods and extend with more methods
@@ -45,21 +49,30 @@ Mover.prototype.constructor = Mover;
 
 };*/
 
-Mover.prototype.move = function(dt) {
+Mover.prototype.move = function(dt, brainInput) {
 	//this.vel.add(this.a);
 	//limitMagnitude(this.vel, this.maxSpeed);
 	//this.pos.add(this.vel);
 	///is.a.multiplyScalar(0.0);
 
-	// TODO: add brainInput as parameter to method.
-	// Then send brainInput to brain and get result
-	// (result should be two values in an array (1/0))
-	// map the result values to actions => eg:
-	// 1-0 => go left
-	// 0-1 => go right
-	// 1-1 => go forward
-	// 0-0 => stand still
-
+	var action = this.brain.feedforward(brainInput);
+	switch (action.join(' ')){
+		case '1 -1':
+			//go left
+			this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
+			break;
+		case '-1 1':
+			//go right
+			this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
+			break;
+		case '1 1':
+			//go forward
+			this.vel.norm().multiplyScalar(this.speed);
+			break;
+		default: // 0 - 0
+			//stand still (almost)
+			this.vel.norm().multiplyScalar(5);
+	}
 	// Euler step
 	this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
 	// reposition sprite
@@ -73,7 +86,7 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 	var result = [];
 	// take looking direction
 	var direction = this.vel.clone()
-	direction.normalize().multiplyScalar(50);
+	direction.normalize().multiplyScalar(this.sensorLength);
 
 	// rotate it to the left
 	direction.rotate(6*(Math.PI / 8));
@@ -81,14 +94,14 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 	// for each line, sample from its surroundings to find if it intersects any obstacles.
 	// Right now it does not find the exact intersection point, only if it has intersected or not
 	// Could actually be done with just points instead of lines.
-	this.lines.forEach( line => {
+	this.lines.forEach( (line, i) => {
 		// for each line rotate it a bit to the right
 		direction.rotate(-Math.PI / 4);
 		// take the endpoint
 		point = direction.clone().add(this.pos);
 		// check if any obstacles has this point inside
-		obstacles.forEach((obstacle, i) => {
-			result[i] = obstacle.circle.contains(point.x, point.y) ? 1 : 0
+		obstacles.forEach((obstacle) => {
+			result[i] = obstacle.circle.contains(point.x, point.y) ? 1 : 0;
 		});
 		// draw line
 		line.setTo(this.pos.x, this.pos.y, point.x, point.y);

@@ -1,4 +1,4 @@
-function getRandom(min, max) { 
+function getRandom(min, max) { 
 	return (Math.random() * (max-min) + min); 
 }
 
@@ -6,7 +6,7 @@
 var mutationRate = 0.2; 
 
 var DNA = function(genes_) {
-	this.genes = genes_ || this.randomGenes(5);
+	this.genes = genes_ || this.randomGenes(10);
 	this.fitness = 0;
 };
 
@@ -24,7 +24,7 @@ DNA.prototype.setGenes = function(genes_) {
 };
 
 DNA.prototype.print = function() {
-	debug(this.genes);
+//	debug(this.genes);
 }
 DNA.prototype.mutate = function() {
 	for (var i=0; i<this.genes.length-1; i++) { // the last gene is the bias. should not be mutated
@@ -60,14 +60,14 @@ var crossover = function(billy, bob) {
 	return billybob;
 };
 
-var dna = new DNA(); 
-var dna2 = new DNA(); 
+/*var dna = new DNA();
+var dna2 = new DNA();
 dna.print();
 dna2.print();
 
 var child = crossover(dna, dna2);
 child.print();
-child.mutate(); 
-child.print();
+child.mutate();
+child.print();*/
 
 

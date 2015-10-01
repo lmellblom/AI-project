@@ -43,7 +43,7 @@
 			//create array with movers (ES6 way)
 			Array.from(new Array(this.numMovers), () => new Mover(
 				game,
-				new DNA(2),
+				new DNA(),
 				WIDTH*Math.random(),
 				HEIGHT*Math.random()
 			))
@@ -87,7 +87,7 @@
 			// 0 = no obstacle
 			var brainInput = mover.senseEnvironment(this.obstacles, this.groupTarget);
 			// Use brainInput as argument to move
-			mover.move(dt)
+			mover.move(dt, brainInput);
 		});
 
 		this.groupTarget.forEachAlive((target) => target.move(dt));
