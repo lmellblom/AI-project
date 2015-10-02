@@ -1,70 +1,64 @@
-// ========================== DNA ==========================
-var DNA = function(n) {
-	this.genes = new Array(n);
+// global variables
+var mutationRate = 0.05; 
+
+var DNA = function(genes_) {
+	this.genes = genes_ || this.randomGenes(10);
 	this.fitness = 0;
-	// adding random genes
+};
 
-	for (var i=0; i<this.genes.length-1; i++) {
-		this.genes[i] = getRandom(-1,1);
+DNA.prototype.setFitness = function(fitness_) {
+	this.fitness = fitness_;
+};
+
+DNA.prototype.randomGenes = function(n) {
+	var genes = [];
+	for (var i=0; i<n; i++) {
+		genes[i] = getRandom(-1,1);
 	}
-	this.genes[this.genes.length-1] = 1;  // adding the last dna as 1??
+	genes[n] = 1; // bias
+	return genes;
+};
 
-	this.setFitness = function(nr) {
-		this.fitness = nr;
-	};
+DNA.prototype.setGenes = function(genes_) {
+	this.genes = genes_;
+};
 
-	this.crossover = function (partner) {
-		console.log("partner" + partner);
-		// ta hälften från denna partner och sen den andra typ..
-		var crossIndex = Math.floor(this.genes.length/2);
-		var newGenes = new Array();
-		var i;
+DNA.prototype.print = function() {
+//	debug(this.genes);
+}
+DNA.prototype.mutate = function() {
+	for (var i=0; i<this.genes.length-1; i++) { // the last gene is the bias. should not be mutated
+		if(mutationRate > Math.random()) {
+			this.genes[i] = this.genes[i] + getRandom(-1,1); // if over mutationrate, add something here?
 
-		newGenes[0] = this.genes[0];
-		newGenes[1] = partner.genes[1];
-		newGenes[2] = partner.genes[2];
-
-		/*for (i=0; i<crossIndex; i++) {
-			newGenes[i] = this.genes[i];
+			// make sure that the genes stays between -1 and 1
+			if(this.genes[i]>1) {
+				var over = this.genes[i]-1;
+				this.genes[i] = this.genes[i]-2*over;
+			}
+			else if (this.genes[i]< -1) {
+				var under = this.genes[i]+1;
+				this.genes[i] = this.genes[i]-2*under;
+			}
 		}
-		for(var j = i; j<this.genes.length; j++) {
-			newGenes[j] = partner.genes[j];
-		}*/
-		return newGenes;
-	};
-
-	this.mutate = function (mutationRate) {
-		for (var i=0; i<this.genes.length; i++) {
-			this.genes[i] = this.genes[i]; // if over mutationrate, add something here?
-		}
-	};
+	}
 }
 
-function mate(population) {
-	var matingPool = new Array();
-	for (var i=0; i<population.length; i++) {
-		//console.log(population[i].DNA);
-		var n = Math.ceil(population[i].DNA.fitness * 10) + 1;
-		console.log(n);
-		for (var j=0; j<n; j++) {		// add the memeber n times according to fitness score
-			matingPool.push(population[i].DNA);
-		}
+// function that takes two parents and return one child
+DNA.crossover = function(billy, bob) {
+	var crossIndex = Math.floor(getRandom(1,bob.genes.length-2));
+	var newGenes = [];
+	var i;
+
+	for (i=0; i<crossIndex; i++){
+		newGenes[i] = billy.genes[i];
+	}
+	for(; i<bob.genes.length; i++) {
+		newGenes[i] = bob.genes[i];
 	}
 
-	// reproduce the population!! overwrite the population with a new one? 
-	for (var i=0; i<population.length; i++) {
-		var a = Math.floor(random(0,matingPool.length));
-		var b = Math.floor(random(0,matingPool.length));
+	var billybob = new DNA(newGenes);
+	return billybob;
 
-		var partnerA = matingPool[a];
-		var partnerB = matingPool[b];
 
-		// new child.
-		var child = partnerA.crossover(partnerB);
-		//child.mutate(0.2);
-
-		population[i] = child;
-	}
-
-	return population;
-}
+};

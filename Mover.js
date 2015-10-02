@@ -112,7 +112,7 @@ Mover.prototype.move = function(dt, brainInput) {
 			break;
 		default: // 0 - 0
 			//stand still (almost)
-			this.vel.norm().multiplyScalar(5);
+			this.vel.norm().multiplyScalar(0.1);
 	}
 	// Euler step
 
