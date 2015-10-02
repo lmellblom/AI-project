@@ -1,10 +1,10 @@
 // ========================== Help functions ==========================
-function getRandom(min, max) { 
-	return Math.random() * (max-min) + min; 
+function getRandom(min, max) {
+	return Math.random() * (max-min) + min;
 }
 
 function getRandomInt(min, max) { // a gloat
-	return Math.floor(Math.random() * (max-min) + min); 
+	return Math.floor(Math.random() * (max-min) + min);
 }
 
 // limits the magnitude of the in vec that is an Victory obj to the value that is given if the magnitude of that vector
