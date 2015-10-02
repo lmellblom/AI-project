@@ -12,7 +12,7 @@ var Mover = function (game, theDNA, x, y) {
 	this.pos = new Victor(x, y);
 	this.speed = 50;
 	this.vel = new Victor(this.speed, 0);
-	this.sensorLength = 80;
+	this.sensorLength = 110; //80
 	this.numberOfSensors = 5; 
 
 	this.bounceWall = 0;
@@ -31,6 +31,7 @@ var Mover = function (game, theDNA, x, y) {
 	// scale the sprite down a bit
 	this.scale.setTo(0.6);
 
+
 	// arbitrary values (not used at the momemt)
 	//this.maxForce = theDNA.maxForce || 0.4;
 	//this.maxSpeed = theDNA.maxSpeed || 3.0;
@@ -41,6 +42,8 @@ var Mover = function (game, theDNA, x, y) {
 	// TESTING WITH TIMER!!
 	game.time.events.loop(Phaser.Timer.SECOND, this.updateCounter, this);
 	this.timer = 0; // how long it survived?
+
+	//this.avoidedFitness = 0;
 };
 
 // get sprites methods and extend with more methods
@@ -70,20 +73,21 @@ Mover.prototype.updateBrain = function() {
 };
 
 Mover.prototype.setFitness = function() {
-	var fit = this.timer + 1;
-	fit = this.bounceWall > 1 ? fit-3 : fit;
+	var fit = (this.timer + 1)*3; // this.avoidedFitness
+	fit = this.bounceWall > 1 ? fit*0.1 : fit;
 	fit = fit < 0 ? 0 : fit;
 
 	this.DNA.setFitness(fit); // set fitness smallest to 1
 	this.timer = 0; // reset fitness
 	this.bounceWall = 0;
+	//this.avoidedFitness=0;
 }
 
 Mover.prototype.died = function() {
 	//console.log("survived " + this.timer);
 	// gör inget här?! kanske göra något sen... 
 	// remove the lines!!! vet inte hur??
-	console.log("Died.. made it : " + this.timer +  " s.");
+	//console.log("Died.. made it : " + this.timer +  " s.");
 }
 
 Mover.prototype.move = function(dt, brainInput) {
@@ -104,7 +108,7 @@ Mover.prototype.move = function(dt, brainInput) {
 			break;
 		case '1 1':
 			//go forward
-			this.vel.norm().multiplyScalar(this.speed);
+			this.vel.norm().multiplyScalar(this.speed*3);
 			break;
 		default: // 0 - 0
 			//stand still (almost)
@@ -114,7 +118,7 @@ Mover.prototype.move = function(dt, brainInput) {
 
 
 	// quick fix to bounce away from the wall
-	if( this.pos.x > this.game.world.width ||
+	/*if( this.pos.x > this.game.world.width ||
 			this.pos.x < 0 ){
 			this.vel.x *= -1;
 			this.bounceWall++;
@@ -123,6 +127,7 @@ Mover.prototype.move = function(dt, brainInput) {
 			this.vel.y *= -1;
 			this.bounceWall++;
 		}
+	*/
 
 	this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
 	
@@ -158,10 +163,19 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 		obstacles.forEach((obstacle) => {
 			//result[i] = obstacle.sprite.contains(point.x, point.y) ? 1 : 0;
 			result[i] = Phaser.Math.distance(obstacle.x, obstacle.y, point.x, point.y) <= 50 ? 1 : 0; // 48 since pixel width of the circle? maybe a little bit smaller. 
+			
+			// även kolla kant här kanske? 
+			if (point.x > this.game.world.width || point.x < 0 || point.y > this.game.world.height ||
+				point.y < 0)
+				result[i] = 1;
+			
+
+			// testing, om nuddat en mover så bättre :P
+			//this.avoidedFitness = (result[i]==1) ? this.avoidedFitness+1 : this.avoidedFitness;
 		});
 		// draw line
 		line.setTo(this.pos.x, this.pos.y, point.x, point.y);
-		this.game.debug.geom(line);
+		//this.game.debug.geom(line); // to show the lines or not for debbuging sort of.
 	})
 	// return array with results
 	return result;

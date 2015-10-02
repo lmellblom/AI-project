@@ -11,7 +11,7 @@ var DNA = function(n) {
 
 	this.setFitness = function(nr) {
 		this.fitness = nr;
-	}
+	};
 
 	this.crossover = function (partner) {
 		console.log("partner" + partner);
@@ -31,13 +31,13 @@ var DNA = function(n) {
 			newGenes[j] = partner.genes[j];
 		}*/
 		return newGenes;
-	}
+	};
 
 	this.mutate = function (mutationRate) {
 		for (var i=0; i<this.genes.length; i++) {
 			this.genes[i] = this.genes[i]; // if over mutationrate, add something here?
 		}
-	}
+	};
 }
 
 function mate(population) {

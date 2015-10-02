@@ -36,8 +36,8 @@
 		// Define amount of objects in game
 		this.numTargets =0;
 		this.numObstacles = 10;
-		this.numMovers = 20;
-		alivePopulationSize = 20;  // samma som numMovers..
+		this.numMovers = 200;
+		alivePopulationSize = 200;  // samma som numMovers..
 
 		// add groups to handle collision between these different objects in the environment
 		// works like an array in many ways
@@ -113,7 +113,8 @@
 		// collision between a mover and a obstacel. needed to use a sprite based obstacles instead.. 
 		game.physics.arcade.overlap(this.obstacles, this.groupMover, badCollisionMover, null, this);
 
-		//checkBoundary(this.groupMover); // if we want it to die at the boundary?
+		// die att bondary
+		checkBoundary(this.groupMover); // if we want it to die at the boundary?
 
 		// check if existing movers? alive
 		if (alivePopulationSize < 1) {
