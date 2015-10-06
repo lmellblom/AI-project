@@ -3,21 +3,9 @@ var alivePopulationSize = 200;  // samma som numMovers..
 var Population = function (game) {
 	this.numMovers = 200;
 	this.generationNr = 1;
-
 	this.groupMover = game.add.group();
 	this.groupMover.enableBody = true;
 	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
-};
-
-Population.prototype.movePopulation = function(obstacles, groupTarget) {
-	this.groupMover.forEachAlive((mover) => {
-		// gets an array of values (1/0) which indicates how that sensor has sensed the environment.
-		// 1 = obstacle
-		// 0 = no obstacle
-		var brainInput = mover.senseEnvironment(obstacles, groupTarget);
-		// Use brainInput as argument to move
-		mover.move(dt, brainInput);
-	});
 };
 
 Population.prototype.initPopulation = function(game) {
@@ -88,7 +76,6 @@ Population.prototype.checkBoundary = function(game, movers) {
 
 // the mover died! collided with an obstacle
 Population.prototype.badCollisionMover = function(obstacles, mover) {
-	
 	alivePopulationSize--;
 	mover.died(); 				// do something meaningfull in the mover?
 	mover.setFitness(); 		// will set how long it survived. 

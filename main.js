@@ -4,25 +4,14 @@
 
 // Self invoking function for not polluting global scope
 (function () {
-
 	var WIDTH = 800;
 	var HEIGHT =  600;
 	var dt = 1/60;
 
 	// just global variables 
-	var game = new Phaser.Game(
-		WIDTH,
-		HEIGHT,
-		Phaser.AUTO,
-		'',
-		{
-			preload: preload,
-			create: create,
-			update: update
-		}
-	);
+	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '', 
+		{ preload: preload, create: create, update: update});
 	var population;
-
 
 	function preload() {
 		// load assets into the game
@@ -79,15 +68,12 @@
 
 
 	function update(){
-		
 		// update positions
-		//population.movePopulation(this.obstacles, this.groupTarget);
 		population.groupMover.forEachAlive((mover) => {
 			// gets an array of values (1/0) which indicates how that sensor has sensed the environment.
 		 	// 1 = obstacle, 0 = no obstacle
 		 	var brainInput = mover.senseEnvironment(this.obstacles, this.groupTarget);
-		 	// Use brainInput as argument to move
-		 	mover.move(dt, brainInput);
+		 	mover.move(dt, brainInput); // Use brainInput as argument to move
 		});
 		this.groupTarget.forEachAlive((target) => target.move(dt));
 		this.obstacles.forEach((obstacle) => obstacle.move(dt));
@@ -99,82 +85,8 @@
 		population.checkBoundary(game, population.groupMover);
 
 		// check if existing movers? alive
-		console.log("Hej monica", alivePopulationSize);
-		 if (alivePopulationSize < 1) {
+		if (alivePopulationSize < 1) {
 			population.revivePopulation();
-		 }
-
-		// die att bondary
-		//checkBoundary(this.groupMover); // if we want it to die at the boundary?
-		//checkBoundary(groupMover);
-
-		// update the objects position in the environment
-		// this.groupMover.forEachAlive((mover) => {
-		// 	// gets an array of values (1/0) which indicates how that sensor has sensed the environment.
-		// 	// 1 = obstacle
-		// 	// 0 = no obstacle
-		// 	var brainInput = mover.senseEnvironment(this.obstacles, this.groupTarget);
-		// 	// Use brainInput as argument to move
-		// 	mover.move(dt, brainInput);
-		// });
-
-		//this.groupTarget.forEachAlive((target) => target.move(dt));
-		//this.obstacles.forEach((obstacle) => obstacle.move(dt));
-		
-		// check if allive?
-		// checks for collision/overlap between these two groups and calls the collisionHandler-function
-
-		// collision between a mover and a obstacel. needed to use a sprite based obstacles instead.. 
-		
-		
-
-		// check if existing movers? alive
-		// if (alivePopulationSize < 1) {
-		// 	nextPopulation(this.groupMover);
-		// 	alivePopulationSize = this.numMovers; // make the population large again
-
-		// 	// need to update a couple of thing to the mover.. 
-		// 	this.groupMover.forEach(function(mover){
-		// 		// need to reset it to alive!!
-		// 		mover.isAlive = true;
-		// 		mover.updateBrain(); // update the brains weights
-		// 		// need to set the x and y pos to new values?
-		// 		mover.setRandomPosition();
-		// 		mover.revive(); // make the sprite alive again
-		// 	});
-
-		// 	console.log("Generationnr "+ generationNr);
-		// }
-
-	};
-
-// // not used at the moment! if we want it to die or not at the walls.
-// 	function checkBoundary(movers) {
-// 		movers.forEachAlive(function(mover) {
-// 			if( mover.pos.x > game.world.width ||
-// 			mover.pos.x < 0 || mover.pos.y > game.world.height ||
-// 			mover.pos.y < 0){
-// 				//console.log("mover out of boundary!");
-// 				alivePopulationSize--; 
-// 				mover.died();
-// 				mover.setFitness();
-// 				mover.isAlive = false;
-// 				mover.kill();
-// 			}
-// 		}, this);
-// 	}
-
-// 	// the mover died! collieded with an obstacle
-// 	function badCollisionMover(obstacles, mover) {
-// 		alivePopulationSize--; 
-// 		mover.died(); // do something meaningfull in the mover?
-// 		mover.setFitness(); // will set how long it survived. 
-// 		mover.isAlive = false;
-
-// 		// kill sprite
-// 		mover.kill();
-// 	};
-
-	
-
+		}
+	};	
 }());
