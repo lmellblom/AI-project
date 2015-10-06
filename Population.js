@@ -1,10 +1,9 @@
-var alivePopulationSize = 200;  // samma som numMovers..
-
 var Population = function (game) {
 	this.numMovers = 200;
 	this.generationNr = 1;
 	this.groupMover = game.add.group();
 	this.groupMover.enableBody = true;
+	this.alivePopulationSize = 200;  // samma som numMovers..
 	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 };
 
@@ -65,7 +64,7 @@ Population.prototype.checkBoundary = function(game, movers) {
 		if( mover.pos.x > game.world.width ||
 		mover.pos.x < 0 || mover.pos.y > game.world.height ||
 		mover.pos.y < 0){
-			alivePopulationSize--; 
+			this.alivePopulationSize--; 
 			mover.died();
 			mover.setFitness();
 			mover.isAlive = false;
@@ -76,7 +75,7 @@ Population.prototype.checkBoundary = function(game, movers) {
 
 // the mover died! collided with an obstacle
 Population.prototype.badCollisionMover = function(obstacles, mover) {
-	alivePopulationSize--;
+	this.alivePopulationSize--;
 	mover.died(); 				// do something meaningfull in the mover?
 	mover.setFitness(); 		// will set how long it survived. 
 	mover.isAlive = false;
@@ -86,7 +85,7 @@ Population.prototype.badCollisionMover = function(obstacles, mover) {
 Population.prototype.revivePopulation = function() {
 	this.generationNr++;
 	this.nextPopulation(this.groupMover);
-	alivePopulationSize = this.numMovers; // make the population large again
+	this.alivePopulationSize = this.numMovers; // make the population large again
 
 	// need to update a couple of thing to the mover.. 
 	this.groupMover.forEach(function(mover){

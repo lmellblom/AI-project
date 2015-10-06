@@ -7,11 +7,9 @@
 	var WIDTH = 800;
 	var HEIGHT =  600;
 	var dt = 1/60;
-
-	// just global variables 
+	var population; 
 	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '', 
 		{ preload: preload, create: create, update: update});
-	var population;
 
 	function preload() {
 		// load assets into the game
@@ -79,13 +77,13 @@
 		this.obstacles.forEach((obstacle) => obstacle.move(dt));
 
 		// collision between a mover and a obstacel. needed to use a sprite based obstacles instead.. 
-		game.physics.arcade.overlap(this.obstacles, population.groupMover, population.badCollisionMover, null, this);
+		game.physics.arcade.overlap(this.obstacles, population.groupMover, population.badCollisionMover, null, population);
 
 		// checkBoundary(this.groupMover); // if we want it to die at the boundary?
 		population.checkBoundary(game, population.groupMover);
 
 		// check if existing movers? alive
-		if (alivePopulationSize < 1) {
+		if (population.alivePopulationSize < 1) {
 			population.revivePopulation();
 		}
 	};	
