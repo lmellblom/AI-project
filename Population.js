@@ -1,9 +1,9 @@
-var Population = function (game) {
-	this.numMovers = 200;
-	this.generationNr = 1;
+var Population = function (game, size, generation) { 	// IMPORTANT, as of now "generation" only sets the "generationNr" 
+	this.numMovers = size;								// we have not yet implementet a way to skip through generations
+	this.generationNr = generation; 
 	this.groupMover = game.add.group();
 	this.groupMover.enableBody = true;
-	this.alivePopulationSize = 200;  // samma som numMovers..
+	this.alivePopulationSize = size;  // samma som numMovers..
 	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 };
 
@@ -74,7 +74,7 @@ Population.prototype.checkBoundary = function(game, movers) {
 }
 
 // the mover died! collided with an obstacle
-Population.prototype.badCollisionMover = function(obstacles, mover) {
+Population.prototype.moverCollided = function(obstacles, mover) {
 	this.alivePopulationSize--;
 	mover.died(); 				// do something meaningfull in the mover?
 	mover.setFitness(); 		// will set how long it survived. 

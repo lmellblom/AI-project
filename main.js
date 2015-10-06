@@ -27,7 +27,7 @@
 		// works like an array in many ways
 		this.groupTarget = game.add.group();
 		this.obstacles = game.add.group();
-		population = new Population(game);
+		population = new Population(game, 200, 1);
 
 		// enables physics on the group
 		// ARCADE physics allows AABB collision detection only
@@ -77,7 +77,7 @@
 		this.obstacles.forEach((obstacle) => obstacle.move(dt));
 
 		// collision between a mover and a obstacel. needed to use a sprite based obstacles instead.. 
-		game.physics.arcade.overlap(this.obstacles, population.groupMover, population.badCollisionMover, null, population);
+		game.physics.arcade.overlap(this.obstacles, population.groupMover, population.moverCollided, null, population);
 
 		// checkBoundary(this.groupMover); // if we want it to die at the boundary?
 		population.checkBoundary(game, population.groupMover);
