@@ -2,7 +2,8 @@
 var mutationRate = 0.05; 
 
 var DNA = function(genes_) {
-	this.genes = genes_ || this.randomGenes(10);
+	var numberOfGenes = NRMIDDLELAYERS > 0 ? NRSENSORS*NRMIDDLELAYERS + NRMIDDLELAYERS*NROUTPUTS : NRSENSORS*NROUTPUTS; 
+	this.genes = genes_ || this.randomGenes(numberOfGenes);
 	this.fitness = 0;
 };
 
@@ -15,7 +16,6 @@ DNA.prototype.randomGenes = function(n) {
 	for (var i=0; i<n; i++) {
 		genes[i] = getRandom(-1,1);
 	}
-	genes[n] = 1; // bias
 	return genes;
 };
 

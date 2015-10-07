@@ -13,8 +13,8 @@ var Mover = function (game, theDNA, x, y) {
 	this.pos = new Victor(x, y);
 	this.speed = 50;
 	this.vel = new Victor(this.speed, 0);
-	this.sensorLength = 110; //80
-	this.numberOfSensors = 5; 
+	this.sensorLength = 90; //80
+	this.numberOfSensors = NRSENSORS;// 5; 
 
 	this.bounceWall = 0;
 
