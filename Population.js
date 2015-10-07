@@ -79,7 +79,6 @@ Population.prototype.checkBoundary = function() {
 		mover.pos.x < 0 || mover.pos.y > this.game.world.height ||
 		mover.pos.y < 0){
 			this.alivePopulationSize--; 
-			mover.died();
 			mover.setFitness();
 			mover.isAlive = false;
 			mover.kill();
@@ -94,7 +93,6 @@ Population.prototype.getGroup = function() {
 // the mover died! collided with an obstacle
 Population.prototype.moverCollided = function(obstacles, mover) {
 	this.alivePopulationSize--;
-	mover.died(); 				// do something meaningfull in the mover?
 	mover.setFitness(); 		// will set how long it survived. 
 	mover.isAlive = false;
 	mover.kill();				// kill sprite
