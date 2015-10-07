@@ -7,7 +7,9 @@
 	var WIDTH = 800;
 	var HEIGHT =  600;
 	var dt = 1/60;
-	var population; 
+	var population;
+	var allObstacles; 
+	var allTargets;
 	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '', 
 		{ preload: preload, create: create, update: update});
 
@@ -20,45 +22,19 @@
 
 	function create() {
 		// Define amount of objects in game
-		this.numTargets =0;
+		this.numTargets = 2;
 		this.numObstacles = 10;
 
-		// add groups to handle collision between these different objects in the environment
-		// works like an array in many ways
-		this.groupTarget = game.add.group();
-		this.obstacles = game.add.group();
+		// add the obstacles, targets and the population
+		allObstacles = new Groups(game, this.numObstacles, Obstacle);
+		allTargets = new Groups(game, this.numTargets, Target);
+
 		population = new Population(game, 200, 1);
 
-		// enables physics on the group
-		// ARCADE physics allows AABB collision detection only
-		this.groupTarget.enableBody = true;
-		this.groupTarget.physicsBodyType = Phaser.Physics.ARCADE;
-		this.obstacles.enableBody = true;
-		this.obstacles.physicsBodyType = Phaser.Physics.ARCADE;
-
-		//Add an array of movers to the group
-		population.initPopulation(game);
-
-		//Add an array of targets to the group
-		this.groupTarget.addMultiple(
-			//create array with targets (ES6 way)
-			Array.from(new Array(this.numTargets), () => new Target(
-				game,
-				WIDTH*Math.random(),
-				HEIGHT*Math.random()
-			))
-		);
-
-		// As of now obstacles does not need Phasers collision detection => use normal array (no group)
-		// they do? if want to look at collision easy between an obstacle and a mover?? 
-		// just change in main to the ObstacleSprite.js for group, or Obstacle.js for array.
-		// need to remove the addMutiple if only an arrray..
-		this.obstacles.addMultiple(Array.from(new Array(this.numObstacles), () => new Obstacle(
-				game,
-				WIDTH*Math.random(),
-				HEIGHT*Math.random()
-			))
-		);
+		// init pop, obstacles and targets with elements
+		population.initPopulation();
+		allObstacles.initObjects();
+		allTargets.initObjects();
 
 		// the background of everything
 		game.stage.backgroundColor = '#D8D8D8';
@@ -66,25 +42,24 @@
 
 
 	function update(){
-		// update positions
-		population.groupMover.forEachAlive((mover) => {
-			// gets an array of values (1/0) which indicates how that sensor has sensed the environment.
-		 	// 1 = obstacle, 0 = no obstacle
-		 	var brainInput = mover.senseEnvironment(this.obstacles, this.groupTarget);
-		 	mover.move(dt, brainInput); // Use brainInput as argument to move
-		});
-		this.groupTarget.forEachAlive((target) => target.move(dt));
-		this.obstacles.forEach((obstacle) => obstacle.move(dt));
+		// update positions of everything in the world
+		population.update(allObstacles.getGroup(), allTargets.getGroup(), dt);
+		allObstacles.update(dt);
+		allTargets.update(dt);
 
-		// collision between a mover and a obstacel. needed to use a sprite based obstacles instead.. 
-		game.physics.arcade.overlap(this.obstacles, population.groupMover, population.moverCollided, null, population);
+		// collision between the obstacle and the population, the population should die if this happens
+		game.physics.arcade.overlap(allObstacles.getGroup(), population.getGroup(), population.moverCollided, null, population);
+		// collision between a target and the population, then the mover in that pop should get a reward
+		game.physics.arcade.overlap(allTargets.getGroup(), population.getGroup(), population.foundTarget, null, population);
 
-		// checkBoundary(this.groupMover); // if we want it to die at the boundary?
-		population.checkBoundary(game, population.groupMover);
+		// check if the population is out of the field
+		population.checkBoundary();
 
-		// check if existing movers? alive
+		// check if existing movers? if everyone died we should call the next generation
 		if (population.alivePopulationSize < 1) {
 			population.revivePopulation();
+			// revive the target also maybe??
+			allTargets.revive();
 		}
 	};	
 }());
