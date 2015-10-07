@@ -3,6 +3,7 @@ var Mover = function (game, theDNA, x, y) {
 	// Inherit from sprite (call its constructor)
 	Phaser.Sprite.call(this, game, x, y, 'mover');
 
+
 	//this.points = 0;
 
 	// DNA is where the neural networks weights are
@@ -29,7 +30,7 @@ var Mover = function (game, theDNA, x, y) {
 	this.anchor.y = 0.4;
 
 	// scale the sprite down a bit
-	this.scale.setTo(0.6);
+	this.scale.setTo(0.15);
 
 
 	// arbitrary values (not used at the momemt)
