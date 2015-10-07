@@ -3,14 +3,14 @@ var Population = function (game, size, generation) { 	// IMPORTANT, as of now "g
 	this.generationNr = generation; 
 	this.groupMover = game.add.group();
 	this.groupMover.enableBody = true;
-	this.alivePopulationSize = size;  // samma som numMovers..
+	this.alivePopulationSize = size;
 	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
+	this.elitsm = 0.04; // 4 percent of the population size will move straight to the next generation!
 };
 
 Population.prototype.initPopulation = function() {
 	this.groupMover.addMultiple(
-		//create array with movers (ES6 way)
 		Array.from(new Array(this.numMovers), () => new Mover(
 			this.game,
 			new DNA(),
@@ -18,6 +18,7 @@ Population.prototype.initPopulation = function() {
 			600*Math.random()	// TODO, change 800 to a variable instead, is the heigth of the canvas
 		))
 	);
+	this.sortPopulation();
 };
 
 // This function will move everything depending on the obstacles/target to sense
@@ -30,17 +31,20 @@ Population.prototype.update = function(obstacles, targets, dt) {
 	});
 };
 
-Population.prototype.nextPopulation = function(currentPopulation) {
+Population.prototype.nextPopulation = function() {
 	var matingPool = []; // holdes all the DNA of the indivuals to mate
+
+	// Elitism, This is the number of individuals that will go straight to the next generation
+	var elitismNumber = Math.ceil(this.numMovers*this.elitism); 
 
 	var sumFitness = 0;
 	// sum up the fitness from every individ
-	currentPopulation.forEach(function(individual){
+	this.groupMover.forEach(function(individual){
 		sumFitness += individual.DNA.fitness;
 	});
 
 	// get percent value.. the roulette wheel selection uses this
-	currentPopulation.forEach(function(individual){
+	this.groupMover.forEach(function(individual){
 		var numberOfIndividuals = Math.ceil(individual.DNA.fitness/sumFitness * 10);
 
 		for (var j=0; j<numberOfIndividuals; j++) {		// add the memeber n times according to fitness score
@@ -50,7 +54,7 @@ Population.prototype.nextPopulation = function(currentPopulation) {
 
 	// select from matingpool and fill upp the populations size
 	// maybe use elitism later and take the best from currentPop to the next pop
-	for (var i=0; i<currentPopulation.length; i++) {
+	for (var i=elitismNumber; i<this.groupMover.length; i++) {
 		// get to random parents
 		var a = Math.floor(Math.random()*matingPool.length);
 		var b = Math.floor(Math.random()*matingPool.length);
@@ -64,9 +68,8 @@ Population.prototype.nextPopulation = function(currentPopulation) {
 
 		// NEED to reset the current pop, just overwrite the DNA at the moment.
 		// need to reset fitness, isAlive = true, update brain? etc.. maybe not do this..
-		currentPopulation.children[i].DNA = billybob;
+		this.groupMover.children[i].DNA = billybob;
 	}
-	return currentPopulation; 
 };
 
 // not used at the moment! if we want it to die or not at the walls.
@@ -101,13 +104,23 @@ Population.prototype.foundTarget = function(target, mover) {
 	console.log("YOU FOUND A TARGET! WOW");
 	target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
 	// set + på movern, eftersom den får något extra då i fitness kanske?
-}
+};
+
+Population.prototype.sortPopulation = function() {
+	this.groupMover.children.sort(function(a,b){
+		return b.DNA.fitness - a.DNA.fitness;
+	});
+};
 
 Population.prototype.revivePopulation = function() {
 	this.generationNr++;
-	this.nextPopulation(this.groupMover);
-	this.alivePopulationSize = this.numMovers; // make the population large again
 
+	// sort the population according to the fitness value, to use elitism
+
+	this.sortPopulation();
+	this.nextPopulation();
+	this.alivePopulationSize = this.numMovers; // make the population large again
+	
 	// need to update a couple of thing to the mover.. 
 	this.groupMover.forEach(function(mover){
 		// need to reset it to alive!!

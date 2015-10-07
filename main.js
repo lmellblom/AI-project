@@ -16,10 +16,8 @@
 	function preload() {
 		// load assets into the game
 		game.load.image('diamond', 'assets/diamond.png');
-		//game.load.image('empty', 'assets/empty.png');
 		game.load.image('empty', 'assets/wolf.png');
 		game.load.image('mover', 'assets/sheep.png');
-		//game.load.image('mover', 'assets/up.png');
 	};
 
 	function create() {
