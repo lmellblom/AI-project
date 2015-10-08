@@ -201,8 +201,7 @@
 			// need to reset fitness, isAlive = true, update brain? etc.. maybe not do this..
 			currentPopulation.children[i].DNA = billybob;
 		}
-
-		return currentPopulation; 
+		return currentPopulation;
 
 	};
 

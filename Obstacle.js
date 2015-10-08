@@ -2,7 +2,7 @@ var Obstacle = function (game, x, y) {
 	this.maxSpeed = 100;
 
 	this.game = game;
-
+	this.radius = 40;
 	// Inherit from sprite
 	Phaser.Sprite.call(this, game, x, y, 'empty');
 	this.scale.setTo(1.3);
