@@ -3,6 +3,7 @@ var Mover = function (game, theDNA, x, y) {
 	// Inherit from sprite (call its constructor)
 	Phaser.Sprite.call(this, game, x, y, 'mover');
 
+
 	//this.points = 0;
 
 	// DNA is where the neural networks weights are
@@ -12,8 +13,8 @@ var Mover = function (game, theDNA, x, y) {
 	this.pos = new Victor(x, y);
 	this.speed = 50;
 	this.vel = new Victor(this.speed, 0);
-	this.sensorLength = 110; //80
-	this.numberOfSensors = 5;
+	this.sensorLength = 90; //80
+	this.numberOfSensors = NRSENSORS;// 5;
 
 	this.bounceWall = 0;
 
@@ -29,7 +30,7 @@ var Mover = function (game, theDNA, x, y) {
 	this.anchor.y = 0.4;
 
 	// scale the sprite down a bit
-	this.scale.setTo(0.6);
+	this.scale.setTo(0.15);
 
 
 	// arbitrary values (not used at the momemt)
@@ -200,7 +201,7 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 			// testing, om nuddat en mover så bättre :P
 			//this.avoidedFitness = (result[i]==1) ? this.avoidedFitness+1 : this.avoidedFitness;
 		});
-		// draw line DO NOT REMOVE
+		// draw debug lines DO NOT REMOVE
 /*		if(result[i]){
 			// if line has intersected, shorten the line appropriatly
 			direction.normalize().multiplyScalar(this.sensorLength);
@@ -211,7 +212,7 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 				.add(this.pos);
 		}
 		line.setTo(this.pos.x, this.pos.y, point.x, point.y);
-		this.game.debug.geom(line); */// to show the lines or not for debbuging sort of.
+		this.game.debug.geom(line);*/ // to show the lines or not for debbuging sort of.
 	})
 	// return array with results
 	return result;

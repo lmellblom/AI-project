@@ -5,7 +5,8 @@ var Obstacle = function (game, x, y) {
 	this.radius = 40;
 	// Inherit from sprite
 	Phaser.Sprite.call(this, game, x, y, 'empty');
-	this.scale.setTo(1.3);
+	this.scale.setTo(0.2);
+	//this.scale.setTo(1.2);
 	this.anchor.set(0.5);
 	this.isActive = true;	// to be able to know if the target is taken or not.
 
