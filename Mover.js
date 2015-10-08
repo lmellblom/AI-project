@@ -14,7 +14,7 @@ var Mover = function (game, theDNA, x, y) {
 	this.speed = 50;
 	this.vel = new Victor(this.speed, 0);
 	this.sensorLength = 90; //80
-	this.numberOfSensors = NRSENSORS;// 5; 
+	this.numberOfSensors = NRSENSORS;// 5;
 
 	this.bounceWall = 0;
 
@@ -144,7 +144,7 @@ Mover.prototype.move = function(dt, brainInput) {
 
 Mover.prototype.senseEnvironment = function(obstacles, targets) {
 	var point;
-	var result = [];
+	var result = Array(this.numberOfSensors).fill(0);
 	// take looking direction
 	var direction = this.vel.clone()
 	direction.normalize().multiplyScalar(this.sensorLength);
@@ -153,8 +153,6 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 	direction.rotate(6*(Math.PI / 8));
 
 	// for each line, sample from its surroundings to find if it intersects any obstacles.
-	// Right now it does not find the exact intersection point, only if it has intersected or not
-	// Could actually be done with just points instead of lines.
 	this.lines.forEach( (line, i) => {
 		// for each line rotate it a bit to the right
 		direction.rotate(-Math.PI / 4);
@@ -162,21 +160,59 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 		point = direction.clone().add(this.pos);
 		// check if any obstacles has this point inside
 		obstacles.forEach((obstacle) => {
-			//result[i] = obstacle.sprite.contains(point.x, point.y) ? 1 : 0;
-			result[i] = Phaser.Math.distance(obstacle.x, obstacle.y, point.x, point.y) <= 50 ? 1 : 0; // 48 since pixel width of the circle? maybe a little bit smaller. 
-			
-			// även kolla kant här kanske? 
-			if (point.x > this.game.world.width || point.x < 0 || point.y > this.game.world.height ||
-				point.y < 0)
-				result[i] = 1;
-			
+
+			var sensedInfo = intersectLineCircle(
+				this.pos, // start of sensor ray
+				direction, // direction of sensor line (does not need to be normalizes)
+				this.sensorLength, // length of sensor line
+				obstacle.position, //position of obsacle
+				obstacle.radius //radius of obstacle
+			);
+			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
+			// checking borders
+			var overlap;
+			if (point.x > this.game.world.width){
+				var wallPoint = new Victor(this.game.world.width, 0);
+				var wallN = new Victor(0, 1);
+				var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+				sensedInfo = 1 - lengthToIntersect / this.sensorLength;
+				result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
+			} else if (point.x < 0){
+				var wallPoint = new Victor(0, 0);
+				var wallN = new Victor(0, 1);
+				var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+				sensedInfo = 1 - lengthToIntersect / this.sensorLength;
+				result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
+			} else if ( point.y > this.game.world.height){
+				var wallPoint = new Victor(0, this.game.world.height);
+				var wallN = new Victor(1, 0);
+				var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+				sensedInfo = 1 - lengthToIntersect / this.sensorLength;
+				result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
+			} else if (point.y < 0){
+				var wallPoint = new Victor(0, 0);
+				var wallN = new Victor(1, 0);
+				var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+				sensedInfo = 1 - lengthToIntersect / this.sensorLength;
+				result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
+			}
+
 
 			// testing, om nuddat en mover så bättre :P
 			//this.avoidedFitness = (result[i]==1) ? this.avoidedFitness+1 : this.avoidedFitness;
 		});
-		// draw line
+		// draw debug lines DO NOT REMOVE
+/*		if(result[i]){
+			// if line has intersected, shorten the line appropriatly
+			direction.normalize().multiplyScalar(this.sensorLength);
+			point = direction
+				.clone()
+				.norm()
+				.multiplyScalar(this.sensorLength * (1-result[i]))
+				.add(this.pos);
+		}
 		line.setTo(this.pos.x, this.pos.y, point.x, point.y);
-		//this.game.debug.geom(line); // to show the lines or not for debbuging sort of.
+		this.game.debug.geom(line);*/ // to show the lines or not for debbuging sort of.
 	})
 	// return array with results
 	return result;

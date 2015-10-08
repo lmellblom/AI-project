@@ -68,5 +68,5 @@ var NROUTPUTS = 2;
 			// revive the target also maybe??
 			allTargets.revive();
 		}
-	};	
+	};
 }());
