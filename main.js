@@ -2,6 +2,12 @@
 	see tutorial http://codetowin.io/tutorials/nback-game-states-and-menus/
 */
 
+// global properties, for both the brain and the perceptron
+var NRSENSORS = 5;
+var NRMIDDLELAYERS = 8;
+var NROUTPUTS = 2;
+// find a better way for doing this later
+
 // Self invoking function for not polluting global scope
 (function () {
 	var WIDTH = 800;
@@ -13,6 +19,7 @@
 	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '', 
 		{ preload: preload, create: create, update: update});
 
+
 	function preload() {
 		// load assets into the game
 		game.load.image('diamond', 'assets/diamond.png');
@@ -23,7 +30,7 @@
 	function create() {
 		// Define amount of objects in game
 		this.numTargets = 2;
-		this.numObstacles = 10;
+		this.numObstacles = 15;
 
 		// add the obstacles, targets and the population
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
