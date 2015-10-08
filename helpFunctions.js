@@ -38,30 +38,48 @@ function randomTarget(w, h) {
  */
 function intersectLineCircle(linePoint, direction, length, circlePoint, radius) {
 
-	// if circle is behind this rays direction.
-	if(direction.dot(circlePoint.clone().subtract(linePoint)) < 0){
-		return 0;
-	}
 	var n = direction // normalized vector in the direction of line
 		.clone()
 		.norm();
+	// if circle is behind this rays direction.
+	if(n.dot(circlePoint.clone().subtract(linePoint).norm()) < 0){
+		return 0;
+	}
+
 	var pa = linePoint
 		.clone()
-		.subtract(circlePoint); //get vector from p->n
+		.subtract(circlePoint); //get vector from p->a
 	// p projected on line x = a + tn is => pa - (pa*n)n
 	var projectedVector = pa
 		.clone()
-		.subtract(n.multiplyScalar(pa.dot(n)));
-	var projectedPoint = projectedVector.clone().add(circlePoint);
+		.subtract(n.clone().multiplyScalar(pa.dot(n.clone())));
+
 	if(projectedVector.length() > radius){
 		return 0;
 	}
+	var projectedPoint = projectedVector.clone().add(circlePoint);
+
 	// pythagoras b = sqrt( a^2 - c^2 )
-	var intersectedLength = Math.sqrt(Math.abs(Math.pow(projectedVector.length(), 2) - Math.pow(radius, 2)))
+	var intersectedLength = Math.sqrt(Math.abs(Math.pow(projectedVector.length(), 2) - Math.pow(radius, 2)));
+
 	var linePrim = projectedPoint.clone().subtract(linePoint); // linePoint -> projectedPoint
 	// when intersection point is close to mover, return value close to 1
 	// when intersection point is far from mover, return value close to 0
 	var distFromIntersect = Math.abs(linePrim.length() - intersectedLength);
 	return (distFromIntersect < length) ?
 		1 - (distFromIntersect / length) : 0;
+}
+
+/*
+ * Sensor line should be defined by b and r
+ * wall should be defined by a and n
+ */
+function intersectLineLine(a, n, b, r) {
+
+	n.norm();
+	r.norm();
+	var numerator = n.x * (b.y - a.y) - n.y * (b.x - a.x);
+	var denominator = n.y * r.x - n.x * r.y;
+	var lamba = numerator / denominator;
+	return lamba;
 }

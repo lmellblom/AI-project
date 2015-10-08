@@ -167,46 +167,51 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 				obstacle.position, //position of obsacle
 				obstacle.radius //radius of obstacle
 			);
-			//console.log(sensedInfo);
 			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-			//console.log(result[i])
 			// checking borders
 			var overlap;
 			if (point.x > this.game.world.width){
-				overlap = point.x - this.game.world.width;
-				sensedInfo = 1 - (overlap / this.sensorLength);
+				var wallPoint = new Victor(this.game.world.width, 0);
+				var wallN = new Victor(0, 1);
+				var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+				sensedInfo = 1 - lengthToIntersect / this.sensorLength;
 				result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
 			} else if (point.x < 0){
-				overlap = Math.abs(point.x);
-				sensedInfo = 1 - (overlap / this.sensorLength);
+				var wallPoint = new Victor(0, 0);
+				var wallN = new Victor(0, 1);
+				var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+				sensedInfo = 1 - lengthToIntersect / this.sensorLength;
 				result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
 			} else if ( point.y > this.game.world.height){
-				overlap = point.y - this.game.world.width;
-				sensedInfo = 1 - (overlap / this.sensorLength);
+				var wallPoint = new Victor(0, this.game.world.height);
+				var wallN = new Victor(1, 0);
+				var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+				sensedInfo = 1 - lengthToIntersect / this.sensorLength;
 				result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
 			} else if (point.y < 0){
-				overlap = Math.abs(point.y);
-				sensedInfo = 1 - (overlap / this.sensorLength);
+				var wallPoint = new Victor(0, 0);
+				var wallN = new Victor(1, 0);
+				var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+				sensedInfo = 1 - lengthToIntersect / this.sensorLength;
 				result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
 			}
 
-			console.log(result[i])
+
 			// testing, om nuddat en mover så bättre :P
 			//this.avoidedFitness = (result[i]==1) ? this.avoidedFitness+1 : this.avoidedFitness;
 		});
-		// draw line
-		if(result[i]){
+		// draw line DO NOT REMOVE
+/*		if(result[i]){
 			// if line has intersected, shorten the line appropriatly
-			//console.log(result[i])
-			var pointOldLength = point.length();
-			point
+			direction.normalize().multiplyScalar(this.sensorLength);
+			point = direction
+				.clone()
 				.norm()
-				.multiplyScalar(pointOldLength * (1-result[i]));
-			//console.log(result[i].toString())
+				.multiplyScalar(this.sensorLength * (1-result[i]))
+				.add(this.pos);
 		}
-		//console.log(point)
 		line.setTo(this.pos.x, this.pos.y, point.x, point.y);
-		this.game.debug.geom(line); // to show the lines or not for debbuging sort of.
+		this.game.debug.geom(line); */// to show the lines or not for debbuging sort of.
 	})
 	// return array with results
 	return result;

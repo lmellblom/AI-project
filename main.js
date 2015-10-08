@@ -36,8 +36,8 @@
 		// Define amount of objects in game
 		this.numTargets =0;
 		this.numObstacles = 10;
-		this.numMovers = 200;
-		alivePopulationSize = 200;  // samma som numMovers..
+		this.numMovers = 50;
+		alivePopulationSize = 50;  // samma som numMovers..
 
 		// add groups to handle collision between these different objects in the environment
 		// works like an array in many ways
