@@ -3,8 +3,8 @@
 */
 
 // global properties, for both the brain and the perceptron
-var NRSENSORS = 5;
-var NRMIDDLELAYERS = 8;
+var NRSENSORS = 8;
+var NRMIDDLELAYERS = 0;
 var NROUTPUTS = 2;
 // find a better way for doing this later
 
@@ -29,7 +29,7 @@ var NROUTPUTS = 2;
 
 	function create() {
 		// Define amount of objects in game
-		this.numTargets = 2;
+		this.numTargets = 0;
 		this.numObstacles = 15;
 
 		// add the obstacles, targets and the population
@@ -49,6 +49,7 @@ var NROUTPUTS = 2;
 
 
 	function update(){
+
 		// update positions of everything in the world
 		population.update(allObstacles.getGroup(), allTargets.getGroup(), dt);
 		allObstacles.update(dt);
