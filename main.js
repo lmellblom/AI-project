@@ -14,7 +14,7 @@ var NROUTPUTS = 2;
 	var HEIGHT =  600;
 	var dt = 1/60;
 	var population;
-	var allObstacles; 
+	var allObstacles;
 	var allTargets;
 	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '', 
 		{ preload: preload, create: create, update: update});
@@ -36,7 +36,7 @@ var NROUTPUTS = 2;
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
 
-		population = new Population(game, 200, 1);
+		population = new Population(game, 80, 1);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation();

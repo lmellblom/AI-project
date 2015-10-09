@@ -8,7 +8,12 @@ var Perceptron = function(weights, c) {
 Perceptron.prototype.updateWeights = function(weights_) {
 	this.weights = weights_;
 }
-
+Perceptron.prototype.sigmoid = function(sum) {
+	return (1 / (1 + Math.pow(Math.E, -1*sum)));
+}
+Perceptron.prototype.bipolarSigmoid = function(sum) {
+	return (2 / (1 + Math.pow(Math.E, -1*sum))) - 1;
+}
 Perceptron.prototype.feedforward = function(sensorInput) {
 
 	// NRMIDDLELAYERS
@@ -22,12 +27,19 @@ Perceptron.prototype.feedforward = function(sensorInput) {
 		for(var j=0; j<nrOut; j++) {
 			outMiddle[j] += input * this.weights[i + j*NRSENSORS]; // the first five weights belongs to the first sensor etc
 		}
-	},this);
+	}, this);
 
 	// apply bias to every output and the step function
+	console.log(nrOut)
 	for(var j=0; j<nrOut; j++) {
 		outMiddle[j] +=0.5;
-		outMiddle[j] = (outMiddle[j]>0) ? 1 : -1; 
+		if(NRMIDDLELAYERS){
+			// Sigmoid function as activation function in middle layer
+			outMiddle[j] = this.sigmoid(outMiddle[j]);
+		} else {
+			// simple step activation function
+			outMiddle[j] = (outMiddle[j]>0) ? 1 : -1;
+		}
 	}
 
 	// check if we have a middle layer, if not then just return the output
