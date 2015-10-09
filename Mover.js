@@ -13,7 +13,7 @@ var Mover = function (game, theDNA, x, y) {
 	this.pos = new Victor(x, y);
 	this.speed = 50;
 	this.vel = new Victor(this.speed, 0);
-	this.sensorLength = 110; //80
+	this.sensorLength = 150;
 	this.numberOfSensors = NRSENSORS;// 5;
 
 	this.bounceWall = 0;
@@ -150,12 +150,12 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 	direction.normalize().multiplyScalar(this.sensorLength);
 
 	// rotate it to the left
-	direction.rotate(6*(Math.PI / 8));
+	direction.rotate((Math.PI / 2) + Math.PI / (NRSENSORS-1));
 
 	// for each line, sample from its surroundings to find if it intersects any obstacles.
 	this.lines.forEach( (line, i) => {
 		// for each line rotate it a bit to the right
-		direction.rotate(-Math.PI / 4);
+		direction.rotate(-Math.PI / (NRSENSORS-1));
 		// take the endpoint
 		point = direction.clone().add(this.pos);
 		// check if any obstacles has this point inside
