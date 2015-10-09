@@ -4,7 +4,7 @@
 
 // global properties, for both the brain and the perceptron
 var NRSENSORS = 8;
-var NRMIDDLELAYERS = 0;
+var NRMIDDLELAYERS = 10;
 var NROUTPUTS = 2;
 // find a better way for doing this later
 
