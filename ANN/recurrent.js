@@ -32,8 +32,10 @@ Recurrent.prototype.feedforward = function(sensorInput) {
 	// apply a sigmoidal activation function to all hidden layer outputs
 	neurons = neurons.map( (output) => {
 		output += this.bias;
-		return this.sigmoid(output);
+		return this.bipolarSigmoid(output);
 	})
 	this.previousOutput = neurons;
-	return outputs.map((output, i) => (neurons[i]>0) ? 1 : -1)
+	outputs = outputs.map((output, i) => (neurons[i]>0) ? 1 : -1);
+	//console.log(outputs);
+	return outputs;
 }
