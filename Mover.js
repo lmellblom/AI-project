@@ -13,10 +13,8 @@ var Mover = function (game, theDNA, x, y) {
 	this.pos = new Victor(x, y);
 	this.speed = 50;
 	this.vel = new Victor(this.speed, 0);
-	this.sensorLength = 150; //80
+	this.sensorLength = 180; //80
 	this.numberOfSensors = NRSENSORS;// 5;
-
-	this.bounceWall = 0;
 
 	// Leave out acceleration for the time being, dont need to add complexity right now.
 	//this.a = new Victor(0.0, 0.0);
@@ -32,7 +30,6 @@ var Mover = function (game, theDNA, x, y) {
 	// scale the sprite down a bit
 	this.scale.setTo(0.15);
 
-
 	// arbitrary values (not used at the momemt)
 	//this.maxForce = theDNA.maxForce || 0.4;
 	//this.maxSpeed = theDNA.maxSpeed || 3.0;
@@ -41,8 +38,8 @@ var Mover = function (game, theDNA, x, y) {
 	this.lines = Array.from({length: this.numberOfSensors}, () => new Phaser.Line(0, 0, 0, 0));
 
 	// TESTING WITH TIMER!!
-	game.time.events.loop(Phaser.Timer.SECOND, this.updateCounter, this);
-	this.timer = 0; // how long it survived?
+	//game.time.events.loop(Phaser.Timer.SECOND, this.updateCounter, this);
+	//this.timer = 0; // how long it survived?
 
 	//this.avoidedFitness = 0;
 };
@@ -73,15 +70,13 @@ Mover.prototype.updateBrain = function() {
 	this.brain.updateWeights(this.DNA.genes); 
 };
 
-Mover.prototype.setFitness = function() {
-	var fit = (this.timer + 1)*3; // this.avoidedFitness
-	fit = this.bounceWall > 1 ? fit*0.1 : fit;
-	fit = fit < 0 ? 0 : fit;
+Mover.prototype.setFitness = function(timer) {
+	var fit = (timer + 1)*3; // this.avoidedFitness
+
+//	console.log("Fitness value " + fit);	
 
 	this.DNA.setFitness(fit); // set fitness smallest to 1
-	this.timer = 0; // reset fitness
-	this.bounceWall = 0;
-	//this.avoidedFitness=0;
+	//console.log("Fitness value: " + fit);
 }
 
 Mover.prototype.died = function() {
@@ -202,7 +197,7 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 			//this.avoidedFitness = (result[i]==1) ? this.avoidedFitness+1 : this.avoidedFitness;
 		});
 		// draw debug lines DO NOT REMOVE
-		if(result[i]){
+/*		if(result[i]){
 			// if line has intersected, shorten the line appropriatly
 			direction.normalize().multiplyScalar(this.sensorLength);
 			point = direction
@@ -212,7 +207,7 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 				.add(this.pos);
 		}
 		line.setTo(this.pos.x, this.pos.y, point.x, point.y);
-		this.game.debug.geom(line); // to show the lines or not for debbuging sort of.
+		this.game.debug.geom(line); // to show the lines or not for debbuging sort of.*/
 	})
 	// return array with results
 	return result;

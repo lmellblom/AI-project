@@ -7,6 +7,10 @@ var Population = function (game, size, generation) { 	// IMPORTANT, as of now "g
 	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
 	this.elitsm = 0.04; // 4 percent of the population size will move straight to the next generation!
+
+	// one timer on the whole population?
+	this.timer = 0;
+
 };
 
 Population.prototype.initPopulation = function() {
@@ -19,6 +23,12 @@ Population.prototype.initPopulation = function() {
 		))
 	);
 	this.sortPopulation();
+
+	// start the timer
+	this.game.time.events.loop(Phaser.Timer.QUARTER, function(){
+		// add more to the timer
+		this.timer++;
+	}, this);
 };
 
 // This function will move everything depending on the obstacles/target to sense
@@ -42,6 +52,8 @@ Population.prototype.nextPopulation = function() {
 	this.groupMover.forEach(function(individual){
 		sumFitness += individual.DNA.fitness;
 	});
+
+	console.log("NEXT POP, totalt fitness: " + sumFitness + " -------------------------");
 
 	// get percent value.. the roulette wheel selection uses this
 	this.groupMover.forEach(function(individual){
@@ -80,7 +92,7 @@ Population.prototype.checkBoundary = function() {
 		mover.pos.y < 0){
 			this.alivePopulationSize--; 
 			mover.died();
-			mover.setFitness();
+			mover.setFitness(this.timer);
 			mover.isAlive = false;
 			mover.kill();
 		}
@@ -95,7 +107,7 @@ Population.prototype.getGroup = function() {
 Population.prototype.moverCollided = function(obstacles, mover) {
 	this.alivePopulationSize--;
 	mover.died(); 				// do something meaningfull in the mover?
-	mover.setFitness(); 		// will set how long it survived. 
+	mover.setFitness(this.timer); 		// will set how long it survived. 
 	mover.isAlive = false;
 	mover.kill();				// kill sprite
 };
@@ -119,6 +131,7 @@ Population.prototype.revivePopulation = function() {
 
 	this.sortPopulation();
 	this.nextPopulation();
+	this.timer = 0;	// reset the timer
 	this.alivePopulationSize = this.numMovers; // make the population large again
 	
 	// need to update a couple of thing to the mover.. 

@@ -19,7 +19,6 @@ var NROUTPUTS = 2;
 	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '', 
 		{ preload: preload, create: create, update: update});
 
-
 	function preload() {
 		// load assets into the game
 		game.load.image('diamond', 'assets/diamond.png');
@@ -30,18 +29,21 @@ var NROUTPUTS = 2;
 	function create() {
 		// Define amount of objects in game
 		this.numTargets = 0;
-		this.numObstacles = 15;
+		this.numObstacles = 10;
 
 		// add the obstacles, targets and the population
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
 
-		population = new Population(game, 200, 1);
+		population = new Population(game, 10, 1);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation();
 		allObstacles.initObjects();
 		allTargets.initObjects();
+
+		allObstacles.reposition();
+
 
 		// the background of everything
 		game.stage.backgroundColor = '#D8D8D8';
@@ -68,6 +70,7 @@ var NROUTPUTS = 2;
 			population.revivePopulation();
 			// revive the target also maybe??
 			allTargets.revive();
+			allObstacles.reposition();
 		}
 	};
 }());
