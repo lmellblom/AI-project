@@ -11,7 +11,7 @@ var Mover = function (game, theDNA, brain, numSensors, x, y) {
 
 	this.brain = brain; // the learning constant is the 0.01 n är hur många..
 	this.pos = new Victor(x, y);
-	this.speed = 50;
+	this.speed = 120;
 	this.vel = new Victor(this.speed, 0);
 
 	this.sensorLength = 150;
@@ -91,7 +91,7 @@ Mover.prototype.died = function() {
 Mover.prototype.move = function(dt, brainInput) {
 
 	var action = this.brain.feedforward(brainInput);
-	/*switch (action.join(' ')){
+	switch (action.join(' ')){
 		case '1 -1':
 			//go left
 			this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
@@ -107,20 +107,13 @@ Mover.prototype.move = function(dt, brainInput) {
 		default: // 0 - 0
 			//stand still (almost)
 			this.vel.norm().multiplyScalar(-this.speed);
-	}*/
+	}
 
-	if (action[0]>0){
-		this.speed = 120;
-	}
-	else {
-		this.speed = 0.01;
-	}
-	if(action[1]>0) {
+/*	if(action[0]>0){
 		this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
-	}
-	else {
+	} else {
 		this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
-	}
+	}*/
 
 	// Euler step
 

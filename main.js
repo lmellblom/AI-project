@@ -8,13 +8,19 @@
 	var HEIGHT =  600;
 	var dt = 1/60;
 	var skipToGen = 1; // Skips to this generation at start
-	var simulationSpeed = 20; // How fast the simulation should be
+	var simulationSpeed = 1; // How fast the simulation should be
 	var population;
 	var allObstacles;
 	var allTargets;
 	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '',
 		{ preload: preload, create: create, update: update});
 
+
+	var frameSpeedElement = document.getElementById("frameSpeed");
+	frameSpeedElement.addEventListener("change", (e) => {
+		simulationSpeed = e.target.value;
+		console.log(simulationSpeed);
+	});
 	/* == POPULATION CONFIGS == */
 
 	var perceptronConfig = {
@@ -51,7 +57,7 @@
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
 
-		population = new Population(game, 10, 1);
+		population = new Population(game, 100, 1);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation(recurrentConfig);
@@ -102,10 +108,10 @@
 			// Objects are not rendered on screen
 			setRender(false);
 
-			updateSpeed = simulationSpeed; // Update at predefined simulation speed
+			//updateSpeed = simulationSpeed; // Update at predefined simulation speed
 		}
 
-		for(var i = 0; i < updateSpeed; i++) {
+		for(var i = 0; i < simulationSpeed; i++) {
 			simulates();
 		}
 
