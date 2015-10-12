@@ -27,18 +27,18 @@ var NRNEURONS = 10;
 
 	var perceptronConfig = {
 		'type': 'perceptron',
-		'numInputs': 8,
+		'numInputs': 16,
 		'numOutputs': 2
 	}
 	var MLPConfig = {
 		'type': 'MLP',
-		'numInputs': 8,
+		'numInputs': 16,
 		'numHidden': 10,
 		'numOutputs': 2
 	}
 	var recurrentConfig = {
 		'type': 'recurrent',
-		'numInputs': 8,
+		'numInputs': 16,
 		'numHidden': 8,
 		'numOutputs': 2
 	}
@@ -52,7 +52,7 @@ var NRNEURONS = 10;
 
 	function create() {
 		// Define amount of objects in game
-		this.numTargets = 0;
+		this.numTargets = 30;
 		this.numObstacles = 15;
 
 		// add the obstacles, targets and the population

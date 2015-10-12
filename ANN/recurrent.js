@@ -36,6 +36,5 @@ Recurrent.prototype.feedforward = function(sensorInput) {
 	})
 	this.previousOutput = neurons;
 	outputs = outputs.map((output, i) => (neurons[i]>0) ? 1 : -1);
-	//console.log(outputs);
 	return outputs;
 }

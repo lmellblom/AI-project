@@ -14,9 +14,10 @@ var Mover = function (game, theDNA, brain, numSensors, x, y) {
 	this.speed = 50;
 	this.vel = new Victor(this.speed, 0);
 	this.sensorLength = 150;
-	this.numSensors = numSensors;
+	this.numSensors = numSensors/2;
 
 	this.bounceWall = 0;
+	this.targetsCollected = 0;
 
 	// Leave out acceleration for the time being, dont need to add complexity right now.
 	//this.a = new Victor(0.0, 0.0);
@@ -67,7 +68,6 @@ Mover.prototype.setRandomPosition = function() {
 	this.pos.x = this.game.width*Math.random();
 	this.pos.y = this.game.height*Math.random();
 }
-
 Mover.prototype.updateBrain = function() {
 	// the dna should already been set on the mover. just call the brain function
 	this.brain.updateWeights(this.DNA.genes); 
@@ -75,12 +75,14 @@ Mover.prototype.updateBrain = function() {
 
 Mover.prototype.setFitness = function() {
 	var fit = (this.timer + 1)*3; // this.avoidedFitness
-	fit = this.bounceWall > 1 ? fit*0.1 : fit;
-	fit = fit < 0 ? 0 : fit;
-
+	//fit = this.bounceWall > 1 ? fit*0.1 : fit;
+	console.log(fit);
+	fit += this.targetsCollected * 100;
+	fit = (fit < 0) ? 0 : fit;
 	this.DNA.setFitness(fit); // set fitness smallest to 1
 	this.timer = 0; // reset fitness
-	this.bounceWall = 0;
+	//this.bounceWall = 0;
+	this.targetsCollected = 0;
 	//this.avoidedFitness=0;
 }
 
@@ -144,7 +146,7 @@ Mover.prototype.move = function(dt, brainInput) {
 
 Mover.prototype.senseEnvironment = function(obstacles, targets) {
 	var point;
-	var result = Array(this.numSensors).fill(0);
+	var result = Array(this.numSensors * 2).fill(0);
 	// take looking direction
 	var direction = this.vel.clone()
 	direction.normalize().multiplyScalar(this.sensorLength);
@@ -169,38 +171,48 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 				obstacle.radius //radius of obstacle
 			);
 			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-			// checking borders
-			var overlap;
-			if (point.x > this.game.world.width){
-				var wallPoint = new Victor(this.game.world.width, 0);
-				var wallN = new Victor(0, 1);
-				var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
-				sensedInfo = 1 - lengthToIntersect / this.sensorLength;
-				result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-			} else if (point.x < 0){
-				var wallPoint = new Victor(0, 0);
-				var wallN = new Victor(0, 1);
-				var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
-				sensedInfo = 1 - lengthToIntersect / this.sensorLength;
-				result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-			} else if ( point.y > this.game.world.height){
-				var wallPoint = new Victor(0, this.game.world.height);
-				var wallN = new Victor(1, 0);
-				var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
-				sensedInfo = 1 - lengthToIntersect / this.sensorLength;
-				result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-			} else if (point.y < 0){
-				var wallPoint = new Victor(0, 0);
-				var wallN = new Victor(1, 0);
-				var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
-				sensedInfo = 1 - lengthToIntersect / this.sensorLength;
-				result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-			}
-
-
-			// testing, om nuddat en mover så bättre :P
-			//this.avoidedFitness = (result[i]==1) ? this.avoidedFitness+1 : this.avoidedFitness;
 		});
+
+		targets.forEach((target) => {
+
+			var sensedInfo = intersectLineCircle(
+				this.pos, // start of sensor ray
+				direction, // direction of sensor line (does not need to be normalizes)
+				this.sensorLength, // length of sensor line
+				target.position, //position of target
+				target.radius //radius of target
+			);
+			result[this.numSensors + i] = (sensedInfo > result[this.numSensors + i]) ?
+				sensedInfo : result[this.numSensors + i];
+		});
+
+		// checking borders
+		var overlap;
+		if (point.x > this.game.world.width){
+			var wallPoint = new Victor(this.game.world.width, 0);
+			var wallN = new Victor(0, 1);
+			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
+			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
+		} else if (point.x < 0){
+			var wallPoint = new Victor(0, 0);
+			var wallN = new Victor(0, 1);
+			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
+			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
+		} else if ( point.y > this.game.world.height){
+			var wallPoint = new Victor(0, this.game.world.height);
+			var wallN = new Victor(1, 0);
+			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
+			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
+		} else if (point.y < 0){
+			var wallPoint = new Victor(0, 0);
+			var wallN = new Victor(1, 0);
+			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
+			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
+		}
 		// draw debug lines DO NOT REMOVE
 		if(result[i]){
 			// if line has intersected, shorten the line appropriatly

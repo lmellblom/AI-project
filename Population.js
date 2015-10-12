@@ -6,7 +6,7 @@ var Population = function (game, size, generation) { 	// IMPORTANT, as of now "g
 	this.alivePopulationSize = size;
 	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
-	this.elitsm = 0.04; // 4 percent of the population size will move straight to the next generation!
+	this.elitsm = 0.15; // 4 percent of the population size will move straight to the next generation!
 };
 
 Population.prototype.initPopulation = function(options) {
@@ -98,6 +98,7 @@ Population.prototype.moverCollided = function(obstacles, mover) {
 
 Population.prototype.foundTarget = function(target, mover) {
 	console.log("YOU FOUND A TARGET! WOW");
+	mover.targetsCollected += 1
 	target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
 	// set + på movern, eftersom den får något extra då i fitness kanske?
 };
@@ -116,14 +117,28 @@ Population.prototype.revivePopulation = function() {
 	this.sortPopulation();
 	this.nextPopulation();
 	this.alivePopulationSize = this.numMovers; // make the population large again
-	
-	// need to update a couple of thing to the mover.. 
+
+	// need to update a couple of thing to the mover..
 	this.groupMover.forEach(function(mover){
 		// need to reset it to alive!!
 		mover.isAlive = true;
+		//mover.targetsCollected = 0;
 		mover.updateBrain(); // update the brains weights
+/*		var repeat = true;
+		var randomPos;
+		while(repeat){
+			repeat = false;
+			randomPos = new Victor(800*Math.random(), 600*Math.random());
+			obstacles.getGroup().forEach((obstacle)=>{
+				repeat = (obstacle.position.clone().subtract(mover.pos).length() < 80) ? true : repeat;
+			})
+			targets.getGroup().forEach((target)=>{
+				repeat = (target.position.clone().subtract(mover.pos).length() < 30) ? true : repeat;
+			})
+		}*/
 		// need to set the x and y pos to new values?
-		mover.setRandomPosition();
+		//mover.setRandomPosition();
+		//mover.pos = randomPos;
 		mover.revive(); // make the sprite alive again
 	});
 	console.log("Generationnr "+ this.generationNr);
