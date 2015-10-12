@@ -45,6 +45,9 @@ var Mover = function (game, theDNA, brain, numSensors, x, y) {
 	//this.timer = 0; // how long it survived?
 
 	//this.avoidedFitness = 0;
+
+	this.inputEnabled = true;
+	this.events.onInputDown.add(this.moverClicked, this);
 };
 
 // get sprites methods and extend with more methods
@@ -58,6 +61,11 @@ Mover.prototype.constructor = Mover;
 	//this.senseEnvironment();
 
 };*/
+
+// if a mover is clicked on, this function will be called and print out the brain
+Mover.prototype.moverClicked = function() {
+	console.log(this.DNA.genes.toString());
+}
 
 Mover.prototype.updateCounter = function() {
 	this.timer++;
@@ -91,55 +99,28 @@ Mover.prototype.died = function() {
 Mover.prototype.move = function(dt, brainInput) {
 
 	var action = this.brain.feedforward(brainInput);
-	switch (action.join(' ')){
-		case '1 -1':
-			//go left
-			this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
-			break;
-		case '-1 1':
-			//go right
-			this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
-			break;
-		case '1 1':
-			//go forward
-			this.vel.norm().multiplyScalar(this.speed*3);
-			break;
-		default: // 0 - 0
-			//stand still (almost)
-			this.vel.norm().multiplyScalar(-this.speed);
-	}
 
-/*	if(action[0]>0){
+	if (action[0]>0){
+		//this.speed = 120;
+		if(action[1]>0) {
+			this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
+		}
+		else {
+			this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
+		}
+		// Euler step
+		this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
+	}
+	// if only 1 output
+	/*	if(action[0]>0){
 		this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
 	} else {
 		this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
 	}*/
-
-	// Euler step
-
-
-	// quick fix to bounce away from the wall
-	/*if( this.pos.x > this.game.world.width ||
-			this.pos.x < 0 ){
-			this.vel.x *= -1;
-			this.bounceWall++;
-		} else if (this.pos.y > this.game.world.height ||
-			this.pos.y < 0){
-			this.vel.y *= -1;
-			this.bounceWall++;
-		}
-	*/
-
-	this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
-	
-
-
 	// reposition sprite
 	this.x = this.pos.x
 	this.y = this.pos.y
 	this.angle = this.getRotation();
-
-	// if going towards the end.. bounce at the walls?
 };
 
 Mover.prototype.senseEnvironment = function(obstacles, targets) {

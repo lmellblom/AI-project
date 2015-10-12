@@ -1,6 +1,6 @@
-var Population = function (game, size, generation) { 	// IMPORTANT, as of now "generation" only sets the "generationNr" 
+var Population = function (game, size) { 	// IMPORTANT, as of now "generation" only sets the "generationNr" 
 	this.numMovers = size;								// we have not yet implementet a way to skip through generations
-	this.generationNr = generation;
+	this.generationNr = 1;
 	this.groupMover = game.add.group();
 	this.groupMover.enableBody = true;
 	this.alivePopulationSize = size;
