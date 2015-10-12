@@ -27,10 +27,7 @@ MLP.prototype.feedforward = function(sensorInput) {
 	}, this);
 
 	// apply a sigmoidal activation function to all hidden layer outputs
-	outputsHidden = outputsHidden.map( (hiddenOutput) => {
-		hiddenOutput += this.bias;
-		return this.sigmoid(hiddenOutput);
-	})
+	outputsHidden = outputsHidden.map((hiddenOutput) => this.sigmoid(hiddenOutput, this.bias));
 
 	// feedforward the middle layer to the output layer
 	var startWeight = this.numInputs * this.numHidden;

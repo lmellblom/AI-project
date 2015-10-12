@@ -89,10 +89,6 @@ Mover.prototype.died = function() {
 }
 
 Mover.prototype.move = function(dt, brainInput) {
-	//this.vel.add(this.a);
-	//limitMagnitude(this.vel, this.maxSpeed);
-	//this.pos.add(this.vel);
-	///is.a.multiplyScalar(0.0);
 
 	var action = this.brain.feedforward(brainInput);
 	switch (action.join(' ')){
