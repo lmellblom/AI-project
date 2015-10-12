@@ -64,7 +64,7 @@ var NRNEURONS = 10;
 		population = new Population(game, 80, 1);
 
 		// init pop, obstacles and targets with elements
-		population.initPopulation(MLPConfig);
+		population.initPopulation(recurrentConfig);
 		allObstacles.initObjects();
 		allTargets.initObjects();
 
