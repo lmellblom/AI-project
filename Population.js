@@ -6,10 +6,14 @@ var Population = function (game, size, generation) { 	// IMPORTANT, as of now "g
 	this.alivePopulationSize = size;
 	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
-	this.elitsm = 0.15; // 15 percent of the population size will move straight to the next generation!
+	this.elitsm = 0.10; // 15 percent of the population size will move straight to the next generation!
 
 	// one timer on the whole population?
 	this.timer = 0;
+
+	// add population text top of screen
+	var style = { font: "20px Times", fill: "#000", align: "right" };
+	this.popNumber = this.game.add.text(this.game.world.width - 120, 20, "Generation " +this.generationNr, style);
 };
 
 Population.prototype.initPopulation = function(options) {
@@ -20,10 +24,10 @@ Population.prototype.initPopulation = function(options) {
 	this.sortPopulation();
 
 	// start the timer
-	this.game.time.events.loop(Phaser.Timer.QUARTER, function(){
+	/*this.game.time.events.loop(Phaser.Timer.QUARTER, function(){
 		// add more to the timer
 		this.timer++;
-	}, this);
+	}, this);*/
 };
 
 // This function will move everything depending on the obstacles/target to sense
@@ -34,6 +38,8 @@ Population.prototype.update = function(obstacles, targets, dt) {
 		var brainInput = mover.senseEnvironment(obstacles, targets);
 		mover.move(dt, brainInput);
 	});
+
+	this.timer++;
 };
 
 Population.prototype.nextPopulation = function() {
@@ -43,32 +49,42 @@ Population.prototype.nextPopulation = function() {
 	var elitismNumber = Math.ceil(this.numMovers*this.elitism);
 
 	var sumFitness = 0;
+	var sumProb = 0;
 	// sum up the fitness from every individ
 	this.groupMover.forEach(function(individual){
 		sumFitness += individual.DNA.fitness;
 	});
 
-	console.log("NEXT POP, totalt fitness: " + sumFitness + " -------------------------");
+	console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
 
-	// get percent value.. the roulette wheel selection uses this
 	this.groupMover.forEach(function(individual){
-		var numberOfIndividuals = Math.ceil(individual.DNA.fitness/sumFitness * 10);
+		var prob = sumProb + (individual.DNA.fitness/sumFitness);
+		sumProb += prob; // prob To
 
-		for (var j=0; j<numberOfIndividuals; j++) {		// add the memeber n times according to fitness score
-			matingPool.push(individual.DNA);
-		}
+		matingPool.push(sumProb);
 	});
 
-	// select from matingpool and fill upp the populations size
-	// maybe use elitism later and take the best from currentPop to the next pop
 	for (var i=elitismNumber; i<this.groupMover.length; i++) {
-		// get to random parents
-		var a = Math.floor(Math.random()*matingPool.length);
-		var b = Math.floor(Math.random()*matingPool.length);
+		// get two random parents
+		var parents = [];
+		var nr1 = Math.random();
+		var nr2 = Math.random();
 
-		var billy = matingPool[a];
-		var bob = matingPool[b];
+		for (var index=0; index< this.groupMover.length;index++) {
+			if( nr1 < matingPool[index]  ) {
+				parents[0] = this.groupMover.children[index];
+				break;
+			}
+		}
+		for (var index=0; index< this.groupMover.length;index++) {
+			if( nr2 > matingPool[index]  ) {
+				parents[1] = this.groupMover.children[index];
+				break;
+			}
+		}
 
+		var billy = parent[0];
+		var bob = parent[1];
 		// new child
 		var billybob = DNA.crossover(billy,bob); // returns a new DNA
 		billybob.mutate();
@@ -108,7 +124,7 @@ Population.prototype.moverCollided = function(obstacles, mover) {
 };
 
 Population.prototype.foundTarget = function(target, mover) {
-	console.log("YOU FOUND A TARGET! WOW");
+	//console.log("YOU FOUND A TARGET! WOW");
 	mover.targetsCollected += 1
 	target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
 	// set + på movern, eftersom den får något extra då i fitness kanske?
@@ -141,6 +157,7 @@ Population.prototype.revivePopulation = function() {
 	});
 
 	this.timer = 0;	// reset the timer
-	console.log("Generationnr "+ this.generationNr);
+	//console.log("Generationnr "+ this.generationNr);
+	this.popNumber.text =  "Generation " + this.generationNr;
 };
 
