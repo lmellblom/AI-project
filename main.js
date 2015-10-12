@@ -53,7 +53,7 @@ var NRNEURONS = 10;
 	function create() {
 		// Define amount of objects in game
 		this.numTargets = 30;
-		this.numObstacles = 15;
+		this.numObstacles = 10;
 
 		// add the obstacles, targets and the population
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
@@ -65,6 +65,9 @@ var NRNEURONS = 10;
 		population.initPopulation(recurrentConfig);
 		allObstacles.initObjects();
 		allTargets.initObjects();
+
+		allObstacles.reposition();
+
 
 		// the background of everything
 		game.stage.backgroundColor = '#D8D8D8';
@@ -91,6 +94,7 @@ var NRNEURONS = 10;
 			population.revivePopulation();
 			// revive the target also maybe??
 			allTargets.revive();
+			allObstacles.reposition();
 		}
 	};
 }());

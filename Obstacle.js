@@ -11,7 +11,7 @@ var Obstacle = function (game, x, y) {
 	this.isActive = true;	// to be able to know if the target is taken or not.
 
 	this.position = new Victor(x, y);
-	this.velocity = new Victor(7*Math.random()-1, 7*Math.random()-1)
+	this.velocity = new Victor(7*Math.random()-1, 0)//7*Math.random()-1)
 		.norm()
 		.multiply(new Victor(50, 50)); // short for multiply
 }
