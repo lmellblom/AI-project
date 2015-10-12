@@ -1,24 +1,33 @@
-var Population = function (game, size, generation) { 	// IMPORTANT, as of now "generation" only sets the "generationNr" 
+var Population = function (game, size) { 	// IMPORTANT, as of now "generation" only sets the "generationNr" 
 	this.numMovers = size;								// we have not yet implementet a way to skip through generations
-	this.generationNr = generation; 
+	this.generationNr = 1;
 	this.groupMover = game.add.group();
 	this.groupMover.enableBody = true;
 	this.alivePopulationSize = size;
 	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
-	this.elitsm = 0.04; // 4 percent of the population size will move straight to the next generation!
+	this.elitsm = 0.10; // 15 percent of the population size will move straight to the next generation!
+
+	// one timer on the whole population?
+	this.timer = 0;
+
+	// add population text top of screen
+	var style = { font: "20px Times", fill: "#000", align: "right" };
+	this.popNumber = this.game.add.text(this.game.world.width - 120, 20, "Generation " +this.generationNr, style);
 };
 
-Population.prototype.initPopulation = function() {
+Population.prototype.initPopulation = function(options) {
+	var agentFactory = new AgentFactory(this.game);
 	this.groupMover.addMultiple(
-		Array.from(new Array(this.numMovers), () => new Mover(
-			this.game,
-			new DNA(),
-			800*Math.random(),	// TODO, change 800 to a variable instead, is the witdh of the canvas (or how long the mover should move)
-			600*Math.random()	// TODO, change 800 to a variable instead, is the heigth of the canvas
-		))
+		Array.from(new Array(this.numMovers), () => agentFactory.createAgent(options) )
 	);
 	this.sortPopulation();
+
+	// start the timer
+	/*this.game.time.events.loop(Phaser.Timer.QUARTER, function(){
+		// add more to the timer
+		this.timer++;
+	}, this);*/
 };
 
 // This function will move everything depending on the obstacles/target to sense
@@ -29,39 +38,53 @@ Population.prototype.update = function(obstacles, targets, dt) {
 		var brainInput = mover.senseEnvironment(obstacles, targets);
 		mover.move(dt, brainInput);
 	});
+
+	this.timer++;
 };
 
 Population.prototype.nextPopulation = function() {
 	var matingPool = []; // holdes all the DNA of the indivuals to mate
 
 	// Elitism, This is the number of individuals that will go straight to the next generation
-	var elitismNumber = Math.ceil(this.numMovers*this.elitism); 
+	var elitismNumber = Math.ceil(this.numMovers*this.elitism);
 
 	var sumFitness = 0;
+	var sumProb = 0;
 	// sum up the fitness from every individ
 	this.groupMover.forEach(function(individual){
 		sumFitness += individual.DNA.fitness;
 	});
 
-	// get percent value.. the roulette wheel selection uses this
-	this.groupMover.forEach(function(individual){
-		var numberOfIndividuals = Math.ceil(individual.DNA.fitness/sumFitness * 10);
+	console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
 
-		for (var j=0; j<numberOfIndividuals; j++) {		// add the memeber n times according to fitness score
-			matingPool.push(individual.DNA);
-		}
+	this.groupMover.forEach(function(individual){
+		var prob = sumProb + (individual.DNA.fitness/sumFitness);
+		sumProb += prob; // prob To
+
+		matingPool.push(sumProb);
 	});
 
-	// select from matingpool and fill upp the populations size
-	// maybe use elitism later and take the best from currentPop to the next pop
 	for (var i=elitismNumber; i<this.groupMover.length; i++) {
-		// get to random parents
-		var a = Math.floor(Math.random()*matingPool.length);
-		var b = Math.floor(Math.random()*matingPool.length);
+		// get two random parents
+		var parents = [];
+		var nr1 = Math.random();
+		var nr2 = Math.random();
 
-		var billy = matingPool[a];
-		var bob = matingPool[b];
+		for (var index=0; index< this.groupMover.length;index++) {
+			if( nr1 < matingPool[index]  ) {
+				parents[0] = this.groupMover.children[index];
+				break;
+			}
+		}
+		for (var index=0; index< this.groupMover.length;index++) {
+			if( nr2 > matingPool[index]  ) {
+				parents[1] = this.groupMover.children[index];
+				break;
+			}
+		}
 
+		var billy = parent[0];
+		var bob = parent[1];
 		// new child
 		var billybob = DNA.crossover(billy,bob); // returns a new DNA
 		billybob.mutate();
@@ -80,7 +103,7 @@ Population.prototype.checkBoundary = function() {
 		mover.pos.y < 0){
 			this.alivePopulationSize--; 
 			mover.died();
-			mover.setFitness();
+			mover.setFitness(this.timer);
 			mover.isAlive = false;
 			mover.kill();
 		}
@@ -95,13 +118,14 @@ Population.prototype.getGroup = function() {
 Population.prototype.moverCollided = function(obstacles, mover) {
 	this.alivePopulationSize--;
 	mover.died(); 				// do something meaningfull in the mover?
-	mover.setFitness(); 		// will set how long it survived. 
+	mover.setFitness(this.timer); 		// will set how long it survived. 
 	mover.isAlive = false;
 	mover.kill();				// kill sprite
 };
 
 Population.prototype.foundTarget = function(target, mover) {
-	console.log("YOU FOUND A TARGET! WOW");
+	//console.log("YOU FOUND A TARGET! WOW");
+	mover.targetsCollected += 1
 	target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
 	// set + på movern, eftersom den får något extra då i fitness kanske?
 };
@@ -120,16 +144,20 @@ Population.prototype.revivePopulation = function() {
 	this.sortPopulation();
 	this.nextPopulation();
 	this.alivePopulationSize = this.numMovers; // make the population large again
-	
-	// need to update a couple of thing to the mover.. 
+
+	// need to update a couple of thing to the mover..
 	this.groupMover.forEach(function(mover){
 		// need to reset it to alive!!
 		mover.isAlive = true;
+		//mover.targetsCollected = 0;
 		mover.updateBrain(); // update the brains weights
 		// need to set the x and y pos to new values?
 		mover.setRandomPosition();
 		mover.revive(); // make the sprite alive again
 	});
-	console.log("Generationnr "+ this.generationNr);
+
+	this.timer = 0;	// reset the timer
+	//console.log("Generationnr "+ this.generationNr);
+	this.popNumber.text =  "Generation " + this.generationNr;
 };
 
