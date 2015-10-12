@@ -2,16 +2,6 @@
 	see tutorial http://codetowin.io/tutorials/nback-game-states-and-menus/
 */
 
-// global properties, for both the brain and the perceptron
-var NRSENSORS = 8;
-var NRMIDDLELAYERS = 10;
-var NROUTPUTS = 2;
-
-//Recurrent
-var NRNEURONS = 10;
-
-// find a better way for doing this later
-
 // Self invoking function for not polluting global scope
 (function () {
 	var WIDTH = 800;
@@ -54,14 +44,14 @@ var NRNEURONS = 10;
 
 	function create() {
 		// Define amount of objects in game
-		this.numTargets = 30;
+		this.numTargets = 20;
 		this.numObstacles = 10;
 
 		// add the obstacles, targets and the population
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
 
-		population = new Population(game, 80, 1);
+		population = new Population(game, 10, 1);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation(recurrentConfig);
@@ -77,25 +67,7 @@ var NRNEURONS = 10;
 
 	};
 
-	// Updates the state of the scene, either fast or at normal speed
-	function updateScene() {
-
-		var updateSpeed = 1; // How fast to update the scene
-
-		// If the generation number is lower than the desired generation
-		if(population.generationNr < skipToGen) {
-
-			// Objects are not rendered on screen
-			setRender(false);
-
-			updateSpeed = simulationSpeed; // Update at predefined simulation speed
-		}
-
-
-		// Faster update of world state
-		for(var i = 0; i < updateSpeed; i++) {
-
-			// update positions of everything in the world
+	function simulates() {
 			population.update(allObstacles.getGroup(), allTargets.getGroup(), dt);
 			allObstacles.update(dt);
 			allTargets.update(dt);
@@ -115,8 +87,29 @@ var NRNEURONS = 10;
 				allTargets.revive();
 				allObstacles.reposition();
 			}
+	}
 
-		};
+	//setInterval
+
+	// Updates the state of the scene, either fast or at normal speed
+	function updateScene() {
+
+		var updateSpeed = 1; // How fast to update the scene
+
+		// If the generation number is lower than the desired generation
+		if(population.generationNr < skipToGen) {
+
+			// Objects are not rendered on screen
+			setRender(false);
+
+			updateSpeed = simulationSpeed; // Update at predefined simulation speed
+		}
+
+		for(var i = 0; i < updateSpeed; i++) {
+			simulates();
+		}
+
+		//setInterval(simulates, updateSpeed);		
 
 		// When the generation number is the desired generation
 		if(population.generationNr == skipToGen) {

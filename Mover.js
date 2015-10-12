@@ -64,8 +64,8 @@ Mover.prototype.updateCounter = function() {
 }
 
 Mover.prototype.setRandomPosition = function() {
-	this.pos.x = this.game.width*Math.random();
-	this.pos.y = this.game.height*Math.random();
+	this.pos.x = this.game.world.centerX;//this.game.width*Math.random();
+	this.pos.y = this.game.world.centerY;//this.game.height*Math.random();
 }
 Mover.prototype.updateBrain = function() {
 	// the dna should already been set on the mover. just call the brain function
@@ -73,7 +73,7 @@ Mover.prototype.updateBrain = function() {
 };
 
 Mover.prototype.setFitness = function(timer) {
-	var fit = timer + 1;
+	var fit = timer*timer;
 	fit += this.targetsCollected * 100;
 	fit = (fit < 0) ? 0 : fit;
 	this.DNA.setFitness(fit); // set fitness smallest to 1
@@ -91,7 +91,7 @@ Mover.prototype.died = function() {
 Mover.prototype.move = function(dt, brainInput) {
 
 	var action = this.brain.feedforward(brainInput);
-	switch (action.join(' ')){
+	/*switch (action.join(' ')){
 		case '1 -1':
 			//go left
 			this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
@@ -106,8 +106,22 @@ Mover.prototype.move = function(dt, brainInput) {
 			break;
 		default: // 0 - 0
 			//stand still (almost)
-			this.vel.norm().multiplyScalar(0.1);
+			this.vel.norm().multiplyScalar(-this.speed);
+	}*/
+
+	if (action[0]>0){
+		this.speed = 120;
 	}
+	else {
+		this.speed = 0.01;
+	}
+	if(action[1]>0) {
+		this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
+	}
+	else {
+		this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
+	}
+
 	// Euler step
 
 
@@ -143,12 +157,18 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 	direction.normalize().multiplyScalar(this.sensorLength);
 
 	// rotate it to the left
-	direction.rotate((Math.PI / 2) + Math.PI / (this.numSensors-1));
+	//direction.rotate((Math.PI / 2) + Math.PI / (this.numSensors-1));
+	//var directionSpan = -Math.PI/3;
+	var directionSpan = - (5* Math.PI/3)/this.numSensors;
+
+	direction.rotate(2 * Math.PI / 3);
 
 	// for each line, sample from its surroundings to find if it intersects any obstacles.
 	this.lines.forEach( (line, i) => {
 		// for each line rotate it a bit to the right
-		direction.rotate(-Math.PI / (this.numSensors-1));
+		//direction.rotate((-Math.PI / (this.numSensors-1) ) + getRandom(-0.5,0.5) );
+		rotation = directionSpan * getRandom(0.2,0.8);
+		direction.rotate(rotation);
 		// take the endpoint
 		point = direction.clone().add(this.pos);
 		// check if any obstacles has this point inside
@@ -204,8 +224,8 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
 			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
 		}
-		// draw debug lines DO NOT REMOVE
-/*		if(result[i]){
+/*		// draw debug lines DO NOT REMOVE
+		if(result[i]){
 			// if line has intersected, shorten the line appropriatly
 			direction.normalize().multiplyScalar(this.sensorLength);
 			point = direction
@@ -215,7 +235,10 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 				.add(this.pos);
 		}
 		line.setTo(this.pos.x, this.pos.y, point.x, point.y);
-		this.game.debug.geom(line); // to show the lines or not for debbuging sort of.*/
+		var colors = ["#000000", "#FFFFFF", "#007829"];
+		this.game.debug.geom(line, colors[i%3]); // to show the lines or not for debbuging sort of.*/
+
+		direction.rotate(-rotation).rotate(directionSpan);
 	})
 	// return array with results
 	return result;
