@@ -11,7 +11,7 @@ var Mover = function (game, theDNA, brain, numSensors, x, y) {
 
 	this.brain = brain; // the learning constant is the 0.01 n är hur många..
 	this.pos = new Victor(x, y);
-	this.speed = 50;
+	this.speed = 120;
 	this.vel = new Victor(this.speed, 0);
 
 	this.sensorLength = 150;
@@ -45,6 +45,9 @@ var Mover = function (game, theDNA, brain, numSensors, x, y) {
 	//this.timer = 0; // how long it survived?
 
 	//this.avoidedFitness = 0;
+
+	this.inputEnabled = true;
+	this.events.onInputDown.add(this.moverClicked, this);
 };
 
 // get sprites methods and extend with more methods
@@ -58,6 +61,11 @@ Mover.prototype.constructor = Mover;
 	//this.senseEnvironment();
 
 };*/
+
+// if a mover is clicked on, this function will be called and print out the brain
+Mover.prototype.moverClicked = function() {
+	console.log(this.DNA.genes.toString());
+}
 
 Mover.prototype.updateCounter = function() {
 	this.timer++;
@@ -110,17 +118,20 @@ Mover.prototype.move = function(dt, brainInput) {
 	}*/
 
 	if (action[0]>0){
-		this.speed = 120;
+		//this.speed = 120;
+		if(action[1]>0) {
+			this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
+		}
+		else {
+			this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
+		}
+
+		this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
 	}
-	else {
+	/*else {
 		this.speed = 0.01;
-	}
-	if(action[1]>0) {
-		this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
-	}
-	else {
-		this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
-	}
+	}*/
+
 
 	// Euler step
 
@@ -137,7 +148,6 @@ Mover.prototype.move = function(dt, brainInput) {
 		}
 	*/
 
-	this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
 	
 
 

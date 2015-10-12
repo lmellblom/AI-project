@@ -7,13 +7,37 @@
 	var WIDTH = 800;
 	var HEIGHT =  600;
 	var dt = 1/60;
-	var skipToGen = 1; // Skips to this generation at start
+	var skipToGen = 10; // Skips to this generation at start
 	var simulationSpeed = 20; // How fast the simulation should be
 	var population;
 	var allObstacles;
 	var allTargets;
 	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '',
 		{ preload: preload, create: create, update: update});
+
+
+	// default values for the simulation..
+	var renderKey;
+	var updateSpeed = simulationSpeed;
+	var renderObj = false;
+	var reachedSkipGeneration = false;
+
+	var renderElement = document.getElementById("toogleRender");
+	renderElement.addEventListener("change", (e) => {
+		setRender(e.target.checked);
+	});
+
+	var skipToGenElement = document.getElementById("skipToGeneration");
+	skipToGenElement.value = skipToGen;
+	skipToGenElement.addEventListener("change", (e) => {
+		skipToGen = e.target.value;
+
+		if(skipToGen > population.generationNr ) {
+			renderObj = false;
+			setRender(renderObj);
+			document.getElementById("toogleRender").checked = renderObj;
+		}
+	});
 
 	/* == POPULATION CONFIGS == */
 
@@ -51,7 +75,7 @@
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
 
-		population = new Population(game, 10, 1);
+		population = new Population(game, 80);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation(recurrentConfig);
@@ -65,64 +89,57 @@
 		game.stage.backgroundColor = '#D8D8D8';
 		game.stage.disableVisibilityChange = true;
 
+		renderKey = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
+		renderKey.onDown.add(toogleRender, this);
+
+		setRender(renderObj);
+
 	};
 
+// will update the sceen, simulates everything
 	function simulates() {
-			population.update(allObstacles.getGroup(), allTargets.getGroup(), dt);
-			allObstacles.update(dt);
-			allTargets.update(dt);
+		population.update(allObstacles.getGroup(), allTargets.getGroup(), dt);
+		allObstacles.update(dt);
+		allTargets.update(dt);
 
-			// collision between the obstacle and the population, the population should die if this happens
-			game.physics.arcade.overlap(allObstacles.getGroup(), population.getGroup(), population.moverCollided, null, population);
-			// collision between a target and the population, then the mover in that pop should get a reward
-			game.physics.arcade.overlap(allTargets.getGroup(), population.getGroup(), population.foundTarget, null, population);
+		// collision between the obstacle and the population, the population should die if this happens
+		game.physics.arcade.overlap(allObstacles.getGroup(), population.getGroup(), population.moverCollided, null, population);
+		// collision between a target and the population, then the mover in that pop should get a reward
+		game.physics.arcade.overlap(allTargets.getGroup(), population.getGroup(), population.foundTarget, null, population);
 
-			// check if the population is out of the field
-			population.checkBoundary();
+		// check if the population is out of the field
+		population.checkBoundary();
 
-			// check if existing movers? if everyone died we should call the next generation
-			if (population.alivePopulationSize < 1) {
-				population.revivePopulation();
-				// revive the target also maybe??
-				allTargets.revive();
-				allObstacles.reposition();
+		// check if existing movers? if everyone died we should call the next generation
+		if (population.alivePopulationSize < 1) {
+			population.revivePopulation();
+			// revive the target also maybe??
+			allTargets.revive();
+			allObstacles.reposition();
+
+			if(population.generationNr == skipToGen) {
+				renderObj = true;
+				updateSpeed = 1;
+				setRender(renderObj);
+				document.getElementById("toogleRender").checked = renderObj;
 			}
+		}
 	}
 
-	//setInterval
+	// to be able to render the 
+	function toogleRender() {
+		renderObj = !renderObj; 
+		setRender(renderObj);
+		document.getElementById("toogleRender").checked = renderObj;
+	}
 
-	// Updates the state of the scene, either fast or at normal speed
-	function updateScene() {
-
-		var updateSpeed = 1; // How fast to update the scene
-
-		// If the generation number is lower than the desired generation
-		if(population.generationNr < skipToGen) {
-
-			// Objects are not rendered on screen
-			setRender(false);
-
-			updateSpeed = simulationSpeed; // Update at predefined simulation speed
-		}
-
-		for(var i = 0; i < updateSpeed; i++) {
-			simulates();
-		}
-
-		//setInterval(simulates, updateSpeed);		
-
-		// When the generation number is the desired generation
-		if(population.generationNr == skipToGen) {
-
-			// Training of network is done
-			setRender(true);
-		}
-	};
 
 	// Called every 60 milliseconds
 	function update(){
 
-		updateScene(); // Updates the state of the scene
+		for(var i = 0; i < updateSpeed; i++) {
+			simulates();
+		}
 
 	};
 
