@@ -17,6 +17,8 @@ var NRNEURONS = 10;
 	var WIDTH = 800;
 	var HEIGHT =  600;
 	var dt = 1/60;
+	var skipToGen = 5; // Skips to this generation at start
+	var simulationSpeed = 20; // How fast the simulation should be
 	var population;
 	var allObstacles;
 	var allTargets;
@@ -68,29 +70,82 @@ var NRNEURONS = 10;
 
 		// the background of everything
 		game.stage.backgroundColor = '#D8D8D8';
+
 	};
 
+	// Updates the state of the scene, either fast or at normal speed
+	function updateScene() {
 
+		var updateSpeed = 1; // How fast to update the scene
+
+		// If the generation number is lower than the desired generation
+		if(population.generationNr < skipToGen) {
+
+			// Objects are not rendered on screen
+			population.getGroup().forEach( (object)=> { 
+				object.renderable = false;
+			});
+
+			allTargets.getGroup().forEach( (object)=> { 
+				object.renderable = false;
+			});
+
+			allObstacles.getGroup().forEach( (object)=> { 
+				object.renderable = false;
+			});
+
+			updateSpeed = simulationSpeed; // Update at predefined simulation speed
+		}
+
+		// Faster update of world state
+		for(var i = 0; i < updateSpeed; i++) {
+
+			// update positions of everything in the world
+			population.update(allObstacles.getGroup(), allTargets.getGroup(), dt);
+			allObstacles.update(dt);
+			allTargets.update(dt);
+
+			// collision between the obstacle and the population, the population should die if this happens
+			game.physics.arcade.overlap(allObstacles.getGroup(), population.getGroup(), population.moverCollided, null, population);
+			// collision between a target and the population, then the mover in that pop should get a reward
+			game.physics.arcade.overlap(allTargets.getGroup(), population.getGroup(), population.foundTarget, null, population);
+
+			// check if the population is out of the field
+			population.checkBoundary();
+
+			// check if existing movers? if everyone died we should call the next generation
+			if (population.alivePopulationSize < 1) {
+				population.revivePopulation();
+				// revive the target also maybe??
+				allTargets.revive();
+			}
+			
+		};
+	
+		// When the generation number is the desired generation
+		if(population.generationNr == skipToGen) {
+
+			render = true; // Training of network is done
+
+			// Objects are rendered on screen
+			population.getGroup().forEach( (object)=> { 
+				object.renderable = true;
+			});
+
+			allTargets.getGroup().forEach( (object)=> { 
+				object.renderable = true;
+			});
+
+			allObstacles.getGroup().forEach( (object)=> { 
+				object.renderable = true;
+			});
+		}
+	};
+
+	// Called every 60 milliseconds
 	function update(){
 
-		// update positions of everything in the world
-		population.update(allObstacles.getGroup(), allTargets.getGroup(), dt);
-		allObstacles.update(dt);
-		allTargets.update(dt);
+		updateScene(); // Updates the state of the scene
 
-		// collision between the obstacle and the population, the population should die if this happens
-		game.physics.arcade.overlap(allObstacles.getGroup(), population.getGroup(), population.moverCollided, null, population);
-		// collision between a target and the population, then the mover in that pop should get a reward
-		game.physics.arcade.overlap(allTargets.getGroup(), population.getGroup(), population.foundTarget, null, population);
-
-		// check if the population is out of the field
-		population.checkBoundary();
-
-		// check if existing movers? if everyone died we should call the next generation
-		if (population.alivePopulationSize < 1) {
-			population.revivePopulation();
-			// revive the target also maybe??
-			allTargets.revive();
-		}
 	};
 }());
