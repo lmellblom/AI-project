@@ -1,6 +1,6 @@
 var Population = function (game, size, generation) { 	// IMPORTANT, as of now "generation" only sets the "generationNr" 
 	this.numMovers = size;								// we have not yet implementet a way to skip through generations
-	this.generationNr = generation; 
+	this.generationNr = generation;
 	this.groupMover = game.add.group();
 	this.groupMover.enableBody = true;
 	this.alivePopulationSize = size;
@@ -9,14 +9,10 @@ var Population = function (game, size, generation) { 	// IMPORTANT, as of now "g
 	this.elitsm = 0.04; // 4 percent of the population size will move straight to the next generation!
 };
 
-Population.prototype.initPopulation = function() {
+Population.prototype.initPopulation = function(options) {
+	var agentFactory = new AgentFactory(this.game);
 	this.groupMover.addMultiple(
-		Array.from(new Array(this.numMovers), () => new Mover(
-			this.game,
-			new DNA(),
-			800*Math.random(),	// TODO, change 800 to a variable instead, is the witdh of the canvas (or how long the mover should move)
-			600*Math.random()	// TODO, change 800 to a variable instead, is the heigth of the canvas
-		))
+		Array.from(new Array(this.numMovers), () => agentFactory.createAgent(options) )
 	);
 	this.sortPopulation();
 };
@@ -35,7 +31,7 @@ Population.prototype.nextPopulation = function() {
 	var matingPool = []; // holdes all the DNA of the indivuals to mate
 
 	// Elitism, This is the number of individuals that will go straight to the next generation
-	var elitismNumber = Math.ceil(this.numMovers*this.elitism); 
+	var elitismNumber = Math.ceil(this.numMovers*this.elitism);
 
 	var sumFitness = 0;
 	// sum up the fitness from every individ

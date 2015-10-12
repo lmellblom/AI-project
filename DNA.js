@@ -1,9 +1,8 @@
-// global variables
-var mutationRate = 0.05; 
+// global variables. BUT WHYYY
+var mutationRate = 0.05;
 
-var DNA = function(genes_) {
-	var numberOfGenes = NRMIDDLELAYERS > 0 ? NRSENSORS*NRMIDDLELAYERS + NRMIDDLELAYERS*NROUTPUTS : NRSENSORS*NROUTPUTS; 
-	this.genes = genes_ || this.randomGenes(numberOfGenes);
+var DNA = function(numGenes) {
+	this.genes = this.randomGenes(numGenes);
 	this.fitness = 0;
 };
 

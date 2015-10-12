@@ -1,4 +1,4 @@
-var Mover = function (game, theDNA, x, y) {
+var Mover = function (game, theDNA, brain, numSensors, x, y) {
 
 	// Inherit from sprite (call its constructor)
 	Phaser.Sprite.call(this, game, x, y, 'mover');
@@ -9,12 +9,12 @@ var Mover = function (game, theDNA, x, y) {
 	// DNA is where the neural networks weights are
 	this.DNA = theDNA;
 
-	this.brain = new Perceptron(theDNA.genes, 0.001); // the learning constant is the 0.01 n är hur många..
+	this.brain = brain; // the learning constant is the 0.01 n är hur många..
 	this.pos = new Victor(x, y);
 	this.speed = 50;
 	this.vel = new Victor(this.speed, 0);
-	this.sensorLength = 150; //80
-	this.numberOfSensors = NRSENSORS;// 5;
+	this.sensorLength = 150;
+	this.numSensors = numSensors;
 
 	this.bounceWall = 0;
 
@@ -38,7 +38,7 @@ var Mover = function (game, theDNA, x, y) {
 	//this.maxSpeed = theDNA.maxSpeed || 3.0;
 
 	//lines for sensing - for debugging
-	this.lines = Array.from({length: this.numberOfSensors}, () => new Phaser.Line(0, 0, 0, 0));
+	this.lines = Array.from({length: this.numSensors}, () => new Phaser.Line(0, 0, 0, 0));
 
 	// TESTING WITH TIMER!!
 	game.time.events.loop(Phaser.Timer.SECOND, this.updateCounter, this);
@@ -144,18 +144,18 @@ Mover.prototype.move = function(dt, brainInput) {
 
 Mover.prototype.senseEnvironment = function(obstacles, targets) {
 	var point;
-	var result = Array(this.numberOfSensors).fill(0);
+	var result = Array(this.numSensors).fill(0);
 	// take looking direction
 	var direction = this.vel.clone()
 	direction.normalize().multiplyScalar(this.sensorLength);
 
 	// rotate it to the left
-	direction.rotate((Math.PI / 2) + Math.PI / (NRSENSORS-1));
+	direction.rotate((Math.PI / 2) + Math.PI / (this.numSensors-1));
 
 	// for each line, sample from its surroundings to find if it intersects any obstacles.
 	this.lines.forEach( (line, i) => {
 		// for each line rotate it a bit to the right
-		direction.rotate(-Math.PI / (NRSENSORS-1));
+		direction.rotate(-Math.PI / (this.numSensors-1));
 		// take the endpoint
 		point = direction.clone().add(this.pos);
 		// check if any obstacles has this point inside

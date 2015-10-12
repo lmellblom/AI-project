@@ -4,8 +4,12 @@
 
 // global properties, for both the brain and the perceptron
 var NRSENSORS = 8;
-var NRMIDDLELAYERS = 0;
+var NRMIDDLELAYERS = 10;
 var NROUTPUTS = 2;
+
+//Recurrent
+var NRNEURONS = 10;
+
 // find a better way for doing this later
 
 // Self invoking function for not polluting global scope
@@ -14,11 +18,30 @@ var NROUTPUTS = 2;
 	var HEIGHT =  600;
 	var dt = 1/60;
 	var population;
-	var allObstacles; 
+	var allObstacles;
 	var allTargets;
-	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '', 
+	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '',
 		{ preload: preload, create: create, update: update});
 
+	/* == POPULATION CONFIGS == */
+
+	var perceptronConfig = {
+		'type': 'perceptron',
+		'numInputs': 8,
+		'numOutputs': 2
+	}
+	var MLPConfig = {
+		'type': 'MLP',
+		'numInputs': 8,
+		'numHidden': 10,
+		'numOutputs': 2
+	}
+	var recurrentConfig = {
+		'type': 'recurrent',
+		'numInputs': 8,
+		'numHidden': 8,
+		'numOutputs': 2
+	}
 
 	function preload() {
 		// load assets into the game
@@ -36,10 +59,10 @@ var NROUTPUTS = 2;
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
 
-		population = new Population(game, 200, 1);
+		population = new Population(game, 80, 1);
 
 		// init pop, obstacles and targets with elements
-		population.initPopulation();
+		population.initPopulation(recurrentConfig);
 		allObstacles.initObjects();
 		allTargets.initObjects();
 
