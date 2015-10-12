@@ -74,7 +74,6 @@ Mover.prototype.updateBrain = function() {
 
 Mover.prototype.setFitness = function(timer) {
 	var fit = timer + 1;
-	console.log(fit);
 	fit += this.targetsCollected * 100;
 	fit = (fit < 0) ? 0 : fit;
 	this.DNA.setFitness(fit); // set fitness smallest to 1

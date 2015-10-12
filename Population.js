@@ -135,21 +135,8 @@ Population.prototype.revivePopulation = function() {
 		mover.isAlive = true;
 		//mover.targetsCollected = 0;
 		mover.updateBrain(); // update the brains weights
-/*		var repeat = true;
-		var randomPos;
-		while(repeat){
-			repeat = false;
-			randomPos = new Victor(800*Math.random(), 600*Math.random());
-			obstacles.getGroup().forEach((obstacle)=>{
-				repeat = (obstacle.position.clone().subtract(mover.pos).length() < 80) ? true : repeat;
-			})
-			targets.getGroup().forEach((target)=>{
-				repeat = (target.position.clone().subtract(mover.pos).length() < 30) ? true : repeat;
-			})
-		}*/
 		// need to set the x and y pos to new values?
-		//mover.setRandomPosition();
-		//mover.pos = randomPos;
+		mover.setRandomPosition();
 		mover.revive(); // make the sprite alive again
 	});
 

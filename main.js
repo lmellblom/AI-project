@@ -17,7 +17,7 @@ var NRNEURONS = 10;
 	var WIDTH = 800;
 	var HEIGHT =  600;
 	var dt = 1/60;
-	var skipToGen = 5; // Skips to this generation at start
+	var skipToGen = 1; // Skips to this generation at start
 	var simulationSpeed = 20; // How fast the simulation should be
 	var population;
 	var allObstacles;
@@ -64,7 +64,7 @@ var NRNEURONS = 10;
 		population = new Population(game, 80, 1);
 
 		// init pop, obstacles and targets with elements
-		population.initPopulation(recurrentConfig);
+		population.initPopulation(MLPConfig);
 		allObstacles.initObjects();
 		allTargets.initObjects();
 
@@ -73,6 +73,7 @@ var NRNEURONS = 10;
 
 		// the background of everything
 		game.stage.backgroundColor = '#D8D8D8';
+		game.stage.disableVisibilityChange = true;
 
 	};
 
