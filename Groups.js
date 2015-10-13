@@ -26,7 +26,7 @@ Groups.prototype.reposition = function() {
 	this.allObjects.children.forEach(function(obj, i){
 		// this.game.world.height
 		// this.numbers
-		var padding = 60 ;//+ this.game.world.height/this.numbers; 
+		var padding = 62 ;//+ this.game.world.height/this.numbers; 
 		var paddingY = (i==0 || i==1 || i==4 || i==5 || i==8 || i==9) ? 0 : this.game.world.width ; 
 
 		obj.y = 20 + i*padding;

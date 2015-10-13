@@ -6,7 +6,7 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.alivePopulationSize = size;
 	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
-	this.elitsm = 0.10; // 15 percent of the population size will move straight to the next generation!
+	this.elitism = 0.10; // 15 percent of the population size will move straight to the next generation!
 
 	// one timer on the whole population?
 	this.timer = 0;
@@ -22,6 +22,8 @@ Population.prototype.initPopulation = function(options) {
 		Array.from(new Array(this.numMovers), () => agentFactory.createAgent(options) )
 	);
 	this.sortPopulation();
+
+	console.log(this.groupMover);
 
 	// start the timer
 	/*this.game.time.events.loop(Phaser.Timer.QUARTER, function(){
@@ -47,15 +49,17 @@ Population.prototype.nextPopulation = function() {
 
 	// Elitism, This is the number of individuals that will go straight to the next generation
 	var elitismNumber = Math.ceil(this.numMovers*this.elitism);
-
+	console.log("how many? " + elitismNumber);
+	var prevGeneration;
 	var sumFitness = 0;
 	var sumProb = 0;
 	// sum up the fitness from every individ
 	this.groupMover.forEach(function(individual){
 		sumFitness += individual.DNA.fitness;
 	});
-
-	console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
+	var champ = this.hallOfFame();
+	//console.log(champ);
+	//console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
 
 	this.groupMover.forEach(function(individual){
 		var prob = sumProb + (individual.DNA.fitness/sumFitness);
@@ -64,34 +68,38 @@ Population.prototype.nextPopulation = function() {
 		matingPool.push(sumProb);
 	});
 
-	for (var i=elitismNumber; i<this.groupMover.length; i++) {
+	prevGeneration = this.groupMover.children;
+
+	for (var i=elitismNumber; i<prevGeneration.length; i++) {
 		// get two random parents
+
 		var parents = [];
 		var nr1 = Math.random();
 		var nr2 = Math.random();
 
-		for (var index=0; index< this.groupMover.length;index++) {
+		for (var index=0; index< prevGeneration.length;index++) {
 			if( nr1 < matingPool[index]  ) {
-				parents[0] = this.groupMover.children[index];
+				parents[0] =prevGeneration[index];
 				break;
 			}
 		}
 		for (var index=0; index< this.groupMover.length;index++) {
-			if( nr2 > matingPool[index]  ) {
-				parents[1] = this.groupMover.children[index];
+			if( nr2 < matingPool[index]  ) {
+				parents[1] = prevGeneration[index];
 				break;
 			}
 		}
 
-		var billy = parent[0];
-		var bob = parent[1];
+		var billy = parents[0];
+		var bob = parents[1];
 		// new child
-		var billybob = DNA.crossover(billy,bob); // returns a new DNA
+
+		var billybob = DNA.crossover(billy.DNA,bob.DNA); // returns a new DNA
 		billybob.mutate();
 
 		// NEED to reset the current pop, just overwrite the DNA at the moment.
 		// need to reset fitness, isAlive = true, update brain? etc.. maybe not do this..
-		this.groupMover.children[i].DNA = billybob;
+		this.groupMover.children[i].DNA = billybob;//(i < this.hallOfFame.championNumber) ? this.hallOfFame.championDNA[i] : billybob;
 	}
 };
 
@@ -108,6 +116,31 @@ Population.prototype.checkBoundary = function() {
 			mover.kill();
 		}
 	}, this);
+}
+
+Population.prototype.hallOfFame = function() {
+	var championNumber = Math.ceil(this.numMovers*this.elitism);
+	console.log("num movers: " + this.numMovers + " elitism " + this.elitism); 
+	var championDNA = [];
+
+	//console.log("Hej nu är du här" + championNumber );
+	//a few random individuals gain entrance to the hall of fame
+	for(var i = 0; i < championNumber; i++){
+		championDNA[i] = this.groupMover.children[i].DNA;
+			//console.log("Hej nu är du här");
+	}
+
+	// All individuals constantly fight for a position in the hall of fame
+	// Only the most fit and muscular gain entrance
+	this.groupMover.forEach(function(individual){
+		for(var j = 0; j < championNumber; j++){
+			if(individual.DNA.fitness > championDNA[j].fitness ){
+				championDNA[j] = individual.DNA;
+				break;
+			}
+		}			
+	});
+	return championDNA;
 }
 
 Population.prototype.getGroup = function() {
