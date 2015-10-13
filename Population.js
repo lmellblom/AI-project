@@ -42,6 +42,64 @@ Population.prototype.update = function(obstacles, targets, dt) {
 	this.timer++;
 };
 
+// Creates new population from the best movers in this generation
+Population.prototype.nextElitePopulation = function() {
+
+	var matingPool = []; // holdes all the DNA of the indivuals to mate
+	// Elitism, This is the number of individuals that will go straight to the next generation
+	var elitismNumber = Math.ceil(this.numMovers*this.elitism); // How many elites there are
+	var sumFitness = 0; // The population fitness sum
+	var sumProb = 0;
+
+	// sum up the fitness from every elite individual
+	for(var i = 0; i < elitismNumber; i++) {
+		sumFitness += this.groupMover.children[i].DNA.fitness;
+	}
+
+	console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
+
+
+	for(var i = 0; i < elitismNumber; i++) {
+		var prob = sumbProb + (this.groupMover.children[i].DNA.fitness/sumFitness);
+		sumProb += prob;
+
+		matingPool.push(sumProb);
+	}
+
+	//Create a new population from the elite population
+	for (var i = elitismNumber; i < this.groupMover.length; i++) {
+		// get two random parents
+		var parents = [];
+		var nr1 = Math.random(); // Random value between 0 and 1
+		var nr2 = Math.random();
+
+		//Choose parent 1 from the elite mating pool
+		for (var index = 0; index < matingPool.length; index++) {
+			if( nr1 < matingPool[index] ) {
+				parents[0] = this.groupMover.children[index];
+				break;
+			}
+		}
+		// Choose parent 2 from the elite mating pool
+		for (var index = 0; index < matingPool.length; index++) {
+			if( nr2 < matingPool[index] ) {
+				parents[1] = this.groupMover.children[index];
+				break;
+			}
+		}
+
+		var billy = parent[0];
+		var bob = parent[1];
+		// new child
+		var billybob = DNA.crossover(billy,bob); // returns a new DNA
+		billybob.mutate();
+
+		// NEED to reset the current pop, just overwrite the DNA at the moment.
+		// need to reset fitness, isAlive = true, update brain? etc.. maybe not do this..
+		this.groupMover.children[i].DNA = billybob;
+	}
+};
+
 Population.prototype.nextPopulation = function() {
 	var matingPool = []; // holdes all the DNA of the indivuals to mate
 
@@ -142,7 +200,8 @@ Population.prototype.revivePopulation = function() {
 	// sort the population according to the fitness value, to use elitism
 
 	this.sortPopulation();
-	this.nextPopulation();
+	//this.nextPopulation();
+	this.nextElitePopulation;
 	this.alivePopulationSize = this.numMovers; // make the population large again
 
 	// need to update a couple of thing to the mover..
