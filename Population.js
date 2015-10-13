@@ -6,7 +6,12 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.alivePopulationSize = size;
 	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
-	this.elitism = 0.10; // 15 percent of the population size will move straight to the next generation!
+	this.elitism = 0.1; // 15 percent of the population size will move straight to the next generation!
+	this.championNumber = Math.ceil(this.numMovers*this.elitism); 
+	this.championDNA = [];
+	for(var i = 0; i < this.championNumber; i++){
+		this.championDNA[i] = new DNA(1);
+	}
 
 	// one timer on the whole population?
 	this.timer = 0;
@@ -49,7 +54,7 @@ Population.prototype.nextPopulation = function() {
 
 	// Elitism, This is the number of individuals that will go straight to the next generation
 	var elitismNumber = Math.ceil(this.numMovers*this.elitism);
-	console.log("how many? " + elitismNumber);
+	//console.log("how many? " + elitismNumber);
 	var prevGeneration;
 	var sumFitness = 0;
 	var sumProb = 0;
@@ -57,9 +62,7 @@ Population.prototype.nextPopulation = function() {
 	this.groupMover.forEach(function(individual){
 		sumFitness += individual.DNA.fitness;
 	});
-	var champ = this.hallOfFame();
-	//console.log(champ);
-	//console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
+	console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
 
 	this.groupMover.forEach(function(individual){
 		var prob = sumProb + (individual.DNA.fitness/sumFitness);
@@ -119,28 +122,19 @@ Population.prototype.checkBoundary = function() {
 }
 
 Population.prototype.hallOfFame = function() {
-	var championNumber = Math.ceil(this.numMovers*this.elitism);
-	console.log("num movers: " + this.numMovers + " elitism " + this.elitism); 
-	var championDNA = [];
-
-	//console.log("Hej nu är du här" + championNumber );
-	//a few random individuals gain entrance to the hall of fame
-	for(var i = 0; i < championNumber; i++){
-		championDNA[i] = this.groupMover.children[i].DNA;
-			//console.log("Hej nu är du här");
-	}
 
 	// All individuals constantly fight for a position in the hall of fame
 	// Only the most fit and muscular gain entrance
 	this.groupMover.forEach(function(individual){
-		for(var j = 0; j < championNumber; j++){
-			if(individual.DNA.fitness > championDNA[j].fitness ){
-				championDNA[j] = individual.DNA;
+		for(var i = 0; i < this.championNumber; i++){
+			if(individual.DNA.fitness > this.championDNA[i].fitness ){
+				this.championDNA[i] = individual.DNA;
 				break;
 			}
 		}			
 	});
-	return championDNA;
+
+	console.log(this.championDNA);
 }
 
 Population.prototype.getGroup = function() {

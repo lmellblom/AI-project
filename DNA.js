@@ -1,6 +1,6 @@
 // global variables. BUT WHYYY
 var mutationRate = 0.2;
-var mutationSigma = 0.2;
+var mutationSigma = 0.1;
 
 var DNA = function(numGenes) {
 	this.genes = this.randomGenes(numGenes);
@@ -58,7 +58,9 @@ DNA.crossover = function(billy, bob) {
 		newGenes[i] = bob.genes[i];
 	}
 
-	var billybob = new DNA(newGenes);
+	var billybob = new DNA(1);
+	billybob.setGenes(newGenes);
+
 	// just returns the first parent now
 
 	//var billybob = new DNA(billy.genes);  // will not use any crossover, just mutation if this line is used
