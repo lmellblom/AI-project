@@ -14,6 +14,7 @@
 	var population;
 	var allObstacles;
 	var allTargets;
+	var stage;
 	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '',
 		{ preload: preload, create: create, update: update});
 
@@ -80,6 +81,15 @@
 		// add the obstacles, targets and the population
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
+		/* == STAGE == */
+		stage =
+			[
+				new Wall(game, wallPadding, wallPadding, wallPadding, game.world.height - wallPadding),
+				new Wall(game, wallPadding, wallPadding, game.world.width - wallPadding, wallPadding),
+				new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, game.world.width - wallPadding, wallPadding),
+				new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, wallPadding, game.world.height - wallPadding)
+			];
+		stage.forEach((wall) => wall.draw());
 
 		population = new Population(game, 150);
 
@@ -89,14 +99,6 @@
 		allTargets.initObjects();
 
 		allObstacles.reposition();
-		/* == STAGE == */
-		var stage =
-			[
-				new Wall(game, wallPadding, wallPadding, game.world.width - wallPadding, wallPadding),
-				new Wall(game, wallPadding, wallPadding, wallPadding, game.world.height - wallPadding),
-				new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, game.world.width - wallPadding, wallPadding),
-				new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, wallPadding, game.world.height - wallPadding)
-			];
 
 		// the background of everything
 		game.stage.backgroundColor = '#D8D8D8';
@@ -106,15 +108,13 @@
 		renderKey.onDown.add(toogleRender, this);
 
 		setRender(renderObj);
-		stage.forEach(wall => wall.draw());
 	};
 
 // will update the sceen, simulates everything
 	function simulates() {
-		population.update(allObstacles.getGroup(), allTargets.getGroup(), dt);
+		population.update(allObstacles.getGroup(), allTargets.getGroup(), stage, dt);
 		allObstacles.update(dt);
 		allTargets.update(dt);
-
 		// collision between the obstacle and the population, the population should die if this happens
 		game.physics.arcade.overlap(allObstacles.getGroup(), population.getGroup(), population.moverCollided, null, population);
 		// collision between a target and the population, then the mover in that pop should get a reward

@@ -75,11 +75,22 @@ function intersectLineCircle(linePoint, direction, length, circlePoint, radius) 
  * wall should be defined by a and n
  */
 function intersectLineLine(a, n, b, r) {
-
+	var wallLength = n.length();
+	var sensorLength = r.length();
 	n.norm();
 	r.norm();
 	var numerator = n.x * (b.y - a.y) - n.y * (b.x - a.x);
 	var denominator = n.y * r.x - n.x * r.y;
 	var lambda = numerator / denominator;
+
+	if (lambda>sensorLength) {
+		return 0;
+	}
+	var my = (b.y-a.y + lambda*r.y) / n.y;
+
+	if(my > wallLength){
+		return 0;
+	}
+
 	return lambda;
 }

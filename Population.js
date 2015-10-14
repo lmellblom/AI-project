@@ -13,7 +13,7 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 
 	// add population text top of screen
 	var style = { font: "20px Times", fill: "#000", align: "right" };
-	this.popNumber = this.game.add.text(this.game.world.width - 120, 20, "Generation " +this.generationNr, style);
+	this.popNumber = this.game.add.text(this.game.world.width - 140, 20, "Generation " +this.generationNr, style);
 };
 
 Population.prototype.initPopulation = function(options) {
@@ -36,11 +36,11 @@ Population.prototype.bestMover = function() {
 };
 
 // This function will move everything depending on the obstacles/target to sense
-Population.prototype.update = function(obstacles, targets, dt) {
+Population.prototype.update = function(obstacles, targets, stage, dt) {
 	this.groupMover.forEachAlive( (mover)=>{
 		// gets an array of values (1/0) which indicates how that sensor has sensed the environment.
 		// 1 = obstacle, 0 = no obstacle
-		var brainInput = mover.senseEnvironment(obstacles, targets);
+		var brainInput = mover.senseEnvironment(obstacles, targets, stage);
 		mover.move(dt, brainInput);
 	});
 

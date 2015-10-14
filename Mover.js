@@ -124,7 +124,7 @@ Mover.prototype.move = function(dt, brainInput) {
 	this.angle = this.getRotation();
 };
 
-Mover.prototype.senseEnvironment = function(obstacles, targets) {
+Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 	var point;
 	var result = Array(this.numSensors * 2).fill(0);
 	// take looking direction
@@ -174,10 +174,17 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 
 		// checking borders
 		var overlap;
-		if (point.x > this.game.world.width){
+		stage.forEach((wall) => {
+			var wallPoint = new Victor(wall.x0, wall.y0);
+			var wallVector = new Victor(wall.x1 - wall.x0, wall.y1 - wall.y0);
+			var lengthToIntersect = intersectLineLine(wallPoint, wallVector, this.pos, direction);
+			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
+			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
+		});
+		/*if (point.x > this.game.world.width){
 			var wallPoint = new Victor(this.game.world.width, 0);
 			var wallN = new Victor(0, 1);
-			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
+			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction);
 			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
 			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
 		} else if (point.x < 0){
@@ -198,7 +205,7 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
 			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
 			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-		}
+		}*/
 /*		// draw debug lines DO NOT REMOVE
 		if(result[i]){
 			// if line has intersected, shorten the line appropriatly
