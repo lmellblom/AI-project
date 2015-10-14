@@ -75,6 +75,7 @@ Population.prototype.nextPopulation = function() {
 		matingPool.push(sumProb);
 	});
 
+	this.hallOfFame();
 	prevGeneration = this.groupMover.children;
 
 	for (var i=elitismNumber; i<prevGeneration.length; i++) {
@@ -133,12 +134,13 @@ Population.prototype.hallOfFame = function() {
 		for(var i = 0; i < this.championNumber; i++){
 			if(individual.DNA.fitness > this.championDNA[i].fitness ){
 				this.championDNA[i] = individual.DNA;
+				console.log(this.championDNA[i].fitness);
+				this.sortChampions();
 				break;
 			}
 		}			
-	});
+	},this);
 
-	console.log(this.championDNA);
 }
 
 Population.prototype.getGroup = function() {
@@ -166,6 +168,12 @@ Population.prototype.foundTarget = function(target, mover) {
 Population.prototype.sortPopulation = function() {
 	this.groupMover.children.sort(function(a,b){
 		return b.DNA.fitness - a.DNA.fitness;
+	});
+};
+
+Population.prototype.sortChampions = function() {
+	this.championDNA.sort(function(a,b){
+		return a.fitness - b.fitness;
 	});
 };
 
