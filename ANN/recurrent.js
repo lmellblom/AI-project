@@ -9,7 +9,7 @@ var Recurrent = function(weights, numInputs, numHidden, numOutputs, bias) {
 	Network.call(this, weights, numInputs, numOutputs);
 	this.previousOutput = Array(numHidden + numOutputs).fill(0);
 	this.numHidden = numHidden;
-	this.bias = bias || 0;
+	this.bias = bias || -0.5;
 }
 
 // get Networks methods and extend with more methods

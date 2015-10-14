@@ -49,19 +49,19 @@
 	var perceptronConfig = {
 		'type': 'perceptron',
 		'numInputs': 12,
-		'numOutputs': 1
+		'numOutputs': 2
 	}
 	var MLPConfig = {
 		'type': 'MLP',
 		'numInputs': 12,
 		'numHidden': 10,
-		'numOutputs': 1
+		'numOutputs': 2
 	}
 	var recurrentConfig = {
 		'type': 'recurrent',
 		'numInputs': 12,
 		'numHidden': 8,
-		'numOutputs': 1
+		'numOutputs': 2
 	}
 
 	function preload() {
