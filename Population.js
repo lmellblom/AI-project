@@ -33,24 +33,29 @@ Population.prototype.initPopulation = function(options) {
 
 Population.prototype.checkCollision = function(targets, obstacles) {
 
-	var radius = 20.0;
 	//Check if collisions
 	this.groupMover.forEachAlive( (mover) => {
 
+		var moverRadius = mover.r;
+
 		obstacles.forEach( (obstacle)=> {
 
+			var obstacleRadius = obstacle.radius;
 			var dist = mover.pos.distanceSq(obstacle.position);
 			//console.log(mover.x);
-			console.log(mover.y);
-			if(dist < 2*radius*radius) {
+			//console.log(mover.y);
+
+			if(dist < ((moverRadius+obstacleRadius)*(moverRadius+obstacleRadius))) {
 				this.moverCollided(obstacles, mover);
 			}
 		});
 
 		targets.forEach( (target)=> {
 
-			var dist = mover.pos.distanceSq(target.position);			
-			if(dist < 2*radius*radius) {
+			var targetRadius = target.radius;
+			var dist = mover.pos.distanceSq(target.position);	
+
+			if(dist < (moverRadius+targetRadius)*(moverRadius+targetRadius)) {
 				this.foundTarget(target, mover);
 			}
 		});

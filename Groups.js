@@ -6,8 +6,8 @@ var Groups = function(game, size, item) { //which item to do a group of, sort of
 	this.game = game;
 	this.allObjects = this.game.add.group();
 
-	this.allObjects.enableBody = true;
-	this.allObjects.physicsBodyType = Phaser.Physics.ARCADE;
+	//this.allObjects.enableBody = true;
+	//this.allObjects.physicsBodyType = Phaser.Physics.ARCADE;
 
 	this.item = item;
 };
