@@ -2,9 +2,9 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.numMovers = size;								// we have not yet implementet a way to skip through generations
 	this.generationNr = 1;
 	this.groupMover = game.add.group();
-	this.groupMover.enableBody = true;
+	//this.groupMover.enableBody = true;
 	this.alivePopulationSize = size;
-	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
+	//this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
 	this.elitsm = 0.10; // 15 percent of the population size will move straight to the next generation!
 
@@ -28,6 +28,36 @@ Population.prototype.initPopulation = function(options) {
 		// add more to the timer
 		this.timer++;
 	}, this);*/
+};
+
+
+
+Population.prototype.checkCollision = function(targets, obstacles) {
+
+	var radius = 20.0;
+	//Check if collisions
+	this.groupMover.forEachAlive( (mover) => {
+
+		obstacles.forEach( (obstacle)=> {
+
+			var dist = mover.pos.distanceSq(obstacle.position);
+			//console.log(mover.x);
+			console.log(mover.y);
+			if(dist < 2*radius*radius) {
+				this.moverCollided(obstacles, mover);
+			}
+		});
+
+		targets.forEach( (target)=> {
+
+			var dist = mover.pos.distanceSq(target.position);			
+			if(dist < 2*radius*radius) {
+				this.foundTarget(target, mover);
+			}
+		});
+
+	});
+
 };
 
 // This function will move everything depending on the obstacles/target to sense
