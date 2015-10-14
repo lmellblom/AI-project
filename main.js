@@ -7,6 +7,7 @@
 	var WIDTH = 800;
 	var HEIGHT =  600;
 	var dt = 1/60;
+	var wallPadding = 15
 
 	var skipToGen = 2; // Skips to this generation at start
 	var simulationSpeed = 20; // How fast the simulation should be
@@ -16,6 +17,7 @@
 	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '',
 		{ preload: preload, create: create, update: update});
 
+	/* == GUI STUFF == */
 	var frameSpeedElement = document.getElementById("frameSpeed");
 	frameSpeedElement.value = simulationSpeed;
 	frameSpeedElement.addEventListener("change", (e) => {
@@ -87,7 +89,14 @@
 		allTargets.initObjects();
 
 		allObstacles.reposition();
-
+		/* == STAGE == */
+		var stage =
+			[
+				new Wall(game, wallPadding, wallPadding, game.world.width - wallPadding, wallPadding),
+				new Wall(game, wallPadding, wallPadding, wallPadding, game.world.height - wallPadding),
+				new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, game.world.width - wallPadding, wallPadding),
+				new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, wallPadding, game.world.height - wallPadding)
+			];
 
 		// the background of everything
 		game.stage.backgroundColor = '#D8D8D8';
@@ -97,7 +106,7 @@
 		renderKey.onDown.add(toogleRender, this);
 
 		setRender(renderObj);
-
+		stage.forEach(wall => wall.draw());
 	};
 
 // will update the sceen, simulates everything
