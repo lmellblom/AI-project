@@ -8,7 +8,7 @@
 	var HEIGHT =  600;
 	var dt = 1/60;
 
-	var skipToGen = 10; // Skips to this generation at start
+	var skipToGen = 2; // Skips to this generation at start
 	var simulationSpeed = 20; // How fast the simulation should be
 	var population;
 	var allObstacles;
@@ -49,20 +49,20 @@
 
 	var perceptronConfig = {
 		'type': 'perceptron',
-		'numInputs': 16,
-		'numOutputs': 2
+		'numInputs': 12,
+		'numOutputs': 1
 	}
 	var MLPConfig = {
 		'type': 'MLP',
-		'numInputs': 16,
+		'numInputs': 12,
 		'numHidden': 10,
-		'numOutputs': 2
+		'numOutputs': 1
 	}
 	var recurrentConfig = {
 		'type': 'recurrent',
-		'numInputs': 16,
+		'numInputs': 12,
 		'numHidden': 8,
-		'numOutputs': 2
+		'numOutputs': 1
 	}
 
 	function preload() {
@@ -76,12 +76,11 @@
 		// Define amount of objects in game
 		this.numTargets = 20;
 		this.numObstacles = 10;
-
 		// add the obstacles, targets and the population
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
 
-		population = new Population(game, 80);
+		population = new Population(game, 150);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation(recurrentConfig);
@@ -122,7 +121,6 @@
 			// revive the target also maybe??
 			allTargets.revive();
 			allObstacles.reposition();
-
 			if(population.generationNr == skipToGen) {
 				renderObj = true;
 				simulationSpeed = 1;

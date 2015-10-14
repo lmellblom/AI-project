@@ -46,7 +46,7 @@ Population.prototype.nextPopulation = function() {
 	var matingPool = []; // holdes all the DNA of the indivuals to mate
 
 	// Elitism, This is the number of individuals that will go straight to the next generation
-	var elitismNumber = Math.ceil(this.numMovers*this.elitism);
+	var elitismNumber = Math.ceil(this.numMovers*this.elitsm);
 
 	var sumFitness = 0;
 	var sumProb = 0;
@@ -77,16 +77,16 @@ Population.prototype.nextPopulation = function() {
 			}
 		}
 		for (var index=0; index< this.groupMover.length;index++) {
-			if( nr2 > matingPool[index]  ) {
+			if( nr2 < matingPool[index]  ) {
 				parents[1] = this.groupMover.children[index];
 				break;
 			}
 		}
 
-		var billy = parent[0];
-		var bob = parent[1];
+		var billy = parents[0];
+		var bob = parents[1];
 		// new child
-		var billybob = DNA.crossover(billy,bob); // returns a new DNA
+		var billybob = DNA.crossover(billy.DNA ,bob.DNA); // returns a new DNA
 		billybob.mutate();
 
 		// NEED to reset the current pop, just overwrite the DNA at the moment.

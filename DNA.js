@@ -1,5 +1,5 @@
 // global variables. BUT WHYYY
-var mutationRate = 0.2;
+var mutationRate = 0.08;
 var mutationSigma = 0.2;
 
 var DNA = function(numGenes) {
@@ -29,7 +29,8 @@ DNA.prototype.print = function() {
 DNA.prototype.mutate = function() {
 	for (var i=0; i<this.genes.length-1; i++) {
 		if(mutationRate > Math.random()) {
-			this.genes[i] = this.genes[i] + getRandom(-1.0*mutationSigma, 1.0*mutationSigma); // if over mutationrate, add something here?
+			// if over mutationrate, add something here?
+			this.genes[i] = this.genes[i] + getRandom(-1.0*mutationSigma, 1.0*mutationSigma);
 
 			// make sure that the genes stays between -1 and 1
 			if(this.genes[i]>1) {
@@ -46,7 +47,7 @@ DNA.prototype.mutate = function() {
 
 // function that takes two parents and return one child
 DNA.crossover = function(billy, bob) {
-	var crossIndex = Math.floor(getRandom(1,bob.genes.length-2));
+	var crossIndex = Math.floor(getRandom(1, bob.genes.length-2));
 	var newGenes = [];
 	var i;
 
@@ -57,11 +58,12 @@ DNA.crossover = function(billy, bob) {
 		newGenes[i] = bob.genes[i];
 	}
 
-	var billybob = new DNA(newGenes);
+	var newDNA = new DNA(1);
+	newDNA.setGenes(newGenes);
 	// just returns the first parent now
 
 	//var billybob = new DNA(billy.genes);  // will not use any crossover, just mutation if this line is used
-	return billybob;
+	return newDNA;
 
 
 };

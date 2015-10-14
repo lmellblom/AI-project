@@ -1,4 +1,4 @@
-var Mover = function (game, theDNA, brain, numSensors, x, y) {
+var Mover = function (game, theDNA, brain, numInputs, x, y) {
 
 	// Inherit from sprite (call its constructor)
 	Phaser.Sprite.call(this, game, x, y, 'mover');
@@ -15,7 +15,7 @@ var Mover = function (game, theDNA, brain, numSensors, x, y) {
 	this.vel = new Victor(this.speed, 0);
 
 	this.sensorLength = 150;
-	this.numSensors = numSensors/2;
+	this.numSensors = numInputs/2;
 
 	this.targetsCollected = 0;
 
@@ -77,12 +77,12 @@ Mover.prototype.setRandomPosition = function() {
 }
 Mover.prototype.updateBrain = function() {
 	// the dna should already been set on the mover. just call the brain function
-	this.brain.updateWeights(this.DNA.genes); 
+	this.brain.updateWeights(this.DNA.genes);
 };
 
 Mover.prototype.setFitness = function(timer) {
-	var fit = timer*timer;
-	fit += this.targetsCollected * 100;
+	var fit = timer;
+	fit += this.targetsCollected * 1000;
 	fit = (fit < 0) ? 0 : fit;
 	this.DNA.setFitness(fit); // set fitness smallest to 1
 	this.targetsCollected = 0;
@@ -91,7 +91,7 @@ Mover.prototype.setFitness = function(timer) {
 
 Mover.prototype.died = function() {
 	//console.log("survived " + this.timer);
-	// gör inget här?! kanske göra något sen... 
+	// gör inget här?! kanske göra något sen...	
 	// remove the lines!!! vet inte hur??
 	//console.log("Died.. made it : " + this.timer +  " s.");
 }
@@ -112,14 +112,15 @@ Mover.prototype.move = function(dt, brainInput) {
 		this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
 	}
 	// if only 1 output
-	/*	if(action[0]>0){
+/*	if(action[0]>0){
 		this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
 	} else {
 		this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
-	}*/
+	}
+	this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));*/
 	// reposition sprite
-	this.x = this.pos.x
-	this.y = this.pos.y
+	this.x = this.pos.x;
+	this.y = this.pos.y;
 	this.angle = this.getRotation();
 };
 
@@ -133,7 +134,7 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 	// rotate it to the left
 	//direction.rotate((Math.PI / 2) + Math.PI / (this.numSensors-1));
 	//var directionSpan = -Math.PI/3;
-	var directionSpan = - (5* Math.PI/3)/this.numSensors;
+	var directionSpan = - (5 * Math.PI/3)/this.numSensors;
 
 	direction.rotate(2 * Math.PI / 3);
 
@@ -217,45 +218,6 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 	// return array with results
 	return result;
 };
-
-// not used at the moment
-/*Mover.prototype.applyForce = function(force) {
-	this.a.add(force);
-};*/
-
-// not used at the moment
-/*Mover.prototype.seek = function(t) {
-	var target = t.clone();
-	target.subtract(this.pos);
-	target.normalize();
-	target.multiplyScalar(this.maxSpeed);
-	var steer = target.clone();
-	steer.subtract(this.vel);
-	limitMagnitude(steer, this.maxForce);
-	//this.applyForce(steer);
-	return steer;
-};*/
-
-
-// a seek function that takes in a array instead of target vectors
-// not used at the moment
-/*Mover.prototype.steer = function(targets) {
-	var forces = [];
-	for (var i=0; i<targets.length; i++) {
-		forces[i] = this.seek(targets[i]);
-	}
-
-	//var ouput = brain.process(forces);
-	var result = this.brain.feedforward(forces);
-	this.applyForce(result);
-
-	// train the network! if we use GA instead this will not be used!!!!
-	// this will train the network to be centered in the screen
-	var desired = new Victor(gameWidth/2, gameHeight/2);
-	var error = desired.clone().subtract(this.pos);
-	error.multiplyScalar(this.points);
-	this.brain.train(forces,error);
-};*/
 
 Mover.prototype.getRotation = function() {
 	return ((this.vel.direction() + Math.PI/2)*180 )/Math.PI ;
