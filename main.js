@@ -79,7 +79,7 @@
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
 
-		population = new Population(game, 150);
+		population = new Population(game, 80);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation(recurrentConfig);

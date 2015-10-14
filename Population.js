@@ -10,7 +10,7 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.championNumber = Math.ceil(this.numMovers*this.elitism); 
 	this.championDNA = [];
 	for(var i = 0; i < this.championNumber; i++){
-		this.championDNA[i] = new DNA(1);
+			this.championDNA[i] = new DNA(1);
 	}
 
 	// one timer on the whole population?
@@ -74,8 +74,9 @@ Population.prototype.nextPopulation = function() {
 
 		matingPool.push(sumProb);
 	});
-
+	console.log("Yolo");
 	this.hallOfFame();
+
 	prevGeneration = this.groupMover.children;
 
 	for (var i=elitismNumber; i<prevGeneration.length; i++) {
@@ -107,7 +108,10 @@ Population.prototype.nextPopulation = function() {
 
 		// NEED to reset the current pop, just overwrite the DNA at the moment.
 		// need to reset fitness, isAlive = true, update brain? etc.. maybe not do this..
-		this.groupMover.children[i].DNA = billybob;//(i < this.hallOfFame.championNumber) ? this.hallOfFame.championDNA[i] : billybob;
+		//if(this.championDNA[i].fitness == elitism){
+
+		//}
+		this.groupMover.children[i].DNA = (i < this.championNumber) ? this.championDNA[i] : billybob;
 	}
 };
 
@@ -125,22 +129,24 @@ Population.prototype.checkBoundary = function() {
 		}
 	}, this);
 }
-
+// All individuals constantly fight for a position in the hall of fame
+// Only the most fit and muscular gain entrance
 Population.prototype.hallOfFame = function() {
-
-	// All individuals constantly fight for a position in the hall of fame
-	// Only the most fit and muscular gain entrance
 	this.groupMover.forEach(function(individual){
 		for(var i = 0; i < this.championNumber; i++){
 			if(individual.DNA.fitness > this.championDNA[i].fitness ){
-				this.championDNA[i] = individual.DNA;
-				console.log(this.championDNA[i].fitness);
+				//console.log(individual.DNA.fitness + " hello " + this.championDNA[i].fitness);
+				this.championDNA[i].genes = individual.DNA.genes;
+				this.championDNA[i].fitness = individual.DNA.fitness;
+	
 				this.sortChampions();
 				break;
 			}
 		}			
 	},this);
-
+	//for(var i = 0; i < this.championNumber; i++){
+	//	console.log(this.championDNA[i].fitness);
+	//}
 }
 
 Population.prototype.getGroup = function() {
