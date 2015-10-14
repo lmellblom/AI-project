@@ -21,7 +21,7 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 
 	// Leave out acceleration for the time being, dont need to add complexity right now.
 	//this.a = new Victor(0.0, 0.0);
-	this.r = 3.0;
+	this.r = 19.2;
 
 	// rotate the sprite correctly
 	this.angle = this.getRotation();

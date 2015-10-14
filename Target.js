@@ -8,7 +8,7 @@ var Target = function (game, x, y) {
 	this.isActive = true;	// to be able to know if the target is taken or not.
 
 	this.position = new Victor(x,y);
-	this.radius = 20;
+	this.radius = 11;
 
 	//this.sprite = GAME.game.add.sprite(this.pos.x, this.pos.y, 'diamond');
 }
