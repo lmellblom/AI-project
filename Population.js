@@ -6,7 +6,7 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.alivePopulationSize = size;
 	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
-	this.elitsm = 0.10; // 15 percent of the population size will move straight to the next generation!
+	this.elitism = 0.1; // 15 percent of the population size will move straight to the next generation!
 
 	// one timer on the whole population?
 	this.timer = 0;
@@ -28,6 +28,11 @@ Population.prototype.initPopulation = function(options) {
 		// add more to the timer
 		this.timer++;
 	}, this);*/
+};
+
+// the sort population function needs to be done before this!
+Population.prototype.bestMover = function() {
+	return this.groupMover.children[0];
 };
 
 // This function will move everything depending on the obstacles/target to sense
@@ -55,7 +60,7 @@ Population.prototype.nextPopulation = function() {
 		sumFitness += individual.DNA.fitness;
 	});
 
-	console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
+	console.log("Best mover: " + this.groupMover.children[0].DNA.fitness);
 
 	this.groupMover.forEach(function(individual){
 		var prob = sumProb + (individual.DNA.fitness/sumFitness);
@@ -77,21 +82,25 @@ Population.prototype.nextPopulation = function() {
 			}
 		}
 		for (var index=0; index< this.groupMover.length;index++) {
-			if( nr2 > matingPool[index]  ) {
+			if( nr2 < matingPool[index]  ) {
 				parents[1] = this.groupMover.children[index];
 				break;
 			}
 		}
 
-		var billy = parent[0];
-		var bob = parent[1];
+		var billy = parents[0];
+		var bob = parents[1];
 		// new child
-		var billybob = DNA.crossover(billy,bob); // returns a new DNA
+		var billybob = DNA.crossover(billy.DNA,bob.DNA); // returns a new DNA
 		billybob.mutate();
+
+		//console.log("The new child : " + billybob);
 
 		// NEED to reset the current pop, just overwrite the DNA at the moment.
 		// need to reset fitness, isAlive = true, update brain? etc.. maybe not do this..
 		this.groupMover.children[i].DNA = billybob;
+
+
 	}
 };
 
@@ -126,7 +135,9 @@ Population.prototype.moverCollided = function(obstacles, mover) {
 Population.prototype.foundTarget = function(target, mover) {
 	//console.log("YOU FOUND A TARGET! WOW");
 	mover.targetsCollected += 1
-	target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
+	target.x = 800 * Math.random();
+	target.y = 600 * Math.random();
+	//target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
 	// set + på movern, eftersom den får något extra då i fitness kanske?
 };
 
@@ -140,7 +151,7 @@ Population.prototype.revivePopulation = function() {
 	this.generationNr++;
 
 	// sort the population according to the fitness value, to use elitism
-
+	//console.log("the old population = " + this.groupMover.children);
 	this.sortPopulation();
 	this.nextPopulation();
 	this.alivePopulationSize = this.numMovers; // make the population large again
@@ -155,6 +166,8 @@ Population.prototype.revivePopulation = function() {
 		mover.setRandomPosition();
 		mover.revive(); // make the sprite alive again
 	});
+
+	//console.log("the new population = " + this.groupMover.children);
 
 	this.timer = 0;	// reset the timer
 	//console.log("Generationnr "+ this.generationNr);

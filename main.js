@@ -16,7 +16,6 @@
 	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '',
 		{ preload: preload, create: create, update: update});
 
-
 	var frameSpeedElement = document.getElementById("frameSpeed");
 	frameSpeedElement.value = simulationSpeed;
 	frameSpeedElement.addEventListener("change", (e) => {
