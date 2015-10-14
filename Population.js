@@ -37,6 +37,11 @@ Population.prototype.initPopulation = function(options) {
 	}, this);*/
 };
 
+// the sort population function needs to be done before this!
+Population.prototype.bestMover = function() {
+	return this.groupMover.children[0];
+};
+
 // This function will move everything depending on the obstacles/target to sense
 Population.prototype.update = function(obstacles, targets, dt) {
 	this.groupMover.forEachAlive( (mover)=>{
@@ -62,8 +67,7 @@ Population.prototype.nextPopulation = function() {
 	this.groupMover.forEach(function(individual){
 		sumFitness += individual.DNA.fitness;
 	});
-	console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
-
+	//console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
 	this.groupMover.forEach(function(individual){
 		var prob = sumProb + (individual.DNA.fitness/sumFitness);
 		sumProb += prob; // prob To
@@ -153,7 +157,9 @@ Population.prototype.moverCollided = function(obstacles, mover) {
 Population.prototype.foundTarget = function(target, mover) {
 	//console.log("YOU FOUND A TARGET! WOW");
 	mover.targetsCollected += 1
-	target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
+	target.x = 800 * Math.random();
+	target.y = 600 * Math.random();
+	//target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
 	// set + på movern, eftersom den får något extra då i fitness kanske?
 };
 
@@ -167,7 +173,7 @@ Population.prototype.revivePopulation = function() {
 	this.generationNr++;
 
 	// sort the population according to the fitness value, to use elitism
-
+	//console.log("the old population = " + this.groupMover.children);
 	this.sortPopulation();
 	this.nextPopulation();
 	this.alivePopulationSize = this.numMovers; // make the population large again
@@ -182,6 +188,8 @@ Population.prototype.revivePopulation = function() {
 		mover.setRandomPosition();
 		mover.revive(); // make the sprite alive again
 	});
+
+	//console.log("the new population = " + this.groupMover.children);
 
 	this.timer = 0;	// reset the timer
 	//console.log("Generationnr "+ this.generationNr);
