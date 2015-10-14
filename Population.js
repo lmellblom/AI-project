@@ -6,7 +6,12 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.alivePopulationSize = size;
 	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
-	this.elitsm = 0.10; // 15 percent of the population size will move straight to the next generation!
+	this.elitism = 0.1; // 15 percent of the population size will move straight to the next generation!
+	this.championNumber = Math.ceil(this.numMovers*this.elitism); 
+	this.championDNA = [];
+	for(var i = 0; i < this.championNumber; i++){
+			this.championDNA[i] = new DNA(1);
+	}
 
 	// one timer on the whole population?
 	this.timer = 0;
@@ -23,11 +28,18 @@ Population.prototype.initPopulation = function(options) {
 	);
 	this.sortPopulation();
 
+	console.log(this.groupMover);
+
 	// start the timer
 	/*this.game.time.events.loop(Phaser.Timer.QUARTER, function(){
 		// add more to the timer
 		this.timer++;
 	}, this);*/
+};
+
+// the sort population function needs to be done before this!
+Population.prototype.bestMover = function() {
+	return this.groupMover.children[0];
 };
 
 // This function will move everything depending on the obstacles/target to sense
@@ -47,51 +59,59 @@ Population.prototype.nextPopulation = function() {
 
 	// Elitism, This is the number of individuals that will go straight to the next generation
 	var elitismNumber = Math.ceil(this.numMovers*this.elitism);
-
+	//console.log("how many? " + elitismNumber);
+	var prevGeneration;
 	var sumFitness = 0;
 	var sumProb = 0;
 	// sum up the fitness from every individ
 	this.groupMover.forEach(function(individual){
 		sumFitness += individual.DNA.fitness;
 	});
-
-	console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
-
+	//console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
 	this.groupMover.forEach(function(individual){
 		var prob = sumProb + (individual.DNA.fitness/sumFitness);
 		sumProb += prob; // prob To
 
 		matingPool.push(sumProb);
 	});
+	console.log("Yolo");
+	this.hallOfFame();
 
-	for (var i=elitismNumber; i<this.groupMover.length; i++) {
+	prevGeneration = this.groupMover.children;
+
+	for (var i=elitismNumber; i<prevGeneration.length; i++) {
 		// get two random parents
+
 		var parents = [];
 		var nr1 = Math.random();
 		var nr2 = Math.random();
 
-		for (var index=0; index< this.groupMover.length;index++) {
+		for (var index=0; index< prevGeneration.length;index++) {
 			if( nr1 < matingPool[index]  ) {
-				parents[0] = this.groupMover.children[index];
+				parents[0] =prevGeneration[index];
 				break;
 			}
 		}
 		for (var index=0; index< this.groupMover.length;index++) {
-			if( nr2 > matingPool[index]  ) {
-				parents[1] = this.groupMover.children[index];
+			if( nr2 < matingPool[index]  ) {
+				parents[1] = prevGeneration[index];
 				break;
 			}
 		}
 
-		var billy = parent[0];
-		var bob = parent[1];
+		var billy = parents[0];
+		var bob = parents[1];
 		// new child
-		var billybob = DNA.crossover(billy,bob); // returns a new DNA
+
+		var billybob = DNA.crossover(billy.DNA,bob.DNA); // returns a new DNA
 		billybob.mutate();
 
 		// NEED to reset the current pop, just overwrite the DNA at the moment.
 		// need to reset fitness, isAlive = true, update brain? etc.. maybe not do this..
-		this.groupMover.children[i].DNA = billybob;
+		//if(this.championDNA[i].fitness == elitism){
+
+		//}
+		this.groupMover.children[i].DNA = (i < this.championNumber) ? this.championDNA[i] : billybob;
 	}
 };
 
@@ -108,6 +128,25 @@ Population.prototype.checkBoundary = function() {
 			mover.kill();
 		}
 	}, this);
+}
+// All individuals constantly fight for a position in the hall of fame
+// Only the most fit and muscular gain entrance
+Population.prototype.hallOfFame = function() {
+	this.groupMover.forEach(function(individual){
+		for(var i = 0; i < this.championNumber; i++){
+			if(individual.DNA.fitness > this.championDNA[i].fitness ){
+				//console.log(individual.DNA.fitness + " hello " + this.championDNA[i].fitness);
+				this.championDNA[i].genes = individual.DNA.genes;
+				this.championDNA[i].fitness = individual.DNA.fitness;
+	
+				this.sortChampions();
+				break;
+			}
+		}			
+	},this);
+	//for(var i = 0; i < this.championNumber; i++){
+	//	console.log(this.championDNA[i].fitness);
+	//}
 }
 
 Population.prototype.getGroup = function() {
@@ -126,7 +165,9 @@ Population.prototype.moverCollided = function(obstacles, mover) {
 Population.prototype.foundTarget = function(target, mover) {
 	//console.log("YOU FOUND A TARGET! WOW");
 	mover.targetsCollected += 1
-	target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
+	target.x = 800 * Math.random();
+	target.y = 600 * Math.random();
+	//target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
 	// set + på movern, eftersom den får något extra då i fitness kanske?
 };
 
@@ -136,11 +177,17 @@ Population.prototype.sortPopulation = function() {
 	});
 };
 
+Population.prototype.sortChampions = function() {
+	this.championDNA.sort(function(a,b){
+		return a.fitness - b.fitness;
+	});
+};
+
 Population.prototype.revivePopulation = function() {
 	this.generationNr++;
 
 	// sort the population according to the fitness value, to use elitism
-
+	//console.log("the old population = " + this.groupMover.children);
 	this.sortPopulation();
 	this.nextPopulation();
 	this.alivePopulationSize = this.numMovers; // make the population large again
@@ -155,6 +202,8 @@ Population.prototype.revivePopulation = function() {
 		mover.setRandomPosition();
 		mover.revive(); // make the sprite alive again
 	});
+
+	//console.log("the new population = " + this.groupMover.children);
 
 	this.timer = 0;	// reset the timer
 	//console.log("Generationnr "+ this.generationNr);

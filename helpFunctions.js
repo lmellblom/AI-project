@@ -1,6 +1,6 @@
 // ========================== Help functions ==========================
 function getRandom(min, max) {
-	return Math.random() * (max-min) + min;
+	return (Math.random() * (max-min) + min);//.toPrecision(7); // how many decimals
 }
 
 function getRandomInt(min, max) { // a gloat
@@ -80,6 +80,6 @@ function intersectLineLine(a, n, b, r) {
 	r.norm();
 	var numerator = n.x * (b.y - a.y) - n.y * (b.x - a.x);
 	var denominator = n.y * r.x - n.x * r.y;
-	var lamba = numerator / denominator;
-	return lamba;
+	var lambda = numerator / denominator;
+	return lambda;
 }
