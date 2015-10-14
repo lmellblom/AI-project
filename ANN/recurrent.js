@@ -9,7 +9,7 @@ var Recurrent = function(weights, numInputs, numHidden, numOutputs, bias) {
 	Network.call(this, weights, numInputs, numOutputs);
 	this.previousOutput = Array(numHidden + numOutputs).fill(0);
 	this.numHidden = numHidden;
-	this.bias = bias || 0.5;
+	this.bias = bias || -0.5;
 }
 
 // get Networks methods and extend with more methods
@@ -30,8 +30,9 @@ Recurrent.prototype.feedforward = function(sensorInput) {
 
 
 	// apply a sigmoidal activation function to all hidden layer outputs
-	neurons = neurons.map( (output) => this.bipolarSigmoid(output, this.bias));
+	neurons = neurons.map( (output) => this.sigmoid(output, this.bias));
 	this.previousOutput = neurons;
-	outputs = outputs.map((output,i) => this.stepFunction(neurons[i], 0));
+	outputs = outputs.map((output,i) => (neurons[i] > 0.5) ? 1 : -1);
+	//this.stepFunction(neurons[i], 0.5)
 	return outputs;
 }
