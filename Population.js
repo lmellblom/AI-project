@@ -14,6 +14,8 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	// add population text top of screen
 	var style = { font: "20px Times", fill: "#000", align: "right" };
 	this.popNumber = this.game.add.text(this.game.world.width - 140, 20, "Generation " +this.generationNr, style);
+	document.getElementById("numberPop").innerHTML =this.numMovers;
+	document.getElementById("genNumber").innerHTML = this.generationNr;
 };
 
 Population.prototype.initPopulation = function(options) {
@@ -104,19 +106,24 @@ Population.prototype.nextPopulation = function() {
 	}
 };
 
-// not used at the moment! if we want it to die or not at the walls.
-Population.prototype.checkBoundary = function() {
-	this.groupMover.forEachAlive(function(mover) {
-		if( mover.pos.x > this.game.world.width ||
-		mover.pos.x < 0 || mover.pos.y > this.game.world.height ||
-		mover.pos.y < 0){
-			this.alivePopulationSize--; 
-			mover.died();
-			mover.setFitness(this.timer);
-			mover.isAlive = false;
-			mover.kill();
-		}
-	}, this);
+//  if we want it to die or not at the walls.
+Population.prototype.checkBoundary = function(stage) {
+
+	stage.forEach((wall) => {
+		var n = wall.wallVector // normalized vector in the direction of line
+			.clone()
+			.norm();
+		this.groupMover.forEachAlive((mover) => {
+			var projectedVector = projectPointOnLine(mover.pos, wall.wallPoint, n);
+			if(projectedVector.length() < mover.r + wall.thickness){
+				this.alivePopulationSize--;
+				mover.died();
+				mover.setFitness(this.timer);
+				mover.isAlive = false;
+				mover.kill();
+			}
+		});
+	});
 }
 
 Population.prototype.getGroup = function() {
@@ -134,9 +141,8 @@ Population.prototype.moverCollided = function(obstacles, mover) {
 
 Population.prototype.foundTarget = function(target, mover) {
 	//console.log("YOU FOUND A TARGET! WOW");
-	mover.targetsCollected += 1
-	target.x = 800 * Math.random();
-	target.y = 600 * Math.random();
+	mover.targetsCollected += 1;
+	target.setRandomPosition();
 	//target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
 	// set + på movern, eftersom den får något extra då i fitness kanske?
 };
@@ -163,7 +169,7 @@ Population.prototype.revivePopulation = function() {
 		//mover.targetsCollected = 0;
 		mover.updateBrain(); // update the brains weights
 		// need to set the x and y pos to new values?
-		mover.setRandomPosition();
+		mover.setPositionInMiddle();
 		mover.revive(); // make the sprite alive again
 	});
 
@@ -172,5 +178,6 @@ Population.prototype.revivePopulation = function() {
 	this.timer = 0;	// reset the timer
 	//console.log("Generationnr "+ this.generationNr);
 	this.popNumber.text =  "Generation " + this.generationNr;
+	document.getElementById("genNumber").innerHTML = this.generationNr;
 };
 

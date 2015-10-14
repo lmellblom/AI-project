@@ -1,11 +1,11 @@
 /*
 	see tutorial http://codetowin.io/tutorials/nback-game-states-and-menus/
 */
-
+var DRAWLINES = false;
+var WIDTH = 800;
+var HEIGHT = 600;
 // Self invoking function for not polluting global scope
 (function () {
-	var WIDTH = 800;
-	var HEIGHT =  600;
 	var dt = 1/60;
 	var wallPadding = 15
 
@@ -15,14 +15,17 @@
 	var allObstacles;
 	var allTargets;
 	var stage;
-	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '',
+	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, 'canvasContainer',
+
 		{ preload: preload, create: create, update: update});
 
 	/* == GUI STUFF == */
 	var frameSpeedElement = document.getElementById("frameSpeed");
 	frameSpeedElement.value = simulationSpeed;
+	document.getElementById("frameSpeedValue").innerHTML = simulationSpeed;
 	frameSpeedElement.addEventListener("change", (e) => {
 		simulationSpeed = e.target.value;
+		document.getElementById("frameSpeedValue").innerHTML = simulationSpeed;
 	});
 	// default values for the simulation..
 	var renderKey;
@@ -32,6 +35,11 @@
 	var renderElement = document.getElementById("toogleRender");
 	renderElement.addEventListener("change", (e) => {
 		setRender(e.target.checked);
+	});
+
+	var renderLinesElement = document.getElementById("toogleLines");
+	renderLinesElement.addEventListener("change", (e) => {
+		renderLines(e.target.checked);
 	});
 
 	var skipToGenElement = document.getElementById("skipToGeneration");
@@ -68,7 +76,14 @@
 	}
 
 	function preload() {
-		// load assets into the game
+		// scale the screen
+		game.scale.setScreenSize=true;
+		game.scale.pageAlignVertically = true;
+    	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    	game.scale.updateLayout(true);
+
+
+    	// load assets into the game
 		game.load.image('diamond', 'assets/diamond.png');
 		game.load.image('empty', 'assets/wolf.png');
 		game.load.image('mover', 'assets/sheep.png');
@@ -77,21 +92,20 @@
 	function create() {
 		// Define amount of objects in game
 		this.numTargets = 20;
-		this.numObstacles = 10;
+		this.numObstacles = 11;
 		// add the obstacles, targets and the population
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
 		/* == STAGE == */
-		stage =
-			[
-				new Wall(game, wallPadding, wallPadding, wallPadding, game.world.height - wallPadding),
-				new Wall(game, wallPadding, wallPadding, game.world.width - wallPadding, wallPadding),
-				new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, game.world.width - wallPadding, wallPadding),
-				new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, wallPadding, game.world.height - wallPadding)
-			];
-		stage.forEach((wall) => wall.draw());
+		stage = [
+			new Wall(game, wallPadding, wallPadding, wallPadding, game.world.height - wallPadding),
+			new Wall(game, wallPadding, wallPadding, game.world.width - wallPadding, wallPadding),
+			new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, game.world.width - wallPadding, wallPadding),
+			new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, wallPadding, game.world.height - wallPadding)
+		];
 
-		population = new Population(game, 150);
+		stage.forEach((wall) => wall.draw());
+		population = new Population(game, 80);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation(recurrentConfig);
@@ -108,6 +122,8 @@
 		renderKey.onDown.add(toogleRender, this);
 
 		setRender(renderObj);
+
+		renderLines(false);
 	};
 
 // will update the sceen, simulates everything
@@ -121,7 +137,7 @@
 		game.physics.arcade.overlap(allTargets.getGroup(), population.getGroup(), population.foundTarget, null, population);
 
 		// check if the population is out of the field
-		population.checkBoundary();
+		population.checkBoundary(stage);
 
 		// check if existing movers? if everyone died we should call the next generation
 		if (population.alivePopulationSize < 1) {
@@ -155,6 +171,14 @@
 		}
 
 	};
+
+	function renderLines(bool) {
+		// for each line
+		population.getGroup().forEach( (object)=> {
+			object.lines.renderable = bool;
+
+		});
+	}
 
 	function setRender(bool){
 		// Objects are rendered on screen
