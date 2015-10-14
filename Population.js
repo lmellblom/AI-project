@@ -14,6 +14,9 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	// add population text top of screen
 	var style = { font: "20px Times", fill: "#000", align: "right" };
 	this.popNumber = this.game.add.text(this.game.world.width - 120, 20, "Generation " +this.generationNr, style);
+
+	document.getElementById("numberPop").innerHTML =this.numMovers;
+	document.getElementById("genNumber").innerHTML = this.generationNr;
 };
 
 Population.prototype.initPopulation = function(options) {
@@ -104,7 +107,7 @@ Population.prototype.nextPopulation = function() {
 	}
 };
 
-// not used at the moment! if we want it to die or not at the walls.
+//  if we want it to die or not at the walls.
 Population.prototype.checkBoundary = function() {
 	this.groupMover.forEachAlive(function(mover) {
 		if( mover.pos.x > this.game.world.width ||
@@ -163,7 +166,7 @@ Population.prototype.revivePopulation = function() {
 		//mover.targetsCollected = 0;
 		mover.updateBrain(); // update the brains weights
 		// need to set the x and y pos to new values?
-		mover.setRandomPosition();
+		mover.setPositionInMiddle();
 		mover.revive(); // make the sprite alive again
 	});
 
@@ -172,5 +175,6 @@ Population.prototype.revivePopulation = function() {
 	this.timer = 0;	// reset the timer
 	//console.log("Generationnr "+ this.generationNr);
 	this.popNumber.text =  "Generation " + this.generationNr;
+	document.getElementById("genNumber").innerHTML = this.generationNr;
 };
 

@@ -1,5 +1,9 @@
 var Mover = function (game, theDNA, brain, numSensors, x, y) {
 
+	// now the mover will spawn outside everything first, just quick fix
+	x = game.world.centerX;
+	y = game.world.centerY;
+
 	// Inherit from sprite (call its constructor)
 	Phaser.Sprite.call(this, game, x, y, 'mover');
 
@@ -14,7 +18,7 @@ var Mover = function (game, theDNA, brain, numSensors, x, y) {
 	this.speed = 120;
 	this.vel = new Victor(this.speed, 0);
 
-	this.sensorLength = 150;
+	this.sensorLength = 180;
 	this.numSensors = numSensors/2;
 
 	this.targetsCollected = 0;
@@ -64,16 +68,24 @@ Mover.prototype.constructor = Mover;
 
 // if a mover is clicked on, this function will be called and print out the brain
 Mover.prototype.moverClicked = function() {
-	console.log(this.DNA.genes.toString());
+	var theMover =  JSON.stringify(this.DNA);
+
+	//infoDNA
+	document.getElementById("infoDNA").value = theMover;
 }
 
 Mover.prototype.updateCounter = function() {
 	this.timer++;
 }
 
-Mover.prototype.setRandomPosition = function() {
+Mover.prototype.setPositionInMiddle = function() {
 	this.pos.x = this.game.world.centerX;//this.game.width*Math.random();
 	this.pos.y = this.game.world.centerY;//this.game.height*Math.random();
+}
+
+Mover.prototype.setRandomPosition = function() {
+	this.pos.x = this.game.width*Math.random();
+	this.pos.y = this.game.height*Math.random();
 }
 Mover.prototype.updateBrain = function() {
 	// the dna should already been set on the mover. just call the brain function
@@ -82,7 +94,7 @@ Mover.prototype.updateBrain = function() {
 
 Mover.prototype.setFitness = function(timer) {
 	var fit = timer;
-	fit += this.targetsCollected*100;
+	fit += this.targetsCollected*1000;
 	fit = (fit < 0) ? 1 : fit;
 	this.DNA.setFitness(fit); // set fitness smallest to 1
 	this.targetsCollected = 0;
@@ -198,8 +210,9 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
 			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
 		}
-/*		// draw debug lines DO NOT REMOVE
-		if(result[i]){
+
+		// draw debug lines DO NOT REMOVE
+		if(result[i] && this.lines.renderable){
 			// if line has intersected, shorten the line appropriatly
 			direction.normalize().multiplyScalar(this.sensorLength);
 			point = direction
@@ -207,10 +220,27 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 				.norm()
 				.multiplyScalar(this.sensorLength * (1-result[i]))
 				.add(this.pos);
+
+			//0 inget, 1 masssor
+			line.setTo(this.pos.x, this.pos.y, point.x, point.y);
+			//var colors = ["#000000", "#FFFFFF", "#007829"];
+			this.game.debug.geom(line, "#FF2965"); // to show the lines or not for debbuging sort of.
 		}
-		line.setTo(this.pos.x, this.pos.y, point.x, point.y);
-		var colors = ["#000000", "#FFFFFF", "#007829"];
-		this.game.debug.geom(line, colors[i%3]); // to show the lines or not for debbuging sort of.*/
+		if(result[this.numSensors+i] && this.lines.renderable){
+			// if line has intersected, shorten the line appropriatly
+			direction.normalize().multiplyScalar(this.sensorLength);
+			point = direction
+				.clone()
+				.norm()
+				.multiplyScalar(this.sensorLength * (1-result[i+this.numSensors]))
+				.add(this.pos);
+		
+
+			line.setTo(this.pos.x, this.pos.y, point.x, point.y);
+
+			//var colors = ["#000000", "#FFFFFF", "#007829"];
+			this.game.debug.geom(line, "#5AEB00"); // to show the lines or not for debbuging sort of.
+		}
 
 		direction.rotate(-rotation).rotate(directionSpan);
 	})

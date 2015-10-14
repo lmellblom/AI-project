@@ -1,11 +1,11 @@
 /*
 	see tutorial http://codetowin.io/tutorials/nback-game-states-and-menus/
 */
-
+var DRAWLINES = false;
 // Self invoking function for not polluting global scope
 (function () {
 	var WIDTH = 800;
-	var HEIGHT =  600;
+	var HEIGHT = 600;
 	var dt = 1/60;
 
 	var skipToGen = 10; // Skips to this generation at start
@@ -13,13 +13,17 @@
 	var population;
 	var allObstacles;
 	var allTargets;
-	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '',
+	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, 'canvasContainer',
 		{ preload: preload, create: create, update: update});
 
 	var frameSpeedElement = document.getElementById("frameSpeed");
 	frameSpeedElement.value = simulationSpeed;
+	document.getElementById("frameSpeedValue").innerHTML = simulationSpeed;
 	frameSpeedElement.addEventListener("change", (e) => {
 		simulationSpeed = e.target.value;
+
+		// 
+		document.getElementById("frameSpeedValue").innerHTML = simulationSpeed;
 	});
 	// default values for the simulation..
 	var renderKey;
@@ -29,6 +33,11 @@
 	var renderElement = document.getElementById("toogleRender");
 	renderElement.addEventListener("change", (e) => {
 		setRender(e.target.checked);
+	});
+
+	var renderLinesElement = document.getElementById("toogleLines");
+	renderLinesElement.addEventListener("change", (e) => {
+		renderLines(e.target.checked);
 	});
 
 	var skipToGenElement = document.getElementById("skipToGeneration");
@@ -65,7 +74,14 @@
 	}
 
 	function preload() {
-		// load assets into the game
+		// scale the screen
+		game.scale.setScreenSize=true;
+		game.scale.pageAlignVertically = true;
+    	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL; 
+    	game.scale.updateLayout(true);
+
+
+    	// load assets into the game
 		game.load.image('diamond', 'assets/diamond.png');
 		game.load.image('empty', 'assets/wolf.png');
 		game.load.image('mover', 'assets/sheep.png');
@@ -80,7 +96,7 @@
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
 
-		population = new Population(game, 80);
+		population = new Population(game, 10);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation(recurrentConfig);
@@ -88,7 +104,6 @@
 		allTargets.initObjects();
 
 		allObstacles.reposition();
-
 
 		// the background of everything
 		game.stage.backgroundColor = '#D8D8D8';
@@ -99,6 +114,7 @@
 
 		setRender(renderObj);
 
+		renderLines(false);
 	};
 
 // will update the sceen, simulates everything
@@ -148,6 +164,15 @@
 		}
 
 	};
+
+	function renderLines(bool) {
+		// for each line
+		population.getGroup().forEach( (object)=> {
+			
+			object.lines.renderable = bool;
+
+		});
+	}
 
 	function setRender(bool){
 		// Objects are rendered on screen
