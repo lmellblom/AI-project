@@ -58,12 +58,9 @@ DNA.crossover = function(billy, bob) {
 		newGenes[i] = bob.genes[i];
 	}
 
-	var newDNA = new DNA(1);
-	newDNA.setGenes(newGenes);
-	// just returns the first parent now
+	var billybob = new DNA(1);
+	billybob.setGenes(newGenes);
 
 	//var billybob = new DNA(billy.genes);  // will not use any crossover, just mutation if this line is used
-	return newDNA;
-
-
+	return billybob;
 };

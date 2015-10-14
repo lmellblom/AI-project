@@ -1,6 +1,6 @@
 // ========================== Help functions ==========================
 function getRandom(min, max) {
-	return Math.random() * (max-min) + min;
+	return (Math.random() * (max-min) + min);//.toPrecision(7); // how many decimals
 }
 
 function getRandomInt(min, max) { // a gloat
