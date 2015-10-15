@@ -23,9 +23,13 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 
 	this.targetsCollected = 0;
 
+	// scale the sprite down a bit
+	this.scale.setTo(0.6);
+
 	// Leave out acceleration for the time being, dont need to add complexity right now.
 	//this.a = new Victor(0.0, 0.0);
-	this.r = 17.2;
+	this.r = Math.max(this.height,this.width)/2.0; // the sprite itself has a width and a height
+														// use this in order to determine the radiue
 
 	// rotate the sprite correctly
 	this.angle = this.getRotation();
@@ -33,9 +37,6 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	//add some offset to the sprite to position is in the center of this.pos
 	this.anchor.x = 0.5;
 	this.anchor.y = 0.4;
-
-	// scale the sprite down a bit
-	this.scale.setTo(0.15);
 
 	// arbitrary values (not used at the momemt)
 	//this.maxForce = theDNA.maxForce || 0.4;
@@ -84,8 +85,8 @@ Mover.prototype.setPositionInMiddle = function() {
 }
 
 Mover.prototype.setRandomPosition = function() {
-	this.pos.x = this.game.width*Math.random();
-	this.pos.y = this.game.height*Math.random();
+	this.pos.x = getRandomInt(40, WIDTH-40); //this.game.width*Math.random();
+	this.pos.y = getRandomInt(40, HEIGHT-40);//this.game.height*Math.random();
 }
 Mover.prototype.updateBrain = function() {
 	// the dna should already been set on the mover. just call the brain function

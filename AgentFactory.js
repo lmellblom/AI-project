@@ -26,8 +26,8 @@ AgentFactory.prototype.createAgent = function(options) {
 		theDNA,
 		brain,
 		options.numInputs, // number of sensors
-		800*Math.random(),
-		600*Math.random()
+		getRandomInt(40, WIDTH-40),
+		getRandomInt(40, HEIGHT-40)
 	);
 };
 
