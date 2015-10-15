@@ -153,7 +153,23 @@ Population.prototype.sortPopulation = function() {
 Population.prototype.addPopulation = function() {
 
 	try {
+
 		var mover = JSON.parse(document.getElementById("insertDNA").value);
+		var existingAgentConfig = {
+			'type': 'existing',
+			'DNA': mover.DNA,
+			'brain': mover.brain
+		}
+		// Create a new Mover and add to groupMover
+		var agentFactory = new AgentFactory(this.game);
+		var tempMover = agentFactory.createAgent(existingAgentConfig)
+		console.log("New mover: " + tempMover.brainType);
+		this.groupMover.add(tempMover);
+		this.numMovers++; //Adds to number of movers
+		this.alivePopulationSize++; // Adds to alivePopulation
+
+		console.log("number of movers: " + this.numMovers);
+		console.log(tempMover.brain.brainType);
 	}
 	catch(err) {
 		console.log("Error while reading mover: "+ err.message);

@@ -12,7 +12,6 @@ var Mover = function (game, theDNA, brain, numSensors, x, y) {
 
 	// DNA is where the neural networks weights are
 	this.DNA = theDNA;
-
 	this.brain = brain; // the learning constant is the 0.01 n är hur många..
 	this.pos = new Victor(x, y);
 	this.speed = 120;
@@ -71,7 +70,7 @@ Mover.prototype.moverClicked = function() {
 
 	var out = {
 		"DNA" : this.DNA,
-		"Brain" : this.brain
+		"brain" : this.brain
 	};
 
 	var theMover =  JSON.stringify(out);

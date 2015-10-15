@@ -1,7 +1,7 @@
 /* A perceptron neural network with only an input and output layer */
 var Perceptron = function(weights, numInputs, numOutputs, bias) {
 	//inherit from Network
-	Network.call("perceptron", this, weights, numInputs, numOutputs);
+	Network.call(this, "perceptron", weights, numInputs, numOutputs);
 	this.bias = bias || 0.5;
 }
 
