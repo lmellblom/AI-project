@@ -1,5 +1,5 @@
 // global variables. BUT WHYYY
-var mutationRate = 0.08;
+var mutationRate = 0.2;
 var mutationSigma = 0.2;
 
 var DNA = function(numGenes) {
@@ -51,12 +51,17 @@ DNA.crossover = function(billy, bob) {
 	var newGenes = [];
 	var i;
 
-	for (i=0; i<crossIndex; i++){
+	for (i=0; i<bob.genes.length; i++){
+		newGenes[i] = (billy.genes[i]+bob.genes[i])/2.0;
+
+	}
+
+/*	for (i=0; i<crossIndex; i++){
 		newGenes[i] = billy.genes[i];
 	}
 	for(; i<bob.genes.length; i++) {
 		newGenes[i] = bob.genes[i];
-	}
+	}*/
 
 	var billybob = new DNA(1);
 	billybob.setGenes(newGenes);
