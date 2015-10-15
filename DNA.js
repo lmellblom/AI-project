@@ -1,6 +1,6 @@
 // global variables. BUT WHYYY
 var mutationRate = 0.2;
-var mutationSigma = 0.2;
+var mutationSigma = 0.1;
 
 var DNA = function(numGenes) {
 	this.genes = this.randomGenes(numGenes);

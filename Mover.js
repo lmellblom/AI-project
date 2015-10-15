@@ -5,8 +5,11 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	y = game.world.centerY;
 
 	// Inherit from sprite (call its constructor)
-	Phaser.Sprite.call(this, game, x, y, 'mover');
-
+	Phaser.Sprite.call(this, game, x, y, 'octopus');
+	//  Create an animation called 'swim', the fact we don't specify any frames means it will use all frames in the atlas
+	this.animations.add('swim');
+	//  Play the animation at 30fps on a loop
+	this.animations.play('swim', 30, true);
 
 	//this.points = 0;
 
@@ -23,19 +26,19 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 
 	this.targetsCollected = 0;
 
+	// scale the sprite down a bit
+	this.scale.setTo(0.2);
+
 	// Leave out acceleration for the time being, dont need to add complexity right now.
 	//this.a = new Victor(0.0, 0.0);
-	this.r = 19.2;
-
+	this.r = Math.max(this.height,this.width)/2.0; // the sprite itself has a width and a height
+														// use this in order to determine the radiue
 	// rotate the sprite correctly
 	this.angle = this.getRotation();
 
 	//add some offset to the sprite to position is in the center of this.pos
 	this.anchor.x = 0.5;
 	this.anchor.y = 0.4;
-
-	// scale the sprite down a bit
-	this.scale.setTo(0.15);
 
 	// arbitrary values (not used at the momemt)
 	//this.maxForce = theDNA.maxForce || 0.4;
@@ -84,8 +87,8 @@ Mover.prototype.setPositionInMiddle = function() {
 }
 
 Mover.prototype.setRandomPosition = function() {
-	this.pos.x = this.game.width*Math.random();
-	this.pos.y = this.game.height*Math.random();
+	this.pos.x = getRandomInt(40, WIDTH-40); //this.game.width*Math.random();
+	this.pos.y = getRandomInt(40, HEIGHT-40);//this.game.height*Math.random();
 }
 Mover.prototype.updateBrain = function() {
 	// the dna should already been set on the mover. just call the brain function

@@ -84,14 +84,16 @@ var HEIGHT = 600;
 
 
     	// load assets into the game
-		game.load.image('diamond', 'assets/diamond.png');
-		game.load.image('empty', 'assets/wolf.png');
-		game.load.image('mover', 'assets/sheep.png');
+		game.load.image('diamond', 'assets/star.png');
+		game.load.image('empty', 'assets/empty.png');
+		game.load.image('mover', 'assets/fish.png');
+
+		game.load.atlasXML('octopus', 'assets/octopus.png', 'assets/octopus.xml');
 	};
 
 	function create() {
 		// Define amount of objects in game
-		this.numTargets = 20;
+		this.numTargets = 40;
 		this.numObstacles = 11;
 		// add the obstacles, targets and the population
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
@@ -105,7 +107,7 @@ var HEIGHT = 600;
 		];
 
 		stage.forEach((wall) => wall.draw());
-		population = new Population(game, 80);
+		population = new Population(game, 40);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation(recurrentConfig);
@@ -115,7 +117,7 @@ var HEIGHT = 600;
 		allObstacles.reposition();
 
 		// the background of everything
-		game.stage.backgroundColor = '#D8D8D8';
+		game.stage.backgroundColor = '#75DDFF';
 		game.stage.disableVisibilityChange = true;
 
 		renderKey = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
