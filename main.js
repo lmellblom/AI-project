@@ -53,6 +53,11 @@ var DRAWLINES = false;
 			document.getElementById("toogleRender").checked = renderObj;
 		}
 	});
+
+	var insertPopulation = document.getElementById("insertButton");
+	insertPopulation.addEventListener("click", (e) => {
+		population.addPopulation();
+	});
 	/* == POPULATION CONFIGS == */
 
 	var perceptronConfig = {
@@ -79,7 +84,6 @@ var DRAWLINES = false;
 		game.scale.pageAlignVertically = true;
     	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL; 
     	game.scale.updateLayout(true);
-
 
     	// load assets into the game
 		game.load.image('diamond', 'assets/diamond.png');

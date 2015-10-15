@@ -68,7 +68,13 @@ Mover.prototype.constructor = Mover;
 
 // if a mover is clicked on, this function will be called and print out the brain
 Mover.prototype.moverClicked = function() {
-	var theMover =  JSON.stringify(this.DNA);
+
+	var out = {
+		"DNA" : this.DNA,
+		"Brain" : this.brain
+	};
+
+	var theMover =  JSON.stringify(out);
 
 	//infoDNA
 	document.getElementById("infoDNA").value = theMover;

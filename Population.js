@@ -149,6 +149,17 @@ Population.prototype.sortPopulation = function() {
 		return b.DNA.fitness - a.DNA.fitness;
 	});
 };
+// Read population from text field
+Population.prototype.addPopulation = function() {
+
+	try {
+		var mover = JSON.parse(document.getElementById("insertDNA").value);
+	}
+	catch(err) {
+		console.log("Error while reading mover: "+ err.message);
+	}
+
+};
 
 Population.prototype.revivePopulation = function() {
 	this.generationNr++;
