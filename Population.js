@@ -74,7 +74,6 @@ Population.prototype.nextPopulation = function() {
 
 		matingPool.push(sumProb);
 	});
-	console.log("Yolo");
 	this.hallOfFame();
 
 	prevGeneration = this.groupMover.children;
@@ -106,12 +105,13 @@ Population.prototype.nextPopulation = function() {
 		var billybob = DNA.crossover(billy.DNA,bob.DNA); // returns a new DNA
 		billybob.mutate();
 
-		// NEED to reset the current pop, just overwrite the DNA at the moment.
-		// need to reset fitness, isAlive = true, update brain? etc.. maybe not do this..
+		//check if champion already has been added through elitism
 		//if(this.championDNA[i].fitness == elitism){
 
 		//}
-		this.groupMover.children[i].DNA = (i < this.championNumber) ? this.championDNA[i] : billybob;
+		// NEED to reset the current pop, just overwrite the DNA at the moment.
+		// need to reset fitness, isAlive = true, update brain? etc.. maybe not do this..
+		this.groupMover.children[i].DNA = (i <elitismNumber + this.championNumber) ? this.championDNA[i-elitismNumber] : billybob;
 	}
 };
 
@@ -136,9 +136,9 @@ Population.prototype.hallOfFame = function() {
 		for(var i = 0; i < this.championNumber; i++){
 			if(individual.DNA.fitness > this.championDNA[i].fitness ){
 				//console.log(individual.DNA.fitness + " hello " + this.championDNA[i].fitness);
-				this.championDNA[i].genes = individual.DNA.genes;
 				this.championDNA[i].fitness = individual.DNA.fitness;
-	
+				this.championDNA[i].genes = individual.DNA.genes;
+			
 				this.sortChampions();
 				break;
 			}
@@ -146,6 +146,7 @@ Population.prototype.hallOfFame = function() {
 	},this);
 	//for(var i = 0; i < this.championNumber; i++){
 	//	console.log(this.championDNA[i].fitness);
+	//	console.log( "genes " + this.championDNA[i].genes);
 	//}
 }
 
