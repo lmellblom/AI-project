@@ -131,10 +131,13 @@ var HEIGHT = 600;
 		population.update(allObstacles.getGroup(), allTargets.getGroup(), stage, dt);
 		allObstacles.update(dt);
 		allTargets.update(dt);
+
+		population.checkCollision(allTargets.getGroup(), allObstacles.getGroup());
+
 		// collision between the obstacle and the population, the population should die if this happens
-		game.physics.arcade.overlap(allObstacles.getGroup(), population.getGroup(), population.moverCollided, null, population);
+		//game.physics.arcade.overlap(allObstacles.getGroup(), population.getGroup(), population.moverCollided, null, population);
 		// collision between a target and the population, then the mover in that pop should get a reward
-		game.physics.arcade.overlap(allTargets.getGroup(), population.getGroup(), population.foundTarget, null, population);
+		//game.physics.arcade.overlap(allTargets.getGroup(), population.getGroup(), population.foundTarget, null, population);
 
 		// check if the population is out of the field
 		population.checkBoundary(stage);
