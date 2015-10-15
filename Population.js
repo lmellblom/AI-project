@@ -2,9 +2,9 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.numMovers = size;								// we have not yet implementet a way to skip through generations
 	this.generationNr = 1;
 	this.groupMover = game.add.group();
-	this.groupMover.enableBody = true;
+	//this.groupMover.enableBody = true;
 	this.alivePopulationSize = size;
-	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
+	//this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
 	this.elitism = 0.1; // 15 percent of the population size will move straight to the next generation!
 
@@ -32,6 +32,38 @@ Population.prototype.initPopulation = function(options) {
 	}, this);*/
 };
 
+
+Population.prototype.checkCollision = function(targets, obstacles) {
+
+	//Check if collisions
+	this.groupMover.forEachAlive( (mover) => {
+
+		var moverRadius = mover.r;
+
+		obstacles.forEach( (obstacle)=> {
+
+			var obstacleRadius = obstacle.radius;
+			var dist = mover.pos.distanceSq(obstacle.position);
+			//console.log(mover.x);
+			//console.log(mover.y);
+
+			if(dist < ((moverRadius+obstacleRadius)*(moverRadius+obstacleRadius))) {
+				this.moverCollided(obstacles, mover);
+			}
+		});
+
+		targets.forEach( (target)=> {
+
+			var targetRadius = target.radius;
+			var dist = mover.pos.distanceSq(target.position);	
+
+			if(dist < (moverRadius+targetRadius)*(moverRadius+targetRadius)) {
+				this.foundTarget(target, mover);
+			}
+		});
+
+	});
+};
 // the sort population function needs to be done before this!
 Population.prototype.bestMover = function() {
 	return this.groupMover.children[0];

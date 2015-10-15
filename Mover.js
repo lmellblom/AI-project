@@ -30,7 +30,6 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	//this.a = new Victor(0.0, 0.0);
 	this.r = Math.max(this.height,this.width)/2.0; // the sprite itself has a width and a height
 														// use this in order to determine the radiue
-
 	// rotate the sprite correctly
 	this.angle = this.getRotation();
 

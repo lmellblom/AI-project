@@ -11,6 +11,7 @@ var Target = function (game, x, y) {
 	this.radius = Math.max(this.height,this.width)/2.0; // the sprite itself has a width and a height
 														// use this in order to determine the radiue
 
+
 	//this.sprite = GAME.game.add.sprite(this.pos.x, this.pos.y, 'diamond');
 }
 
