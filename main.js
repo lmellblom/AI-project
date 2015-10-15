@@ -113,7 +113,6 @@
 
 		// check if the population is out of the field
 		population.checkBoundary();
-
 		// check if existing movers? if everyone died we should call the next generation
 		if (population.alivePopulationSize < 1) {
 			population.revivePopulation();

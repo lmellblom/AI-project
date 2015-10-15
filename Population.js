@@ -74,8 +74,9 @@ Population.prototype.nextPopulation = function() {
 
 		matingPool.push(sumProb);
 	});
+	
 	this.hallOfFame();
-
+	
 	prevGeneration = this.groupMover.children;
 
 	for (var i=elitismNumber; i<prevGeneration.length; i++) {
@@ -107,11 +108,21 @@ Population.prototype.nextPopulation = function() {
 
 		//check if champion already has been added through elitism
 		//if(this.championDNA[i].fitness == elitism){
-
+		
 		//}
 		// NEED to reset the current pop, just overwrite the DNA at the moment.
 		// need to reset fitness, isAlive = true, update brain? etc.. maybe not do this..
-		this.groupMover.children[i].DNA = (i <elitismNumber + this.championNumber) ? this.championDNA[i-elitismNumber] : billybob;
+
+		if(i <elitismNumber + this.championNumber){
+			DNAcopy = new DNA(1);
+			DNAcopy.fitness = this.championDNA[i-elitismNumber].fitness;
+			DNAcopy.genes = this.championDNA[i-elitismNumber].genes;
+			
+			this.groupMover.children[i].DNA = DNAcopy;
+		}
+		else
+			this.groupMover.children[i].DNA = billybob;
+		//this.groupMover.children[i].DNA = (i <elitismNumber + this.championNumber) ? DNAcopy : billybob;
 	}
 };
 
@@ -134,20 +145,21 @@ Population.prototype.checkBoundary = function() {
 Population.prototype.hallOfFame = function() {
 	this.groupMover.forEach(function(individual){
 		for(var i = 0; i < this.championNumber; i++){
+
 			if(individual.DNA.fitness > this.championDNA[i].fitness ){
-				//console.log(individual.DNA.fitness + " hello " + this.championDNA[i].fitness);
+				//console.log("contender: "+individual.DNA.fitness+" champion: "+this.championDNA[i].fitness);
 				this.championDNA[i].fitness = individual.DNA.fitness;
-				this.championDNA[i].genes = individual.DNA.genes;
+				this.championDNA[i].genes = individual.DNA.genes.slice();
 			
 				this.sortChampions();
 				break;
 			}
 		}			
 	},this);
-	//for(var i = 0; i < this.championNumber; i++){
-	//	console.log(this.championDNA[i].fitness);
-	//	console.log( "genes " + this.championDNA[i].genes);
-	//}
+	//console.log("our current champions:");
+	for(var i = 0; i < this.championNumber; i++){
+		console.log(this.championDNA[i].fitness);
+	}
 }
 
 Population.prototype.getGroup = function() {

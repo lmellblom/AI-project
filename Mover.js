@@ -77,7 +77,6 @@ Mover.prototype.setRandomPosition = function() {
 }
 Mover.prototype.updateBrain = function() {
 	// the dna should already been set on the mover. just call the brain function
-	console.log(this);
 	this.brain.updateWeights(this.DNA.genes);
 };
 
