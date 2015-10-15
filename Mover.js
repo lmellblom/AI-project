@@ -5,8 +5,11 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	y = game.world.centerY;
 
 	// Inherit from sprite (call its constructor)
-	Phaser.Sprite.call(this, game, x, y, 'mover');
-
+	Phaser.Sprite.call(this, game, x, y, 'octopus');
+	//  Create an animation called 'swim', the fact we don't specify any frames means it will use all frames in the atlas
+	this.animations.add('swim');
+	//  Play the animation at 30fps on a loop
+	this.animations.play('swim', 30, true);
 
 	//this.points = 0;
 
@@ -24,7 +27,7 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	this.targetsCollected = 0;
 
 	// scale the sprite down a bit
-	this.scale.setTo(0.6);
+	this.scale.setTo(0.2);
 
 	// Leave out acceleration for the time being, dont need to add complexity right now.
 	//this.a = new Victor(0.0, 0.0);

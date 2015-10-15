@@ -87,6 +87,8 @@ var HEIGHT = 600;
 		game.load.image('diamond', 'assets/star.png');
 		game.load.image('empty', 'assets/empty.png');
 		game.load.image('mover', 'assets/fish.png');
+
+		game.load.atlasXML('octopus', 'assets/octopus.png', 'assets/octopus.xml');
 	};
 
 	function create() {
