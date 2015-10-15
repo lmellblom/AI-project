@@ -7,6 +7,8 @@
 	    <script type="text/javascript" src="vendor/phaser.min.js"></script>
 	    <script src="vendor/victor.js"></script>
 
+	    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+
 		<script src="helpFunctions.js"></script>
 		<script type="text/javascript" src="AgentFactory.js"></script>
 		<script type="text/javascript" src="ANN/network.js"></script>
@@ -16,15 +18,78 @@
 		<script src="DNA.js"></script>
 		<script src="Groups.js"></script>
 		<script src="Mover.js"></script>
+		<script src="Wall.js"></script>
 		<script src="Target.js"></script>
 		<script src="Obstacle.js"></script>
 		<script src="Population.js"></script>
+
+		<style>
+			body {
+				margin-top : 0px;
+				margin-left: auto;
+				margin-right: auto;
+				font-family: 'Open Sans', sans-serif;
+				font-size: 12px;
+			}
+
+			h2 {
+				font-family: 'Open Sans', sans-serif;
+			}
+
+			#selectOptions {
+				display: inline-block;
+				float: left;
+				text-align: center;
+				width: 15%;
+				padding: 6px;
+				padding-top: 10px;
+				margin:0px;
+				margin-left: 20px;
+			}
+
+			#canvasContainer {
+				margin-right:0px;
+				display: inline-block;
+				float: left;
+			}
+
+			#canvasContainer canvas {
+				margin:0;
+
+			}
+
+			@media screen and (max-width: 700px)  {
+				#selectOptions {
+					display: block;
+					width: 100%;
+					text-align: center;
+				}
+			}
+
+		</style>
+
 	</head>
 
 	<body>
-		Speed:<input id="frameSpeed" type="range" min="0" max="40" step="1" value="1"/>
-		Render: <input type="checkbox" id="toogleRender">
-		Skip to generation: <input type="number" id="skipToGeneration" min="1">
+		<div id="canvasContainer">
+		</div>
+
+		<div id="selectOptions">
+			<h2>Settings</h2>
+			Speed:<input id="frameSpeed" type="range" min="0" max="40" step="1" value="1"/> <span id="frameSpeedValue"></span> <br><br>
+			Render: <input type="checkbox" id="toogleRender"> <br><br>
+			Render lines: <input type="checkbox" id="toogleLines"> <br><br>
+			Skip to generation: <input type="number" id="skipToGeneration" min="1"> <br><br>
+			
+			<h2>Info</h2>
+			Number in population: <span id="numberPop"></span><br><br>
+			Generation number: <span id="genNumber"></span><br><br>
+
+			<h2>Click on a sheep and get its DNA</h2>
+			<textarea id="infoDNA" rows="10" cols="30">
+			</textarea>
+		</div>
+
 		<script src="main.js"></script>
 	</body>
 
