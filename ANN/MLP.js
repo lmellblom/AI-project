@@ -4,7 +4,7 @@
  */
 var MLP = function(weights, numInputs, numHidden, numOutputs, bias) {
 	//inherit from Network
-	Network.call(this, weights, numInputs, numOutputs);
+	Network.call("mlp", this, weights, numInputs, numOutputs);
 	this.numHidden = numHidden;
 	this.bias = bias || 0.5;
 }

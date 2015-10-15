@@ -6,7 +6,7 @@
  */
 var Recurrent = function(weights, numInputs, numHidden, numOutputs, bias) {
 	//inherit from Network
-	Network.call(this, weights, numInputs, numOutputs);
+	Network.call("recurrent", this, weights, numInputs, numOutputs);
 	this.previousOutput = Array(numHidden + numOutputs).fill(0);
 	this.numHidden = numHidden;
 	this.bias = bias || 0.5;
