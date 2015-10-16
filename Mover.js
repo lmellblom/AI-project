@@ -97,11 +97,9 @@ Mover.prototype.updateBrain = function() {
 
 Mover.prototype.setFitness = function(timer) {
 	var fit = timer;
-	fit += this.targetsCollected*1000;
-	fit = (fit < 0) ? 1 : fit;
+	fit += this.targetsCollected*200;
 	this.DNA.setFitness(fit); // set fitness smallest to 1
 	this.targetsCollected = 0;
-	//this.avoidedFitness=0;
 }
 
 Mover.prototype.died = function() {
@@ -118,10 +116,10 @@ Mover.prototype.move = function(dt, brainInput) {
 	if (action[0]>0){
 		//this.speed = 120;
 		if(action[1]>0) {
-			this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
+			this.vel.rotate(Math.PI / 30).norm().multiplyScalar(this.speed);
 		}
 		else {
-			this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
+			this.vel.rotate(-Math.PI / 30).norm().multiplyScalar(this.speed);
 		}
 		// Euler step
 		this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
