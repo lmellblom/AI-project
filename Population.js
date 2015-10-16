@@ -232,14 +232,15 @@ Population.prototype.addPopulation = function() {
 
 		// Create a new Mover and add to groupMover
 		var agentFactory = new AgentFactory(this.game);
-		var tempMover = agentFactory.createAgent(existingAgentConfig)
-		tempMover.setFitness(this.timer);
-		tempMover.DNA.setFitness(-tempMover.DNA.fitness);
+		var tempMover = agentFactory.createAgent(existingAgentConfig);
+		//Kill the mover
+		tempMover.died();
+		tempMover.isAlive = false;
+		tempMover.kill();
 		this.groupMover.add(tempMover);
 
 		//Update number of Movers
 		this.numMovers++; //Adds to number of movers
-		this.alivePopulationSize++; // Adds to alivePopulation
 		document.getElementById("numberPop").innerHTML = this.numMovers;
 
 		// Some information about the new Mover
