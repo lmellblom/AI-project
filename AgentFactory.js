@@ -23,21 +23,26 @@ AgentFactory.prototype.createAgent = function(options) {
 	}
 	else if(options['type'].toLowerCase() == "existing") {
 
+		// Variables for the brain
 		var tempBrain = options['brain'];
 		var genes = tempBrain.weights;
+		var bias = tempBrain.bias;
+		numInputs = tempBrain.numInputs;
+		var numHidden = tempBrain.numHidden;
+		var numOutputs = tempBrain.numOutputs;
 
+		// Which brain to create
 		if(tempBrain.brainType == "perceptron") {
-			brain = new Perceptron(genes, tempBrain.numInputs, tempBrain.numOutputs);
+			brain = new Perceptron(genes, numInputs, numOutputs, bias);
 		}
 		else if(tempBrain.brainType == "mlp") {
-			brain = new MLP(genes, tempBrain.numInputs, tempBrain.numHidden, tempBrain.numOutputs);
+			brain = new MLP(genes, numInputs, numHidden, numOutputs, bias);
 		}
 		else if(tempBrain.brainType == "recurrent") {
-			brain = new Recurrent(genes, tempBrain.numInputs, tempBrain.numHidden, tempBrain.numOutputs);
+			brain = new Recurrent(genes, numInputs, numHidden, numOutputs, bias);
 		}
-		theDNA = new DNA(tempBrain.numWeights);
+		theDNA = new DNA(numWeights);
 		theDNA.setGenes(genes);
-		numInputs = brain.numInputs;
 	}
 
 	return new Mover(

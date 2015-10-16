@@ -53,9 +53,9 @@ var DRAWLINES = false;
 			document.getElementById("toogleRender").checked = renderObj;
 		}
 	});
-
-	var insertPopulation = document.getElementById("insertButton");
-	insertPopulation.addEventListener("click", (e) => {
+	// Button which can insert Movers into the population
+	var btnInsertElement = document.getElementById("insertButton");
+	btnInsertElement.addEventListener("click", (e) => {
 		population.addPopulation();
 	});
 	/* == POPULATION CONFIGS == */
@@ -113,9 +113,6 @@ var DRAWLINES = false;
 		// the background of everything
 		game.stage.backgroundColor = '#D8D8D8';
 		game.stage.disableVisibilityChange = true;
-
-		renderKey = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
-		renderKey.onDown.add(toogleRender, this);
 
 		setRender(renderObj);
 

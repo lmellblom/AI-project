@@ -152,28 +152,38 @@ Population.prototype.sortPopulation = function() {
 // Read population from text field
 Population.prototype.addPopulation = function() {
 
+	// Read agent/mover from textfield
 	try {
-
 		var mover = JSON.parse(document.getElementById("insertDNA").value);
+		
+		// Config for creating new agent/mover
 		var existingAgentConfig = {
-			'type': 'existing',
-			'DNA': mover.DNA,
-			'brain': mover.brain
+				'type': 'existing',
+				'DNA': mover.DNA,
+				'brain': mover.brain
 		}
+
 		// Create a new Mover and add to groupMover
 		var agentFactory = new AgentFactory(this.game);
 		var tempMover = agentFactory.createAgent(existingAgentConfig)
-		console.log("New mover: " + tempMover.brainType);
+		tempMover.setFitness(this.timer);
+		tempMover.DNA.setFitness(-tempMover.DNA.fitness);
 		this.groupMover.add(tempMover);
+
+		//Update number of Movers
 		this.numMovers++; //Adds to number of movers
 		this.alivePopulationSize++; // Adds to alivePopulation
+		document.getElementById("numberPop").innerHTML = this.numMovers;
 
-		console.log("number of movers: " + this.numMovers);
-		console.log(tempMover.brain.brainType);
-	}
-	catch(err) {
-		console.log("Error while reading mover: "+ err.message);
-	}
+		// Some information about the new Mover
+		console.log("Brain type: " + tempMover.brain.brainType);
+		console.log("Bias " + tempMover.brain.bias);
+		console.log("Hidden layers: " + tempMover.brain.numHidden);
+		console.log("Fitness: " + tempMover.DNA.fitness);
+		}
+		catch(err) {
+			console.log("Error while reading mover: "+ err.message);
+		}
 
 };
 
