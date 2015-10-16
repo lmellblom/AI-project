@@ -1,8 +1,15 @@
 var Mover = function (game, theDNA, brain, numInputs, x, y) {
 
-	// Inherit from sprite (call its constructor)
-	Phaser.Sprite.call(this, game, x, y, 'mover');
+	// now the mover will spawn outside everything first, just quick fix
+	x = game.world.centerX;
+	y = game.world.centerY;
 
+	// Inherit from sprite (call its constructor)
+	Phaser.Sprite.call(this, game, x, y, 'octopus');
+	//  Create an animation called 'swim', the fact we don't specify any frames means it will use all frames in the atlas
+	this.animations.add('swim');
+	//  Play the animation at 30fps on a loop
+	this.animations.play('swim', 30, true);
 
 	//this.points = 0;
 
@@ -14,24 +21,24 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	this.speed = 120;
 	this.vel = new Victor(this.speed, 0);
 
-	this.sensorLength = 150;
+	this.sensorLength = 180;
 	this.numSensors = numInputs/2;
 
 	this.targetsCollected = 0;
 
+	// scale the sprite down a bit
+	this.scale.setTo(0.2);
+
 	// Leave out acceleration for the time being, dont need to add complexity right now.
 	//this.a = new Victor(0.0, 0.0);
-	this.r = 3.0;
-
+	this.r = Math.max(this.height,this.width)/2.0; // the sprite itself has a width and a height
+														// use this in order to determine the radiue
 	// rotate the sprite correctly
 	this.angle = this.getRotation();
 
 	//add some offset to the sprite to position is in the center of this.pos
 	this.anchor.x = 0.5;
 	this.anchor.y = 0.4;
-
-	// scale the sprite down a bit
-	this.scale.setTo(0.15);
 
 	// arbitrary values (not used at the momemt)
 	//this.maxForce = theDNA.maxForce || 0.4;
@@ -64,16 +71,24 @@ Mover.prototype.constructor = Mover;
 
 // if a mover is clicked on, this function will be called and print out the brain
 Mover.prototype.moverClicked = function() {
-	console.log(this.DNA.genes.toString());
+	var theMover =  JSON.stringify(this.DNA);
+
+	//infoDNA
+	document.getElementById("infoDNA").value = theMover;
 }
 
 Mover.prototype.updateCounter = function() {
 	this.timer++;
 }
 
-Mover.prototype.setRandomPosition = function() {
+Mover.prototype.setPositionInMiddle = function() {
 	this.pos.x = this.game.world.centerX;//this.game.width*Math.random();
 	this.pos.y = this.game.world.centerY;//this.game.height*Math.random();
+}
+
+Mover.prototype.setRandomPosition = function() {
+	this.pos.x = getRandomInt(40, WIDTH-40); //this.game.width*Math.random();
+	this.pos.y = getRandomInt(40, HEIGHT-40);//this.game.height*Math.random();
 }
 Mover.prototype.updateBrain = function() {
 	// the dna should already been set on the mover. just call the brain function
@@ -82,7 +97,7 @@ Mover.prototype.updateBrain = function() {
 
 Mover.prototype.setFitness = function(timer) {
 	var fit = timer;
-	fit += this.targetsCollected*100;
+	fit += this.targetsCollected*1000;
 	fit = (fit < 0) ? 1 : fit;
 	this.DNA.setFitness(fit); // set fitness smallest to 1
 	this.targetsCollected = 0;
@@ -124,7 +139,7 @@ Mover.prototype.move = function(dt, brainInput) {
 	this.angle = this.getRotation();
 };
 
-Mover.prototype.senseEnvironment = function(obstacles, targets) {
+Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 	var point;
 	var result = Array(this.numSensors * 2).fill(0);
 	// take looking direction
@@ -173,34 +188,13 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 		});
 
 		// checking borders
-		var overlap;
-		if (point.x > this.game.world.width){
-			var wallPoint = new Victor(this.game.world.width, 0);
-			var wallN = new Victor(0, 1);
-			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
-			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
+		stage.forEach((wall) => {
+			var sensedInfo = intersectLineLine(wall.wallPoint, wall.wallVector, this.pos, direction);
 			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-		} else if (point.x < 0){
-			var wallPoint = new Victor(0, 0);
-			var wallN = new Victor(0, 1);
-			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
-			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
-			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-		} else if ( point.y > this.game.world.height){
-			var wallPoint = new Victor(0, this.game.world.height);
-			var wallN = new Victor(1, 0);
-			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
-			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
-			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-		} else if (point.y < 0){
-			var wallPoint = new Victor(0, 0);
-			var wallN = new Victor(1, 0);
-			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
-			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
-			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-		}
-/*		// draw debug lines DO NOT REMOVE
-		if(result[i]){
+		});
+
+		// draw debug lines DO NOT REMOVE
+		if(result[i] && this.lines.renderable){
 			// if line has intersected, shorten the line appropriatly
 			direction.normalize().multiplyScalar(this.sensorLength);
 			point = direction
@@ -208,10 +202,26 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 				.norm()
 				.multiplyScalar(this.sensorLength * (1-result[i]))
 				.add(this.pos);
+
+			//0 inget, 1 masssor
+			line.setTo(this.pos.x, this.pos.y, point.x, point.y);
+			//var colors = ["#000000", "#FFFFFF", "#007829"];
+			this.game.debug.geom(line, "#FF2965"); // to show the lines or not for debbuging sort of.
 		}
-		line.setTo(this.pos.x, this.pos.y, point.x, point.y);
-		var colors = ["#000000", "#FFFFFF", "#007829"];
-		this.game.debug.geom(line, colors[i%3]); // to show the lines or not for debbuging sort of.*/
+		if(result[this.numSensors+i] && this.lines.renderable){
+			// if line has intersected, shorten the line appropriatly
+			direction.normalize().multiplyScalar(this.sensorLength);
+			point = direction
+				.clone()
+				.norm()
+				.multiplyScalar(this.sensorLength * (1-result[i+this.numSensors]))
+				.add(this.pos);
+
+			line.setTo(this.pos.x, this.pos.y, point.x, point.y);
+
+			//var colors = ["#000000", "#FFFFFF", "#007829"];
+			this.game.debug.geom(line, "#5AEB00"); // to show the lines or not for debbuging sort of.
+		}
 
 		direction.rotate(-rotation).rotate(directionSpan);
 	})
@@ -222,6 +232,3 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 Mover.prototype.getRotation = function() {
 	return ((this.vel.direction() + Math.PI/2)*180 )/Math.PI ;
 };
-Mover.prototype.getPosition = function() {
-	return this.pos;
-}

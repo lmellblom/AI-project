@@ -1,25 +1,31 @@
 /*
 	see tutorial http://codetowin.io/tutorials/nback-game-states-and-menus/
 */
-
+var DRAWLINES = false;
+var WIDTH = 800;
+var HEIGHT = 600;
 // Self invoking function for not polluting global scope
 (function () {
-	var WIDTH = 800;
-	var HEIGHT =  600;
 	var dt = 1/60;
+	var wallPadding = 15
 
 	var skipToGen = 2; // Skips to this generation at start
 	var simulationSpeed = 20; // How fast the simulation should be
 	var population;
 	var allObstacles;
 	var allTargets;
-	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '',
+	var stage;
+	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, 'canvasContainer',
+
 		{ preload: preload, create: create, update: update});
 
+	/* == GUI STUFF == */
 	var frameSpeedElement = document.getElementById("frameSpeed");
 	frameSpeedElement.value = simulationSpeed;
+	document.getElementById("frameSpeedValue").innerHTML = simulationSpeed;
 	frameSpeedElement.addEventListener("change", (e) => {
 		simulationSpeed = e.target.value;
+		document.getElementById("frameSpeedValue").innerHTML = simulationSpeed;
 	});
 	// default values for the simulation..
 	var renderKey;
@@ -29,6 +35,11 @@
 	var renderElement = document.getElementById("toogleRender");
 	renderElement.addEventListener("change", (e) => {
 		setRender(e.target.checked);
+	});
+
+	var renderLinesElement = document.getElementById("toogleLines");
+	renderLinesElement.addEventListener("change", (e) => {
+		renderLines(e.target.checked);
 	});
 
 	var skipToGenElement = document.getElementById("skipToGeneration");
@@ -65,20 +76,37 @@
 	}
 
 	function preload() {
-		// load assets into the game
-		game.load.image('diamond', 'assets/diamond.png');
-		game.load.image('empty', 'assets/wolf.png');
-		game.load.image('mover', 'assets/sheep.png');
+		// scale the screen
+		game.scale.setScreenSize=true;
+		game.scale.pageAlignVertically = true;
+    	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    	game.scale.updateLayout(true);
+
+
+    	// load assets into the game
+		game.load.image('diamond', 'assets/star.png');
+		game.load.image('empty', 'assets/empty.png');
+		game.load.image('mover', 'assets/fish.png');
+
+		game.load.atlasXML('octopus', 'assets/octopus.png', 'assets/octopus.xml');
 	};
 
 	function create() {
 		// Define amount of objects in game
-		this.numTargets = 20;
-		this.numObstacles = 10;
+		this.numTargets = 40;
+		this.numObstacles = 11;
 		// add the obstacles, targets and the population
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
+		/* == STAGE == */
+		stage = [
+			new Wall(game, wallPadding, wallPadding, wallPadding, game.world.height - wallPadding),
+			new Wall(game, wallPadding, wallPadding, game.world.width - wallPadding, wallPadding),
+			new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, game.world.width - wallPadding, wallPadding),
+			new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, wallPadding, game.world.height - wallPadding)
+		];
 
+		stage.forEach((wall) => wall.draw());
 		population = new Population(game, 80);
 
 		// init pop, obstacles and targets with elements
@@ -88,9 +116,8 @@
 
 		allObstacles.reposition();
 
-
 		// the background of everything
-		game.stage.backgroundColor = '#D8D8D8';
+		game.stage.backgroundColor = '#75DDFF';
 		game.stage.disableVisibilityChange = true;
 
 		renderKey = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
@@ -98,21 +125,25 @@
 
 		setRender(renderObj);
 
+		renderLines(false);
 	};
 
 // will update the sceen, simulates everything
 	function simulates() {
-		population.update(allObstacles.getGroup(), allTargets.getGroup(), dt);
+		population.update(allObstacles.getGroup(), allTargets.getGroup(), stage, dt);
 		allObstacles.update(dt);
 		allTargets.update(dt);
 
+		population.checkCollision(allTargets.getGroup(), allObstacles.getGroup());
+
 		// collision between the obstacle and the population, the population should die if this happens
-		game.physics.arcade.overlap(allObstacles.getGroup(), population.getGroup(), population.moverCollided, null, population);
+		//game.physics.arcade.overlap(allObstacles.getGroup(), population.getGroup(), population.moverCollided, null, population);
 		// collision between a target and the population, then the mover in that pop should get a reward
-		game.physics.arcade.overlap(allTargets.getGroup(), population.getGroup(), population.foundTarget, null, population);
+		//game.physics.arcade.overlap(allTargets.getGroup(), population.getGroup(), population.foundTarget, null, population);
 
 		// check if the population is out of the field
-		population.checkBoundary();
+		population.checkBoundary(stage);
+
 		// check if existing movers? if everyone died we should call the next generation
 		if (population.alivePopulationSize < 1) {
 			population.revivePopulation();
@@ -145,6 +176,14 @@
 		}
 
 	};
+
+	function renderLines(bool) {
+		// for each line
+		population.getGroup().forEach( (object)=> {
+			object.lines.renderable = bool;
+
+		});
+	}
 
 	function setRender(bool){
 		// Objects are rendered on screen

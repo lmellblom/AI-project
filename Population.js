@@ -2,12 +2,13 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.numMovers = size;								// we have not yet implementet a way to skip through generations
 	this.generationNr = 1;
 	this.groupMover = game.add.group();
-	this.groupMover.enableBody = true;
+	//this.groupMover.enableBody = true;
 	this.alivePopulationSize = size;
-	this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
+	//this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
 	this.elitism = 0.1; // 15 percent of the population size will move straight to the next generation!
-	this.championNumber = Math.ceil(this.numMovers*this.elitism); 
+	this.championRatio = 0.1;
+	this.championNumber = Math.ceil(this.numMovers*this.championRatio); 
 	this.championDNA = [];
 	for(var i = 0; i < this.championNumber; i++){
 			this.championDNA[i] = new DNA(1);
@@ -18,7 +19,9 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 
 	// add population text top of screen
 	var style = { font: "20px Times", fill: "#000", align: "right" };
-	this.popNumber = this.game.add.text(this.game.world.width - 120, 20, "Generation " +this.generationNr, style);
+	this.popNumber = this.game.add.text(this.game.world.width - 140, 20, "Generation " +this.generationNr, style);
+	document.getElementById("numberPop").innerHTML =this.numMovers;
+	document.getElementById("genNumber").innerHTML = this.generationNr;
 };
 
 Population.prototype.initPopulation = function(options) {
@@ -27,27 +30,49 @@ Population.prototype.initPopulation = function(options) {
 		Array.from(new Array(this.numMovers), () => agentFactory.createAgent(options) )
 	);
 	this.sortPopulation();
-
-	console.log(this.groupMover);
-
-	// start the timer
-	/*this.game.time.events.loop(Phaser.Timer.QUARTER, function(){
-		// add more to the timer
-		this.timer++;
-	}, this);*/
 };
 
+
+Population.prototype.checkCollision = function(targets, obstacles) {
+
+	//Check if collisions
+	this.groupMover.forEachAlive( (mover) => {
+
+		var moverRadius = mover.r;
+
+		obstacles.forEach( (obstacle)=> {
+
+			var obstacleRadius = obstacle.radius;
+			var dist = mover.pos.distanceSq(obstacle.position);
+
+			if(dist < ((moverRadius+obstacleRadius)*(moverRadius+obstacleRadius))) {
+				this.moverCollided(obstacles, mover);
+			}
+		});
+
+		targets.forEach( (target)=> {
+
+			var targetRadius = target.radius;
+			var dist = mover.pos.distanceSq(target.position);	
+
+			if(dist < (moverRadius+targetRadius)*(moverRadius+targetRadius)) {
+				this.foundTarget(target, mover);
+			}
+		});
+
+	});
+};
 // the sort population function needs to be done before this!
 Population.prototype.bestMover = function() {
 	return this.groupMover.children[0];
 };
 
 // This function will move everything depending on the obstacles/target to sense
-Population.prototype.update = function(obstacles, targets, dt) {
+Population.prototype.update = function(obstacles, targets, stage, dt) {
 	this.groupMover.forEachAlive( (mover)=>{
 		// gets an array of values (1/0) which indicates how that sensor has sensed the environment.
 		// 1 = obstacle, 0 = no obstacle
-		var brainInput = mover.senseEnvironment(obstacles, targets);
+		var brainInput = mover.senseEnvironment(obstacles, targets, stage);
 		mover.move(dt, brainInput);
 	});
 
@@ -59,7 +84,6 @@ Population.prototype.nextPopulation = function() {
 
 	// Elitism, This is the number of individuals that will go straight to the next generation
 	var elitismNumber = Math.ceil(this.numMovers*this.elitism);
-	//console.log("how many? " + elitismNumber);
 	var prevGeneration;
 	var sumFitness = 0;
 	var sumProb = 0;
@@ -67,7 +91,6 @@ Population.prototype.nextPopulation = function() {
 	this.groupMover.forEach(function(individual){
 		sumFitness += individual.DNA.fitness;
 	});
-	//console.log("Best fitness" + this.groupMover.children[0].DNA.fitness);
 	this.groupMover.forEach(function(individual){
 		var prob = sumProb + (individual.DNA.fitness/sumFitness);
 		sumProb += prob; // prob To
@@ -126,19 +149,24 @@ Population.prototype.nextPopulation = function() {
 	}
 };
 
-// not used at the moment! if we want it to die or not at the walls.
-Population.prototype.checkBoundary = function() {
-	this.groupMover.forEachAlive(function(mover) {
-		if( mover.pos.x > this.game.world.width ||
-		mover.pos.x < 0 || mover.pos.y > this.game.world.height ||
-		mover.pos.y < 0){
-			this.alivePopulationSize--; 
-			mover.died();
-			mover.setFitness(this.timer);
-			mover.isAlive = false;
-			mover.kill();
-		}
-	}, this);
+//  if we want it to die or not at the walls.
+Population.prototype.checkBoundary = function(stage) {
+
+	stage.forEach((wall) => {
+		var n = wall.wallVector // normalized vector in the direction of line
+			.clone()
+			.norm();
+		this.groupMover.forEachAlive((mover) => {
+			var projectedVector = projectPointOnLine(mover.pos, wall.wallPoint, n);
+			if(projectedVector.length() < mover.r + wall.thickness){
+				this.alivePopulationSize--;
+				mover.died();
+				mover.setFitness(this.timer);
+				mover.isAlive = false;
+				mover.kill();
+			}
+		});
+	});
 }
 // All individuals constantly fight for a position in the hall of fame
 // Only the most fit and muscular gain entrance
@@ -157,9 +185,9 @@ Population.prototype.hallOfFame = function() {
 		}			
 	},this);
 	//console.log("our current champions:");
-	for(var i = 0; i < this.championNumber; i++){
+/*	for(var i = 0; i < this.championNumber; i++){
 		console.log(this.championDNA[i].fitness);
-	}
+	}*/
 }
 
 Population.prototype.getGroup = function() {
@@ -177,9 +205,8 @@ Population.prototype.moverCollided = function(obstacles, mover) {
 
 Population.prototype.foundTarget = function(target, mover) {
 	//console.log("YOU FOUND A TARGET! WOW");
-	mover.targetsCollected += 1
-	target.x = 800 * Math.random();
-	target.y = 600 * Math.random();
+	mover.targetsCollected += 1;
+	target.setRandomPosition();
 	//target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
 	// set + på movern, eftersom den får något extra då i fitness kanske?
 };
@@ -200,7 +227,6 @@ Population.prototype.revivePopulation = function() {
 	this.generationNr++;
 
 	// sort the population according to the fitness value, to use elitism
-	//console.log("the old population = " + this.groupMover.children);
 	this.sortPopulation();
 	this.nextPopulation();
 	this.alivePopulationSize = this.numMovers; // make the population large again
@@ -212,14 +238,12 @@ Population.prototype.revivePopulation = function() {
 		//mover.targetsCollected = 0;
 		mover.updateBrain(); // update the brains weights
 		// need to set the x and y pos to new values?
-		mover.setRandomPosition();
+		mover.setPositionInMiddle();
 		mover.revive(); // make the sprite alive again
 	});
 
-	//console.log("the new population = " + this.groupMover.children);
-
 	this.timer = 0;	// reset the timer
-	//console.log("Generationnr "+ this.generationNr);
 	this.popNumber.text =  "Generation " + this.generationNr;
+	document.getElementById("genNumber").innerHTML = this.generationNr;
 };
 

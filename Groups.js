@@ -6,8 +6,8 @@ var Groups = function(game, size, item) { //which item to do a group of, sort of
 	this.game = game;
 	this.allObjects = this.game.add.group();
 
-	this.allObjects.enableBody = true;
-	this.allObjects.physicsBodyType = Phaser.Physics.ARCADE;
+	//this.allObjects.enableBody = true;
+	//this.allObjects.physicsBodyType = Phaser.Physics.ARCADE;
 
 	this.item = item;
 };
@@ -16,8 +16,8 @@ Groups.prototype.initObjects = function() {
 	this.allObjects.addMultiple(
 		Array.from(new Array(this.numbers), () => new this.item(
 			this.game,
-			800*Math.random(), //WIDTH, set a global variable instead?
-			600*Math.random() //HEIGHT
+			getRandomInt(40, WIDTH-40),
+			getRandomInt(40, HEIGHT-40)
 		))
 	);
 };
@@ -26,10 +26,10 @@ Groups.prototype.reposition = function() {
 	this.allObjects.children.forEach(function(obj, i){
 		// this.game.world.height
 		// this.numbers
-		var padding = 62 ;//+ this.game.world.height/this.numbers; 
+		var padding = 50 ;//+ this.game.world.height/this.numbers; 
 		var paddingY = (i==0 || i==1 || i==4 || i==5 || i==8 || i==9) ? 0 : this.game.world.width ; 
 
-		obj.y = 20 + i*padding;
+		obj.y = 50 + i*padding;
 		obj.x = 0 + paddingY;
 
 	}, this);
