@@ -46,14 +46,7 @@ function intersectLineCircle(linePoint, direction, length, circlePoint, radius) 
 		return 0;
 	}
 
-	var pa = linePoint
-		.clone()
-		.subtract(circlePoint); //get vector from p->a
-	// p projected on line x = a + tn is => pa - (pa*n)n
-	var projectedVector = pa
-		.clone()
-		.subtract(n.clone().multiplyScalar(pa.dot(n.clone())));
-
+	var projectedVector = projectPointOnLine(circlePoint, linePoint, n);
 	if(projectedVector.length() > radius){
 		return 0;
 	}
@@ -70,16 +63,40 @@ function intersectLineCircle(linePoint, direction, length, circlePoint, radius) 
 		1 - (distFromIntersect / length) : 0;
 }
 
+function projectPointOnLine(point, linePoint, n){
+	var pa = linePoint
+		.clone()
+		.subtract(point); //get vector from p->a
+	// p projected on line x = a + tn is => pa - (pa*n)n
+	var projectedVector = pa
+		.clone()
+		.subtract(n.clone().multiplyScalar(pa.dot(n.clone())));
+
+	return projectedVector
+}
+
 /*
  * Sensor line should be defined by b and r
  * wall should be defined by a and n
  */
-function intersectLineLine(a, n, b, r) {
-
-	n.norm();
-	r.norm();
+function intersectLineLine(a, lineDir1, b, lineDir2) {
+	var wallLength = lineDir1.length();
+	var sensorLength = lineDir2.length();
+	var n = lineDir1.clone().norm();
+	var r = lineDir2.clone().norm();
 	var numerator = n.x * (b.y - a.y) - n.y * (b.x - a.x);
 	var denominator = n.y * r.x - n.x * r.y;
-	var lamba = numerator / denominator;
-	return lamba;
+	var lambda = numerator / denominator;
+
+	if (lambda>sensorLength || lambda < 0) {
+		return 0;
+	}
+
+	var my = (b.y-a.y + lambda*r.y) / n.y;
+
+	if(my > wallLength || my < 0){
+		return 0;
+	}
+
+	return 1 - lambda / sensorLength;
 }
