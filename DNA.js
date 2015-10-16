@@ -47,7 +47,7 @@ DNA.prototype.mutate = function() {
 
 // function that takes two parents and return one child
 DNA.crossover = function(billy, bob) {
-	var crossIndex = Math.floor(getRandom(1, bob.genes.length-2));
+	var crossIndex = Math.floor(getRandom(1,bob.genes.length-2));
 	var newGenes = [];
 	var i;
 

@@ -107,7 +107,7 @@ var HEIGHT = 600;
 		];
 
 		stage.forEach((wall) => wall.draw());
-		population = new Population(game, 40);
+		population = new Population(game, 80);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation(recurrentConfig);
