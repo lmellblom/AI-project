@@ -52,6 +52,7 @@ var HEIGHT = 600;
 			setRender(renderObj);
 			frameSpeedElement.value = (frameSpeedElement.min + frameSpeedElement.max) / 2;
 			simulationSpeed = frameSpeedElement.value;
+			document.getElementById("frameSpeedValue").innerHTML = simulationSpeed;
 			document.getElementById("toogleRender").checked = renderObj;
 		}
 	});
@@ -90,20 +91,33 @@ var HEIGHT = 600;
 
     	// load assets into the game
 		game.load.image('diamond', 'assets/star.png');
-		game.load.image('empty', 'assets/empty.png');
+		game.load.image('obstacle', 'assets/shark.png');
 		game.load.image('mover', 'assets/fish.png');
+		game.load.image('background', 'assets/water2.png');
 
 		game.load.atlasXML('octopus', 'assets/octopus.png', 'assets/octopus.xml');
 	};
 
 	function create() {
+		// add a background to the game
+		//game.add.sprite(0,20, 'background');
 		// Define amount of objects in game
-		this.numTargets = 40;
+		this.numTargets = 20;
 		this.numObstacles = 11;
 		// add the obstacles, targets and the population
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
-		/* == STAGE == */
+
+		population = new Population(game, 80);
+
+		// init pop, obstacles and targets with elements
+		population.initPopulation(MLPConfig);
+		allObstacles.initObjects();
+		allTargets.initObjects();
+
+		allObstacles.reposition();
+
+						/* == STAGE == */
 		stage = [
 			new Wall(game, wallPadding, wallPadding, wallPadding, game.world.height - wallPadding),
 			new Wall(game, wallPadding, wallPadding, game.world.width - wallPadding, wallPadding),
@@ -111,18 +125,10 @@ var HEIGHT = 600;
 			new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, wallPadding, game.world.height - wallPadding)
 		];
 
-		stage.forEach((wall) => wall.draw());
-		population = new Population(game, 80);
-
-		// init pop, obstacles and targets with elements
-		population.initPopulation(recurrentConfig);
-		allObstacles.initObjects();
-		allTargets.initObjects();
-
-		allObstacles.reposition();
+		//stage.forEach((wall) => wall.draw());
 
 		// the background of everything
-		game.stage.backgroundColor = '#75DDFF';
+		game.stage.backgroundColor = '#8BD5E6';
 		game.stage.disableVisibilityChange = true;
 
 		setRender(renderObj);
@@ -158,6 +164,7 @@ var HEIGHT = 600;
 				setRender(renderObj);
 				frameSpeedElement.value = simulationSpeed;
 				document.getElementById("toogleRender").checked = renderObj;
+				document.getElementById("frameSpeedValue").innerHTML = simulationSpeed;
 			}
 		}
 	}

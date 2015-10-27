@@ -9,7 +9,6 @@ var Wall = function (game, x0, y0, x1, y1) {
 	this.wallVector = new Victor(this.x1 - this.x0, this.y1 - this.y0);
 	this.graphics = game.add.graphics();
 	this.thickness = 1;
-	console.log(this);
 };
 
 Wall.prototype.draw = function() {
