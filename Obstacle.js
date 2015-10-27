@@ -17,7 +17,7 @@ var Obstacle = function (game, x, y) {
 	this.position = new Victor(x, y);
 	this.velocity = new Victor(7*Math.random()-1, 0)//7*Math.random()-1)
 		.norm()
-		.multiply(new Victor(20, 20)); // short for multiply
+		.multiply(new Victor(30, 30)); // short for multiply
 }
 
 Obstacle.prototype = Object.create(Phaser.Sprite.prototype);

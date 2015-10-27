@@ -46,21 +46,31 @@ DNA.prototype.mutate = function() {
 }
 
 // function that takes two parents and return one child
-DNA.crossover = function(billy, bob) {
-	var crossIndex = Math.floor(getRandom(1,bob.genes.length-2));
+DNA.crossover = function(billy, bob, crossoverType) {
 	var newGenes = [];
 	var i;
-/*
-	for (i=0; i<bob.genes.length; i++){
-		newGenes[i] = (billy.genes[i]+bob.genes[i])/2.0;
-
-	}*/
-
-	for (i=0; i<crossIndex; i++){
+	if(crossoverType === undefined || crossoverType === 'cutoff'){
+		/*   INDEX CUTOFF  */
+		var crossIndex = Math.floor(getRandom(1,bob.genes.length-2));
+		for (i=0; i<crossIndex; i++){
 		newGenes[i] = billy.genes[i];
-	}
-	for(; i<bob.genes.length; i++) {
-		newGenes[i] = bob.genes[i];
+		}
+		for(; i<bob.genes.length; i++) {
+			newGenes[i] = bob.genes[i];
+		}
+	} else if(crossoverType === 'average') {
+		/*   AVERAGE  */
+		for (i=0; i<bob.genes.length; i++){
+			newGenes[i] = (billy.genes[i]+bob.genes[i])/2.0;
+
+		}
+	} else if(crossoverType === 'zigzag') {
+		// randomize number between 0.25 - 0.75.
+		var crossProbability = 0.25 + Math.random()*0.5;
+		// Use crossprobability to decide whether to choose weight from billy och bob
+		for (i=0; i<bob.genes.length; i++){
+			newGenes[i] = (crossProbability>Math.random()) ? billy.genes[i] : bob.genes[i];
+		}
 	}
 
 	var billybob = new DNA(1);
