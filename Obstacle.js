@@ -2,7 +2,6 @@ var Obstacle = function (game, x, y) {
 	this.maxSpeed = 100;
 
 	this.game = game;
-	
 	// Inherit from sprite
 	Phaser.Sprite.call(this, game, x, y, 'obstacle');
 	//this.scale.setTo(0.2);
@@ -13,7 +12,6 @@ var Obstacle = function (game, x, y) {
 
 	this.radius = Math.max(this.height,this.width)/2.0; // the sprite itself has a width and a height
 														// use this in order to determine the radiue
-
 	this.position = new Victor(x, y);
 	this.velocity = new Victor(7*Math.random()-1, 0)//7*Math.random()-1)
 		.norm()

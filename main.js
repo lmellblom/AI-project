@@ -189,8 +189,10 @@ var HEIGHT = 600;
 	function renderLines(bool) {
 		// for each line
 		population.getGroup().forEach( (object)=> {
-			object.lines.renderable = bool;
-
+			object.lines.forEach(function(line){
+				line.renderable = bool;
+				line.visible = bool;
+			})
 		});
 	}
 
