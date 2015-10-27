@@ -4,6 +4,7 @@ var AgentFactory = function (game) {
 
 AgentFactory.prototype.createAgent = function(options) {
 	var numWeights;
+	var numInputs = options.numInputs;
 	var theDNA;
 	var brain;
 	if(options['type'].toLowerCase() == "perceptron"){
@@ -20,12 +21,35 @@ AgentFactory.prototype.createAgent = function(options) {
 		theDNA = new DNA(numWeights);
 		brain = new Recurrent(theDNA.genes, options.numInputs, options.numHidden, options.numOutputs);
 	}
+	else if(options['type'].toLowerCase() == "existing") {
+
+		// Variables for the brain
+		var tempBrain = options['brain'];
+		var genes = tempBrain.weights;
+		var bias = tempBrain.bias;
+		numInputs = tempBrain.numInputs;
+		var numHidden = tempBrain.numHidden;
+		var numOutputs = tempBrain.numOutputs;
+
+		// Which brain to create
+		if(tempBrain.brainType == "perceptron") {
+			brain = new Perceptron(genes, numInputs, numOutputs, bias);
+		}
+		else if(tempBrain.brainType == "mlp") {
+			brain = new MLP(genes, numInputs, numHidden, numOutputs, bias);
+		}
+		else if(tempBrain.brainType == "recurrent") {
+			brain = new Recurrent(genes, numInputs, numHidden, numOutputs, bias);
+		}
+		theDNA = new DNA(numWeights);
+		theDNA.setGenes(genes);
+	}
 
 	return new Mover(
 		this.game,
 		theDNA,
 		brain,
-		options.numInputs, // number of sensors
+		numInputs, // number of sensors
 		getRandomInt(40, WIDTH-40),
 		getRandomInt(40, HEIGHT-40)
 	);

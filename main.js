@@ -56,6 +56,11 @@ var HEIGHT = 600;
 			document.getElementById("toogleRender").checked = renderObj;
 		}
 	});
+	// Button which can insert Movers into the population
+	var btnInsertElement = document.getElementById("insertButton");
+	btnInsertElement.addEventListener("click", (e) => {
+		population.addPopulation();
+	});
 	/* == POPULATION CONFIGS == */
 
 	var perceptronConfig = {
@@ -76,13 +81,13 @@ var HEIGHT = 600;
 		'numOutputs': 2
 	}
 
+
 	function preload() {
 		// scale the screen
 		game.scale.setScreenSize=true;
 		game.scale.pageAlignVertically = true;
     	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     	game.scale.updateLayout(true);
-
 
     	// load assets into the game
 		game.load.image('diamond', 'assets/star.png');
@@ -125,9 +130,6 @@ var HEIGHT = 600;
 		// the background of everything
 		game.stage.backgroundColor = '#8BD5E6';
 		game.stage.disableVisibilityChange = true;
-
-		renderKey = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
-		renderKey.onDown.add(toogleRender, this);
 
 		setRender(renderObj);
 

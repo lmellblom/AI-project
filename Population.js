@@ -216,6 +216,44 @@ Population.prototype.sortPopulation = function() {
 		return b.DNA.fitness - a.DNA.fitness;
 	});
 };
+// Read population from text field
+Population.prototype.addPopulation = function() {
+
+	// Read agent/mover from textfield
+	try {
+		var mover = JSON.parse(document.getElementById("insertDNA").value);
+		
+		// Config for creating new agent/mover
+		var existingAgentConfig = {
+				'type': 'existing',
+				'DNA': mover.DNA,
+				'brain': mover.brain
+		}
+
+		// Create a new Mover and add to groupMover
+		var agentFactory = new AgentFactory(this.game);
+		var tempMover = agentFactory.createAgent(existingAgentConfig);
+		//Kill the mover
+		tempMover.died();
+		tempMover.isAlive = false;
+		tempMover.kill();
+		this.groupMover.add(tempMover);
+
+		//Update number of Movers
+		this.numMovers++; //Adds to number of movers
+		document.getElementById("numberPop").innerHTML = this.numMovers;
+
+		// Some information about the new Mover
+		console.log("Brain type: " + tempMover.brain.brainType);
+		console.log("Bias " + tempMover.brain.bias);
+		console.log("Hidden layers: " + tempMover.brain.numHidden);
+		console.log("Fitness: " + tempMover.DNA.fitness);
+		}
+		catch(err) {
+			console.log("Error while reading mover: "+ err.message);
+		}
+
+};
 
 Population.prototype.sortChampions = function() {
 	this.championDNA.sort(function(a,b){
