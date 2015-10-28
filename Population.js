@@ -227,6 +227,7 @@ Population.prototype.moverCollided = function(obstacles, mover) {
 Population.prototype.foundTarget = function(target, mover) {
 	target.setRandomPosition();
 	mover.energy += 60*3; // adds 3 seconds to the energy if have eaten
+	mover.energy = mover.energy > mover.surviveTime ? mover.surviveTime : mover.energy;
 };
 
 Population.prototype.sortPopulation = function() {
