@@ -134,7 +134,6 @@ Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 	// for each line, sample from its surroundings to find if it intersects any obstacles.
 	this.lines.forEach( (line, i) => {
 		// for each line rotate it a bit to the right
-		//direction.rotate((-Math.PI / (this.numSensors-1) ) + getRandom(-0.5,0.5) );
 		rotation = directionSpan * getRandom(0.2,0.8);
 		direction.rotate(rotation);
 		// take the endpoint

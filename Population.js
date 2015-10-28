@@ -2,9 +2,7 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.numMovers = size;					// we have not yet implementet a way to skip through generations
 	this.generationNr = 1;
 	this.groupMover = game.add.group();
-	//this.groupMover.enableBody = true;
 	this.alivePopulationSize = size;
-	//this.groupMover.physicsBodyType = Phaser.Physics.ARCADE;
 	this.game = game; // keep a reference to the game
 	this.elitism = 0.1; // 15 percent of the population size will move straight to the next generation!
 	this.championRatio = 0.1;
@@ -22,7 +20,6 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 
 	// add population text top of screen
 	var style = { font: "20px Times", fill: "#000", align: "right" };
-	this.popNumber = this.game.add.text(this.game.world.width - 140, 20, "Generation " +this.generationNr, style);
 	document.getElementById("genNumber").innerHTML = this.generationNr;
 };
 
@@ -206,7 +203,6 @@ Population.prototype.hallOfFame = function() {
 		for(var i = 0; i < this.championNumber; i++){
 
 			if(individual.DNA.fitness > this.championDNA[i].fitness ){
-				//console.log("contender: "+individual.DNA.fitness+" champion: "+this.championDNA[i].fitness);
 				this.championDNA[i].fitness = individual.DNA.fitness;
 				this.championDNA[i].genes = individual.DNA.genes.slice();
 
@@ -292,6 +288,5 @@ Population.prototype.revivePopulation = function() {
 	});
 
 	this.timer = 0;	// reset the timer
-	this.popNumber.text =  "Generation " + this.generationNr;
 	document.getElementById("genNumber").innerHTML = this.generationNr;
 };
