@@ -19,7 +19,7 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	this.speed = 120;
 	this.vel = new Victor(this.speed, 0);
 
-	this.surviveTime = 60 * 15; // should survive 15 seconds wihtout food for example
+	this.surviveTime = 60 * 17; // should survive 15 seconds wihtout food for example
 	this.energy = this.surviveTime; // set the start energy to the survive time
 
 	this.sensorLength = 180;
