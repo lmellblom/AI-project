@@ -11,6 +11,7 @@
 		<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css"> -->
 		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script> -->
 
+
 		<script src="helpFunctions.js"></script>
 		<script type="text/javascript" src="AgentFactory.js"></script>
 		<script type="text/javascript" src="ANN/network.js"></script>
@@ -25,76 +26,97 @@
 		<script type="text/javascript" src="Obstacle.js"></script>
 		<script type="text/javascript" src="Population.js"></script>
 
+		<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css">-->
+		<link href="paper-bootstrap.css" rel="stylesheet" type="text/css">
+
+
 		<style>
 			body {
 				margin-top : 0px;
 				margin-left: auto;
 				margin-right: auto;
-				font-family: 'Open Sans', sans-serif;
-				font-size: 12px;
-			}
-
-			h2 {
-				font-family: 'Open Sans', sans-serif;
+				font-size: 11px;
 			}
 
 			#selectOptions {
-				display: inline-block;
-				float: left;
-				text-align: center;
-				width: 15%;
+				text-align: left;
 				padding: 6px;
-				padding-top: 10px;
-				margin:0px;
-				margin-left: 20px;
+				padding-left: 10px;
 			}
 
-			#canvasContainer {
-				margin: auto 0px;
-				display: inline-block;
-				float: left;
+			.container{
+				margin: 0px;
 			}
 
 			#canvasContainer canvas {
 				margin:0;
 
 			}
-
-			@media screen and (max-width: 700px)  {
-				#selectOptions {
-					display: block;
-					width: 100%;
-					text-align: center;
-				}
+			#canvasContainer{
+				padding: 0px;
+				margin: 0px;
 			}
 
+			.text-center {
+				text-align: center;
+			}
 		</style>
 
 	</head>
 
 	<body>
-		<div id="canvasContainer">
-		</div>
+		<div class="container">
+			<h2 class="text-center">Surviving agents</h2>
 
-		<div id="selectOptions">
-			<h2>Settings</h2>
-			Speed:<input id="frameSpeed" type="range" min="0" max="20" step="1" value="1"/> <span id="frameSpeedValue"></span> <br><br>
-			Render: <input type="checkbox" id="toogleRender"> <br><br>
-			Render lines: <input type="checkbox" id="toogleLines"> <br><br>
-			Skip to generation: <input type="number" id="skipToGeneration" min="1"> <br><br>
-			<h2>Info</h2>
-			Number in population: <span id="numberPop"></span><br><br>
-			Generation number: <span id="genNumber"></span><br><br>
+			<div class="row">
+				<div class="col-md-8" id="canvasContainer">
+				</div>
 
-			<h2>Click on a Mover to get its DNA</h2>
-			<textarea id="infoDNA" rows="10" cols="30">
-			</textarea>
+				<div class="col-md-4" id="selectOptions">
+					<div class="row">
+						<div class="col-xs-12"><h4>Info</h4></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-8">Number in population</div> <div class="col-xs-4" id="numberPop"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-8">Generation number</div> <div class="col-xs-4" id="genNumber"></div>
+					</div>
 
-			<h2>Paste Mover DNA here and click the button</h2>
-			<textarea id="insertDNA" rows="10" cols="30">
-			</textarea>
-			<button type="button" id="insertButton">Insert Mover!</button>
 
+					
+					<div class="row">
+						<div class="col-xs-12"><h4>Settings</h4></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-4">Speed</div> <div class="col-xs-4"><input id="frameSpeed" type="range" min="0" max="20" step="1" value="1"/></div> <div class="col-xs-4" id="frameSpeedValue"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-4">Render</div>  <div class="col-xs-8"><input type="checkbox" id="toogleRender"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-4">Render sensors</div> <div class="col-xs-8"><input type="checkbox" id="toogleLines"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-4">Skip to generation</div>  <div class="col-xs-8"> <input type="number" id="skipToGeneration" min="1"></div>
+					</div>
+
+					<div class="row">
+						<div class="col-xs-12"><h5>Click on a Mover to get its DNA</h5></div>
+						<div class="col-xs-12"><textarea id="infoDNA"></textarea></div>
+					</div>
+
+					<div class="row">
+						<div class="col-xs-12"><h5>Paste Mover DNA here and click the button</h5></div>
+						<div class="col-xs-12"><textarea id="insertDNA"></textarea></div>
+						<div class="col-xs-12"><button type="button" class="btn btn-default" id="insertButton">Insert Mover!</button></div>
+					</div>
+
+			
+					</div>
+
+				</div>
+			</div>
 		</div>
 
 		<script src="main.js"></script>
