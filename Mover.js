@@ -107,6 +107,12 @@ Mover.prototype.move = function(dt, brainInput) {
 		this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
 	}
 
+	//tint sprite when 10 seconds remaining of the energy
+	if(this.energy < 60*10){
+		this.tint = Phaser.Color.interpolateColor(0xffffff, 0x66AA66, 600, 600-this.energy);
+	} else {
+		this.tint = 16777215;
+	}
 	// reposition sprite
 	this.x = this.pos.x;
 	this.y = this.pos.y;
