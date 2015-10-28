@@ -6,12 +6,11 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 
 	// Inherit from sprite (call its constructor)
 	Phaser.Sprite.call(this, game, x, y, 'octopus');
-	//  Create an animation called 'swim', the fact we don't specify any frames means it will use all frames in the atlas
+	//  Create an animation called 'swim',
+	//  the fact we don't specify any frames means it will use all frames in the atlas
 	this.animations.add('swim');
 	//  Play the animation at 30fps on a loop
 	this.animations.play('swim', 30, true);
-
-	//this.points = 0;
 
 	// DNA is where the neural networks weights are
 	this.DNA = theDNA;
@@ -29,10 +28,8 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	// scale the sprite down a bit
 	this.scale.setTo(0.2);
 
-	// Leave out acceleration for the time being, dont need to add complexity right now.
-	//this.a = new Victor(0.0, 0.0);
 	this.r = Math.max(this.height,this.width)/2.0; // the sprite itself has a width and a height
-														// use this in order to determine the radiue
+														// use this in order to determine the radius
 	// rotate the sprite correctly
 	this.angle = this.getRotation();
 
@@ -40,18 +37,9 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	this.anchor.x = 0.5;
 	this.anchor.y = 0.4;
 
-	// arbitrary values (not used at the momemt)
-	//this.maxForce = theDNA.maxForce || 0.4;
-	//this.maxSpeed = theDNA.maxSpeed || 3.0;
-
+	this.graphics = this.game.add.graphics(0,0);
 	//lines for sensing - for debugging
 	this.lines = Array.from({length: this.numSensors}, () => new Phaser.Line(0, 0, 0, 0));
-
-	// TESTING WITH TIMER!!
-	//game.time.events.loop(Phaser.Timer.SECOND, this.updateCounter, this);
-	//this.timer = 0; // how long it survived?
-
-	//this.avoidedFitness = 0;
 
 	this.inputEnabled = true;
 	this.events.onInputDown.add(this.moverClicked, this);
@@ -60,14 +48,6 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 // get sprites methods and extend with more methods
 Mover.prototype = Object.create(Phaser.Sprite.prototype);
 Mover.prototype.constructor = Mover;
-
-// called each frame
-/*Mover.prototype.update = function() {
-	//this.steer();
-	//this.graphics.clear();
-	//this.senseEnvironment();
-
-};*/
 
 // if a mover is clicked on, this function will be called and print out the brain
 Mover.prototype.moverClicked = function() {
@@ -103,15 +83,13 @@ Mover.prototype.updateBrain = function() {
 
 Mover.prototype.setFitness = function(timer) {
 	this.DNA.setFitness(timer); 	// set the fitness value how long they survived. 
-	console.log("energy when died: " + this.energy); 
 	this.energy = this.surviveTime; // reset the survive time
 }
 
-Mover.prototype.died = function() {
-	//console.log("survived " + this.timer);
-	// gör inget här?! kanske göra något sen...	
-	// remove the lines!!! vet inte hur??
-	//console.log("Died.. made it : " + this.timer +  " s.");
+Mover.prototype.die = function() {
+	this.graphics.clear();
+	this.isAlive = false;
+	this.kill();
 }
 
 Mover.prototype.move = function(dt, brainInput) {
@@ -119,7 +97,6 @@ Mover.prototype.move = function(dt, brainInput) {
 	var action = this.brain.feedforward(brainInput);
 
 	if (action[0]>0){
-		//this.speed = 120;
 		if(action[1]>0) {
 			this.vel.rotate(Math.PI / 30).norm().multiplyScalar(this.speed);
 		}
@@ -129,13 +106,7 @@ Mover.prototype.move = function(dt, brainInput) {
 		// Euler step
 		this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
 	}
-	// if only 1 output
-/*	if(action[0]>0){
-		this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
-	} else {
-		this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
-	}
-	this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));*/
+
 	// reposition sprite
 	this.x = this.pos.x;
 	this.y = this.pos.y;
@@ -145,15 +116,13 @@ Mover.prototype.move = function(dt, brainInput) {
 Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 	var point;
 	var result = Array(this.numSensors * 2).fill(0);
+	this.graphics.clear();
 	// take looking direction
 	var direction = this.vel.clone()
 	direction.normalize().multiplyScalar(this.sensorLength);
 
 	// rotate it to the left
-	//direction.rotate((Math.PI / 2) + Math.PI / (this.numSensors-1));
-	//var directionSpan = -Math.PI/3;
-	var directionSpan = - (5 * Math.PI/3)/this.numSensors;
-
+	var directionSpan = - (5 * Math.PI/3) / this.numSensors;
 	direction.rotate(2 * Math.PI / 3);
 
 	// for each line, sample from its surroundings to find if it intersects any obstacles.
@@ -196,8 +165,8 @@ Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
 		});
 
-		// draw debug lines DO NOT REMOVE
-		if(result[i] && this.lines.renderable){
+		// draw debug lines
+		if(result[i] && line.renderable){
 			// if line has intersected, shorten the line appropriatly
 			direction.normalize().multiplyScalar(this.sensorLength);
 			point = direction
@@ -208,10 +177,9 @@ Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 
 			//0 inget, 1 masssor
 			line.setTo(this.pos.x, this.pos.y, point.x, point.y);
-			//var colors = ["#000000", "#FFFFFF", "#007829"];
-			this.game.debug.geom(line, "#FF2965"); // to show the lines or not for debbuging sort of.
+			this.drawLine(line, 0xFF2965);
 		}
-		if(result[this.numSensors+i] && this.lines.renderable){
+		if(result[this.numSensors+i] && line.renderable){
 			// if line has intersected, shorten the line appropriatly
 			direction.normalize().multiplyScalar(this.sensorLength);
 			point = direction
@@ -221,11 +189,8 @@ Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 				.add(this.pos);
 
 			line.setTo(this.pos.x, this.pos.y, point.x, point.y);
-
-			//var colors = ["#000000", "#FFFFFF", "#007829"];
-			this.game.debug.geom(line, "#5AEB00"); // to show the lines or not for debbuging sort of.
+			this.drawLine(line, 0x5AEB00);
 		}
-
 		direction.rotate(-rotation).rotate(directionSpan);
 	})
 	// return array with results
@@ -234,4 +199,12 @@ Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 
 Mover.prototype.getRotation = function() {
 	return ((this.vel.direction() + Math.PI/2)*180 )/Math.PI ;
+};
+
+Mover.prototype.drawLine = function(line, color) {
+	this.graphics.beginFill();
+	this.graphics.lineStyle(1, color, 1);
+	this.graphics.moveTo(line.start.x, line.start.y);
+	this.graphics.lineTo(line.end.x, line.end.y);
+	this.graphics.endFill();
 };

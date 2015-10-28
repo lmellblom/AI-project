@@ -1,66 +1,62 @@
-/*
-	see tutorial http://codetowin.io/tutorials/nback-game-states-and-menus/
-*/
-var DRAWLINES = false;
 var WIDTH = 800;
 var HEIGHT = 600;
 // Self invoking function for not polluting global scope
 (function () {
 	var dt = 1/60;
-	var wallPadding = 15
+	var wallPadding = 1;
 
-	var skipToGen = 2; // Skips to this generation at start
-	var simulationSpeed = 20; // How fast the simulation should be
+	var skipToGen = 1; // Skips to this generation at start
+	var simulationSpeed = 1; // How fast the simulation should be
+	var renderObj = true;
+	var reachedSkipGeneration = true;
+	var populationSize = 80;
 	var population;
 	var allObstacles;
 	var allTargets;
 	var stage;
 	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, 'canvasContainer',
-
 		{ preload: preload, create: create, update: update});
 
 	/* == GUI STUFF == */
-	var frameSpeedElement = document.getElementById("frameSpeed");
-	frameSpeedElement.value = simulationSpeed;
-	document.getElementById("frameSpeedValue").innerHTML = simulationSpeed;
-	frameSpeedElement.addEventListener("change", (e) => {
-		simulationSpeed = e.target.value;
-		document.getElementById("frameSpeedValue").innerHTML = simulationSpeed;
-	});
-	// default values for the simulation..
-	var renderKey;
-	var renderObj = false;
-	var reachedSkipGeneration = false;
 
+	/* Getting the elements */
+	var frameSpeedElement = document.getElementById("frameSpeed");
+	var frameSpeedTextElement = document.getElementById("frameSpeedValue");
 	var renderElement = document.getElementById("toogleRender");
-	renderElement.addEventListener("change", (e) => {
+	var renderLinesElement = document.getElementById("toogleLines");
+	var skipToGenElement = document.getElementById("skipToGeneration");
+	var btnInsertMoverElement = document.getElementById("insertButton");
+	var frameSpeedElement = document.getElementById("frameSpeed");
+	var insertMoverElement = document.getElementById("insertDNA");
+	var numberPopElement = document.getElementById("numberPop");
+
+	/* Setting event listeners */
+	frameSpeedElement.addEventListener("change", function(e){
+		setFrameSpeed(e.target.value);
+	});
+	renderElement.addEventListener("change", function(e) {
 		setRender(e.target.checked);
 	});
-
-	var renderLinesElement = document.getElementById("toogleLines");
-	renderLinesElement.addEventListener("change", (e) => {
-		renderLines(e.target.checked);
+	renderLinesElement.addEventListener("change", function(e) {
+		setRenderLines(e.target.checked);
 	});
-
-	var skipToGenElement = document.getElementById("skipToGeneration");
-	skipToGenElement.value = skipToGen;
-	skipToGenElement.addEventListener("change", (e) => {
-		skipToGen = e.target.value;
-
-		if(skipToGen > population.generationNr ) {
-			renderObj = false;
-			setRender(renderObj);
-			frameSpeedElement.value = (frameSpeedElement.min + frameSpeedElement.max) / 2;
-			simulationSpeed = frameSpeedElement.value;
-			document.getElementById("frameSpeedValue").innerHTML = simulationSpeed;
-			document.getElementById("toogleRender").checked = renderObj;
+	skipToGenElement.addEventListener("change", function(e) {
+		skipToGeneration(e.target.value);
+	});
+	btnInsertMoverElement.addEventListener("click", function(e) {
+		var mover = JSON.parse(insertMoverElement.value);
+		if(mover !== undefined){
+			population.addMover(mover);
+			numberPopElement.innerHTML = population.numMovers;
 		}
 	});
-	// Button which can insert Movers into the population
-	var btnInsertElement = document.getElementById("insertButton");
-	btnInsertElement.addEventListener("click", (e) => {
-		population.addPopulation();
-	});
+	/* default values*/
+	frameSpeedElement.value = simulationSpeed;
+	skipToGenElement.value = skipToGen;
+	numberPopElement.innerHTML = populationSize;
+	renderElement.checked = renderObj;
+	frameSpeedTextElement.innerHTML = simulationSpeed;
+
 	/* == POPULATION CONFIGS == */
 
 	var perceptronConfig = {
@@ -99,8 +95,7 @@ var HEIGHT = 600;
 	};
 
 	function create() {
-		// add a background to the game
-		//game.add.sprite(0,20, 'background');
+
 		// Define amount of objects in game
 		this.numTargets = 20;
 		this.numObstacles = 11;
@@ -108,7 +103,7 @@ var HEIGHT = 600;
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
 
-		population = new Population(game, 80);
+		population = new Population(game, populationSize);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation(MLPConfig);
@@ -125,7 +120,7 @@ var HEIGHT = 600;
 			new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, wallPadding, game.world.height - wallPadding)
 		];
 
-		//stage.forEach((wall) => wall.draw());
+		stage.forEach((wall) => wall.draw());
 
 		// the background of everything
 		game.stage.backgroundColor = '#8BD5E6';
@@ -133,22 +128,16 @@ var HEIGHT = 600;
 
 		setRender(renderObj);
 
-		renderLines(false);
+		setRenderLines(false);
 	};
 
-// will update the sceen, simulates everything
-	function simulates() {
+	// will update the sceen, simulates everything
+	function simulate() {
 		population.update(allObstacles.getGroup(), allTargets.getGroup(), stage, dt);
 		allObstacles.update(dt);
 		allTargets.update(dt);
 
 		population.checkCollision(allTargets.getGroup(), allObstacles.getGroup());
-
-		// collision between the obstacle and the population, the population should die if this happens
-		//game.physics.arcade.overlap(allObstacles.getGroup(), population.getGroup(), population.moverCollided, null, population);
-		// collision between a target and the population, then the mover in that pop should get a reward
-		//game.physics.arcade.overlap(allTargets.getGroup(), population.getGroup(), population.foundTarget, null, population);
-
 		// check if the population is out of the field
 		population.checkBoundary(stage);
 
@@ -163,8 +152,8 @@ var HEIGHT = 600;
 				simulationSpeed = 1;
 				setRender(renderObj);
 				frameSpeedElement.value = simulationSpeed;
-				document.getElementById("toogleRender").checked = renderObj;
-				document.getElementById("frameSpeedValue").innerHTML = simulationSpeed;
+				renderElement.checked = renderObj;
+				frameSpeedTextElement.innerHTML = simulationSpeed;
 			}
 		}
 	}
@@ -173,24 +162,25 @@ var HEIGHT = 600;
 	function toogleRender() {
 		renderObj = !renderObj;
 		setRender(renderObj);
-		document.getElementById("toogleRender").checked = renderObj;
+		renderElement.checked = renderObj;
 	}
-
 
 	// Called every 60 milliseconds
 	function update(){
 
 		for(var i = 0; i < simulationSpeed; i++) {
-			simulates();
+			simulate();
 		}
 
 	};
 
-	function renderLines(bool) {
+	function setRenderLines(bool) {
 		// for each line
 		population.getGroup().forEach( (object)=> {
-			object.lines.renderable = bool;
-
+			object.lines.forEach(function(line){
+				line.renderable = bool;
+				line.visible = bool;
+			})
 		});
 	}
 
@@ -199,13 +189,28 @@ var HEIGHT = 600;
 		population.getGroup().forEach( (object)=> {
 			object.renderable = bool;
 		});
-
 		allTargets.getGroup().forEach( (object)=> {
 			object.renderable = bool;
 		});
-
 		allObstacles.getGroup().forEach( (object)=> {
 			object.renderable = bool;
 		});
+	}
+
+	function setFrameSpeed(speed){
+		simulationSpeed = speed;
+		frameSpeedTextElement.innerHTML = simulationSpeed;
+	}
+
+	function skipToGeneration(generation){
+		skipToGen = generation;
+		if(skipToGen > population.generationNr ) {
+			renderObj = false;
+			setRender(renderObj);
+			frameSpeedElement.value = (frameSpeedElement.min + frameSpeedElement.max) / 2;
+			simulationSpeed = frameSpeedElement.value;
+			frameSpeedTextElement.innerHTML = simulationSpeed;
+			renderElement.checked = renderObj;
+		}
 	}
 }());
