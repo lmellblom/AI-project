@@ -77,6 +77,16 @@ Population.prototype.update = function(obstacles, targets, stage, dt) {
 		// 1 = obstacle, 0 = no obstacle
 		var brainInput = mover.senseEnvironment(obstacles, targets, stage);
 		mover.move(dt, brainInput);
+		mover.energy--; // the energy should go down when the mover is moving. 
+
+		// the mover should die if the energy have run out
+		if(mover.energy<=0){
+			this.alivePopulationSize--;
+			mover.died(); 				// do something meaningfull in the mover?
+			mover.setFitness(this.timer); 	// will set how long it survived. 
+			mover.isAlive = false;
+			mover.kill();				// kill sprite
+		}
 	});
 
 	this.timer++;
@@ -230,11 +240,10 @@ Population.prototype.moverCollided = function(obstacles, mover) {
 };
 
 Population.prototype.foundTarget = function(target, mover) {
-	//console.log("YOU FOUND A TARGET! WOW");
 	mover.targetsCollected += 1;
 	target.setRandomPosition();
-	//target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
-	// set + på movern, eftersom den får något extra då i fitness kanske?
+
+	mover.energy += 60*3; // adds 3 seconds to the energy if have eaten
 };
 
 Population.prototype.sortPopulation = function() {
