@@ -1,5 +1,5 @@
-var Population = function (game, size) { 	// IMPORTANT, as of now "generation" only sets the "generationNr" 
-	this.numMovers = size;								// we have not yet implementet a way to skip through generations
+var Population = function (game, size) { 	// IMPORTANT, as of now "generation" only sets the "generationNr"
+	this.numMovers = size;					// we have not yet implementet a way to skip through generations
 	this.generationNr = 1;
 	this.groupMover = game.add.group();
 	//this.groupMover.enableBody = true;
@@ -10,12 +10,15 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.championRatio = 0.1;
 	this.championNumber = Math.ceil(this.numMovers*this.championRatio);
 	this.championDNA = [];
+	this.crossoverType = 'zigzag';
 	for(var i = 0; i < this.championNumber; i++){
 			this.championDNA[i] = new DNA(1);
 	}
 
 	// one timer on the whole population?
 	this.timer = 0;
+
+	this.selectionType = "rank";
 
 	// add population text top of screen
 	var style = { font: "20px Times", fill: "#000", align: "right" };
@@ -78,14 +81,12 @@ Population.prototype.update = function(obstacles, targets, stage, dt) {
 	this.timer++;
 };
 
-Population.prototype.nextPopulation = function() {
-	var matingPool = []; // holdes all the DNA of the indivuals to mate
-
-	// Elitism, This is the number of individuals that will go straight to the next generation
-	var elitismNumber = Math.ceil(this.numMovers*this.elitism);
-	var prevGeneration;
+Population.prototype.rouletteWheelSelection = function() {
+	// builts up the mating pool for the roulette wheel selection
+	var matingPool = [];
 	var sumFitness = 0;
 	var sumProb = 0;
+	
 	// sum up the fitness from every individ
 	this.groupMover.forEach(function(individual){
 		sumFitness += individual.DNA.fitness;
@@ -96,9 +97,42 @@ Population.prototype.nextPopulation = function() {
 
 		matingPool.push(sumProb);
 	});
+
+	return matingPool;
+};
+
+Population.prototype.rankSelection = function() {
+	// the probability is based on which rank the individual has (ex 1, 2,3 etc.)
+	// divide the spinning wheel accoring to rank. 
+	var matingPool = [];
+	var numbers = this.groupMover.children.length;  // how many in the population
+
+	var sumOfRank = 0;
+	for(var i=1; i<=numbers; i++){
+		sumOfRank+=i;
+	}
+
+	var probBefore = 0;
+	for(var index = 0, i=numbers; index < numbers; index++, i--) {
+		matingPool[index] = probBefore +  (i/sumOfRank);
+		probBefore = matingPool[index];
+	}
+
+	return matingPool;
+};
+
+
+Population.prototype.nextPopulation = function() {
+	var matingPool = []; // holdes all the DNA of the indivuals to mate
+
+	// Elitism, This is the number of individuals that will go straight to the next generation
+	var elitismNumber = Math.ceil(this.numMovers*this.elitism);
+	var prevGeneration;
+
+	// builts upp mating pool based on which metod to use.
+	var matingPool = this.selectionType == "rank" ? this.rankSelection() : this.rouletteWheelSelection();
 	
 	this.hallOfFame();
-	
 	prevGeneration = this.groupMover.children;
 
 	for (var i=elitismNumber; i<prevGeneration.length; i++) {
@@ -124,7 +158,8 @@ Population.prototype.nextPopulation = function() {
 		var billy = parents[0];
 		var bob = parents[1];
 		// new child
-		var billybob = DNA.crossover(billy.DNA,bob.DNA); // returns a new DNA
+
+		var billybob = DNA.crossover(billy.DNA, bob.DNA, this.crossoverType); // returns a new DNA
 		billybob.mutate();
 
 		if(i <elitismNumber + this.championNumber){
@@ -253,4 +288,3 @@ Population.prototype.revivePopulation = function() {
 	this.popNumber.text =  "Generation " + this.generationNr;
 	document.getElementById("genNumber").innerHTML = this.generationNr;
 };
-
