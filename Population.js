@@ -1,5 +1,5 @@
-var Population = function (game, size) { 	// IMPORTANT, as of now "generation" only sets the "generationNr" 
-	this.numMovers = size;								// we have not yet implementet a way to skip through generations
+var Population = function (game, size) { 	// IMPORTANT, as of now "generation" only sets the "generationNr"
+	this.numMovers = size;					// we have not yet implementet a way to skip through generations
 	this.generationNr = 1;
 	this.groupMover = game.add.group();
 	//this.groupMover.enableBody = true;
@@ -8,8 +8,9 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.game = game; // keep a reference to the game
 	this.elitism = 0.1; // 15 percent of the population size will move straight to the next generation!
 	this.championRatio = 0.1;
-	this.championNumber = Math.ceil(this.numMovers*this.championRatio); 
+	this.championNumber = Math.ceil(this.numMovers*this.championRatio);
 	this.championDNA = [];
+	this.crossoverType = 'zigzag';
 	for(var i = 0; i < this.championNumber; i++){
 			this.championDNA[i] = new DNA(1);
 	}
@@ -97,9 +98,8 @@ Population.prototype.nextPopulation = function() {
 
 		matingPool.push(sumProb);
 	});
-	
+
 	this.hallOfFame();
-	
 	prevGeneration = this.groupMover.children;
 
 	for (var i=elitismNumber; i<prevGeneration.length; i++) {
@@ -125,22 +125,14 @@ Population.prototype.nextPopulation = function() {
 		var billy = parents[0];
 		var bob = parents[1];
 		// new child
-
-		var billybob = DNA.crossover(billy.DNA,bob.DNA); // returns a new DNA
+		var billybob = DNA.crossover(billy.DNA, bob.DNA, this.crossoverType); // returns a new DNA
 		billybob.mutate();
-
-		//check if champion already has been added through elitism
-		//if(this.championDNA[i].fitness == elitism){
-		
-		//}
-		// NEED to reset the current pop, just overwrite the DNA at the moment.
-		// need to reset fitness, isAlive = true, update brain? etc.. maybe not do this..
 
 		if(i <elitismNumber + this.championNumber){
 			DNAcopy = new DNA(1);
 			DNAcopy.fitness = this.championDNA[i-elitismNumber].fitness;
 			DNAcopy.genes = this.championDNA[i-elitismNumber].genes;
-			
+
 			this.groupMover.children[i].DNA = DNAcopy;
 		}
 		else
