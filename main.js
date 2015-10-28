@@ -90,6 +90,7 @@ var HEIGHT = 600;
 		game.load.image('obstacle', 'assets/shark.png');
 		game.load.image('mover', 'assets/fish.png');
 		game.load.image('background', 'assets/water2.png');
+		game.load.atlasXML('seacreatures', 'assets/seacreatures.png', 'assets/seacreatures.xml');
 
 		game.load.atlasXML('octopus', 'assets/octopus.png', 'assets/octopus.xml');
 	};
