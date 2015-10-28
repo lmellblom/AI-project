@@ -20,7 +20,6 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	// add population text top of screen
 	var style = { font: "20px Times", fill: "#000", align: "right" };
 	this.popNumber = this.game.add.text(this.game.world.width - 140, 20, "Generation " +this.generationNr, style);
-	document.getElementById("numberPop").innerHTML =this.numMovers;
 	document.getElementById("genNumber").innerHTML = this.generationNr;
 };
 
@@ -160,10 +159,8 @@ Population.prototype.checkBoundary = function(stage) {
 			var projectedVector = projectPointOnLine(mover.pos, wall.wallPoint, n);
 			if(projectedVector.length() < mover.r + wall.thickness){
 				this.alivePopulationSize--;
-				mover.died();
+				mover.die();
 				mover.setFitness(this.timer);
-				mover.isAlive = false;
-				mover.kill();
 			}
 		});
 	});
@@ -178,11 +175,11 @@ Population.prototype.hallOfFame = function() {
 				//console.log("contender: "+individual.DNA.fitness+" champion: "+this.championDNA[i].fitness);
 				this.championDNA[i].fitness = individual.DNA.fitness;
 				this.championDNA[i].genes = individual.DNA.genes.slice();
-			
+
 				this.sortChampions();
 				break;
 			}
-		}			
+		}
 	},this);
 	//console.log("our current champions:");
 /*	for(var i = 0; i < this.championNumber; i++){
@@ -197,18 +194,14 @@ Population.prototype.getGroup = function() {
 // the mover died! collided with an obstacle
 Population.prototype.moverCollided = function(obstacles, mover) {
 	this.alivePopulationSize--;
-	mover.died(); 				// do something meaningfull in the mover?
-	mover.setFitness(this.timer); 		// will set how long it survived. 
-	mover.isAlive = false;
-	mover.kill();				// kill sprite
+	mover.die(); 				// do something meaningfull in the mover?
+	mover.setFitness(this.timer); 		// will set how long it survived.
 };
 
 Population.prototype.foundTarget = function(target, mover) {
-	//console.log("YOU FOUND A TARGET! WOW");
+
 	mover.targetsCollected += 1;
 	target.setRandomPosition();
-	//target.kill(); // hmmm. eller ska man flytta på den bara till en ny plats kanske?
-	// set + på movern, eftersom den får något extra då i fitness kanske?
 };
 
 Population.prototype.sortPopulation = function() {
@@ -217,41 +210,30 @@ Population.prototype.sortPopulation = function() {
 	});
 };
 // Read population from text field
-Population.prototype.addPopulation = function() {
+Population.prototype.addMover = function(mover) {
 
-	// Read agent/mover from textfield
-	try {
-		var mover = JSON.parse(document.getElementById("insertDNA").value);
-		
-		// Config for creating new agent/mover
-		var existingAgentConfig = {
-				'type': 'existing',
-				'DNA': mover.DNA,
-				'brain': mover.brain
-		}
+	// Config for creating new agent/mover
+	var existingAgentConfig = {
+			'type': 'existing',
+			'DNA': mover.DNA,
+			'brain': mover.brain
+	}
 
-		// Create a new Mover and add to groupMover
-		var agentFactory = new AgentFactory(this.game);
-		var tempMover = agentFactory.createAgent(existingAgentConfig);
-		//Kill the mover
-		tempMover.died();
-		tempMover.isAlive = false;
-		tempMover.kill();
-		this.groupMover.add(tempMover);
+	// Create a new Mover and add to groupMover
+	var agentFactory = new AgentFactory(this.game);
+	var tempMover = agentFactory.createAgent(existingAgentConfig);
+	//Kill the mover
+	tempMover.die();
+	this.groupMover.add(tempMover);
 
-		//Update number of Movers
-		this.numMovers++; //Adds to number of movers
-		document.getElementById("numberPop").innerHTML = this.numMovers;
+	//Update number of Movers
+	this.numMovers++; //Adds to number of movers
 
-		// Some information about the new Mover
-		console.log("Brain type: " + tempMover.brain.brainType);
-		console.log("Bias " + tempMover.brain.bias);
-		console.log("Hidden layers: " + tempMover.brain.numHidden);
-		console.log("Fitness: " + tempMover.DNA.fitness);
-		}
-		catch(err) {
-			console.log("Error while reading mover: "+ err.message);
-		}
+	// Some information about the new Mover
+	console.log("Brain type: " + tempMover.brain.brainType);
+	console.log("Bias " + tempMover.brain.bias);
+	console.log("Hidden layers: " + tempMover.brain.numHidden);
+	console.log("Fitness: " + tempMover.DNA.fitness);
 
 };
 

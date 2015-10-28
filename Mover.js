@@ -12,8 +12,6 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	//  Play the animation at 30fps on a loop
 	this.animations.play('swim', 30, true);
 
-	//this.points = 0;
-
 	// DNA is where the neural networks weights are
 	this.DNA = theDNA;
 	this.brain = brain; // the learning constant is the 0.01 n är hur många..
@@ -29,10 +27,8 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	// scale the sprite down a bit
 	this.scale.setTo(0.2);
 
-	// Leave out acceleration for the time being, dont need to add complexity right now.
-	//this.a = new Victor(0.0, 0.0);
 	this.r = Math.max(this.height,this.width)/2.0; // the sprite itself has a width and a height
-														// use this in order to determine the radiue
+														// use this in order to determine the radius
 	// rotate the sprite correctly
 	this.angle = this.getRotation();
 
@@ -40,35 +36,16 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	this.anchor.x = 0.5;
 	this.anchor.y = 0.4;
 
-	// arbitrary values (not used at the momemt)
-	//this.maxForce = theDNA.maxForce || 0.4;
-	//this.maxSpeed = theDNA.maxSpeed || 3.0;
-
 	this.graphics = this.game.add.graphics(0,0);
 	//lines for sensing - for debugging
 	this.lines = Array.from({length: this.numSensors}, () => new Phaser.Line(0, 0, 0, 0));
 
-	// TESTING WITH TIMER!!
-	//game.time.events.loop(Phaser.Timer.SECOND, this.updateCounter, this);
-	//this.timer = 0; // how long it survived?
-
-	//this.avoidedFitness = 0;
-
-	//this.inputEnabled = true;
 	this.events.onInputDown.add(this.moverClicked, this);
 };
 
 // get sprites methods and extend with more methods
 Mover.prototype = Object.create(Phaser.Sprite.prototype);
 Mover.prototype.constructor = Mover;
-
-// called each frame
-/*Mover.prototype.update = function() {
-	//this.steer();
-	//this.graphics.clear();
-	//this.senseEnvironment();
-
-};*/
 
 // if a mover is clicked on, this function will be called and print out the brain
 Mover.prototype.moverClicked = function() {
@@ -109,8 +86,10 @@ Mover.prototype.setFitness = function(timer) {
 	this.targetsCollected = 0;
 }
 
-Mover.prototype.died = function() {
+Mover.prototype.die = function() {
 	this.graphics.clear();
+	this.isAlive = false;
+	this.kill();
 }
 
 Mover.prototype.move = function(dt, brainInput) {
@@ -127,13 +106,7 @@ Mover.prototype.move = function(dt, brainInput) {
 		// Euler step
 		this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
 	}
-	// if only 1 output
-/*	if(action[0]>0){
-		this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
-	} else {
-		this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
-	}
-	this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));*/
+
 	// reposition sprite
 	this.x = this.pos.x;
 	this.y = this.pos.y;
@@ -149,8 +122,6 @@ Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 	direction.normalize().multiplyScalar(this.sensorLength);
 
 	// rotate it to the left
-	//direction.rotate((Math.PI / 2) + Math.PI / (this.numSensors-1));
-	//var directionSpan = -Math.PI/3;
 	var directionSpan = - (5 * Math.PI/3) / this.numSensors;
 
 	direction.rotate(2 * Math.PI / 3);
