@@ -13,9 +13,9 @@ var Obstacle = function (game, x, y) {
 	this.radius = Math.max(this.height,this.width)/2.0; // the sprite itself has a width and a height
 														// use this in order to determine the radiue
 	this.position = new Victor(x, y);
-	this.velocity = new Victor(7*Math.random()-1, 0)//7*Math.random()-1)
+	this.velocity = new Victor(7*Math.random()-1, 0)
 		.norm()
-		.multiply(new Victor(20, 20)); // short for multiply
+		.multiplyScalar(20);
 }
 
 Obstacle.prototype = Object.create(Phaser.Sprite.prototype);
@@ -26,7 +26,7 @@ Obstacle.prototype.move = function(dt) {
 	if( this.position.x > this.game.world.width ||
 			this.position.x < 0 ){
 			this.velocity.x *= -1;
-			this.scale.x *= -1;
+			this.scale.x *= 1;
 		} else if (this.position.y > this.game.world.height ||
 			this.position.y < 0){
 			this.velocity.y *= -1;
@@ -34,7 +34,7 @@ Obstacle.prototype.move = function(dt) {
 		}
 		this.position = this.position.add(this.velocity
 			.clone()
-			.multiply(new Victor(dt, dt)));
+			.multiplyScalar(dt, dt));
 
 		// reposition the sprite
 		this.x = this.position.x;

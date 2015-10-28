@@ -40,6 +40,7 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	//lines for sensing - for debugging
 	this.lines = Array.from({length: this.numSensors}, () => new Phaser.Line(0, 0, 0, 0));
 
+	this.inputEnabled = true;
 	this.events.onInputDown.add(this.moverClicked, this);
 };
 
@@ -123,7 +124,6 @@ Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 
 	// rotate it to the left
 	var directionSpan = - (5 * Math.PI/3) / this.numSensors;
-
 	direction.rotate(2 * Math.PI / 3);
 
 	// for each line, sample from its surroundings to find if it intersects any obstacles.

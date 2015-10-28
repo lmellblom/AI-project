@@ -8,7 +8,7 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.game = game; // keep a reference to the game
 	this.elitism = 0.1; // 15 percent of the population size will move straight to the next generation!
 	this.championRatio = 0.1;
-	this.championNumber = Math.ceil(this.numMovers*this.championRatio); 
+	this.championNumber = Math.ceil(this.numMovers*this.championRatio);
 	this.championDNA = [];
 	for(var i = 0; i < this.championNumber; i++){
 			this.championDNA[i] = new DNA(1);
@@ -124,27 +124,18 @@ Population.prototype.nextPopulation = function() {
 		var billy = parents[0];
 		var bob = parents[1];
 		// new child
-
 		var billybob = DNA.crossover(billy.DNA,bob.DNA); // returns a new DNA
 		billybob.mutate();
-
-		//check if champion already has been added through elitism
-		//if(this.championDNA[i].fitness == elitism){
-		
-		//}
-		// NEED to reset the current pop, just overwrite the DNA at the moment.
-		// need to reset fitness, isAlive = true, update brain? etc.. maybe not do this..
 
 		if(i <elitismNumber + this.championNumber){
 			DNAcopy = new DNA(1);
 			DNAcopy.fitness = this.championDNA[i-elitismNumber].fitness;
 			DNAcopy.genes = this.championDNA[i-elitismNumber].genes;
-			
 			this.groupMover.children[i].DNA = DNAcopy;
 		}
-		else
+		else {
 			this.groupMover.children[i].DNA = billybob;
-		//this.groupMover.children[i].DNA = (i <elitismNumber + this.championNumber) ? DNAcopy : billybob;
+		}
 	}
 };
 
@@ -181,10 +172,6 @@ Population.prototype.hallOfFame = function() {
 			}
 		}
 	},this);
-	//console.log("our current champions:");
-/*	for(var i = 0; i < this.championNumber; i++){
-		console.log(this.championDNA[i].fitness);
-	}*/
 }
 
 Population.prototype.getGroup = function() {
