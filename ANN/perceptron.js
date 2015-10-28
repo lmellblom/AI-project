@@ -11,7 +11,8 @@ Perceptron.prototype.constructor = Perceptron;
 
 Perceptron.prototype.feedforward = function(sensorInput) {
 
-	var outputs = Array(this.numOutputs).fill(0);
+	var outputs = Array.apply(null, {length: this.numOutputs})
+		.map(function() {return 0;});
 
 	// send in the sensor input to the middle layer or the output layer
 	sensorInput.forEach(function (input, i) {
@@ -21,7 +22,9 @@ Perceptron.prototype.feedforward = function(sensorInput) {
 	}, this);
 
 	// apply bias to every output and the step function
-	outputs = outputs.map((output) => this.stepFunction(output, this.bias))
+	outputs = outputs.map(function (output){
+		return this.stepFunction(output, this.bias);
+	}, this);
 
 	return outputs;
 }

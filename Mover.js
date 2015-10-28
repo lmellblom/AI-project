@@ -39,7 +39,10 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 
 	this.graphics = this.game.add.graphics(0,0);
 	//lines for sensing - for debugging
-	this.lines = Array.from({length: this.numSensors}, () => new Phaser.Line(0, 0, 0, 0));
+	this.lines = [];
+	for(var i=0; i< this.numSensors; i++){
+		this.lines.push(new Phaser.Line(0, 0, 0, 0))
+	}
 
 	this.inputEnabled = true;
 	this.events.onInputDown.add(this.moverClicked, this);
@@ -121,7 +124,9 @@ Mover.prototype.move = function(dt, brainInput) {
 
 Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 	var point;
-	var result = Array(this.numSensors * 2).fill(0);
+	//create result array filled with 0
+	var result = Array.apply(null, {length: this.numSensors * 2})
+		.map(function() {return 0;});
 	this.graphics.clear();
 	// take looking direction
 	var direction = this.vel.clone()
@@ -132,14 +137,14 @@ Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 	direction.rotate(2 * Math.PI / 3);
 
 	// for each line, sample from its surroundings to find if it intersects any obstacles.
-	this.lines.forEach( (line, i) => {
+	this.lines.forEach( function (line, i) {
 		// for each line rotate it a bit to the right
 		rotation = directionSpan * getRandom(0.2,0.8);
 		direction.rotate(rotation);
 		// take the endpoint
 		point = direction.clone().add(this.pos);
 		// check if any obstacles has this point inside
-		obstacles.forEach((obstacle) => {
+		obstacles.forEach(function (obstacle) {
 
 			var sensedInfo = intersectLineCircle(
 				this.pos, // start of sensor ray
@@ -149,9 +154,9 @@ Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 				obstacle.radius //radius of obstacle
 			);
 			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-		});
+		}, this);
 
-		targets.forEach((target) => {
+		targets.forEach(function (target) {
 
 			var sensedInfo = intersectLineCircle(
 				this.pos, // start of sensor ray
@@ -162,13 +167,13 @@ Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 			);
 			result[this.numSensors + i] = (sensedInfo > result[this.numSensors + i]) ?
 				sensedInfo : result[this.numSensors + i];
-		});
+		}, this);
 
 		// checking borders
-		stage.forEach((wall) => {
+		stage.forEach(function (wall) {
 			var sensedInfo = intersectLineLine(wall.wallPoint, wall.wallVector, this.pos, direction);
 			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-		});
+		}, this);
 
 		// draw debug lines
 		if(result[i] && line.renderable){
@@ -194,10 +199,10 @@ Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 				.add(this.pos);
 
 			line.setTo(this.pos.x, this.pos.y, point.x, point.y);
-			this.drawLine(line, 0x5AEB00);
+			this.drawLine(line, 0x5AFB00);
 		}
 		direction.rotate(-rotation).rotate(directionSpan);
-	})
+	}, this)
 	// return array with results
 	return result;
 };

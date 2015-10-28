@@ -26,7 +26,8 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 Population.prototype.initPopulation = function(options) {
 	var agentFactory = new AgentFactory(this.game);
 	this.groupMover.addMultiple(
-		Array.from(new Array(this.numMovers), () => agentFactory.createAgent(options) )
+		Array.apply(null, {length: this.numMovers})
+			.map(function() {return agentFactory.createAgent(options);})
 	);
 	this.sortPopulation();
 };
@@ -35,11 +36,11 @@ Population.prototype.initPopulation = function(options) {
 Population.prototype.checkCollision = function(targets, obstacles) {
 
 	//Check if collisions
-	this.groupMover.forEachAlive( (mover) => {
+	this.groupMover.forEachAlive(function (mover) {
 
 		var moverRadius = mover.r;
 
-		obstacles.forEach( (obstacle)=> {
+		obstacles.forEach(function (obstacle) {
 
 			var obstacleRadius = obstacle.radius;
 			var dist = mover.pos.distanceSq(obstacle.position);
@@ -47,19 +48,19 @@ Population.prototype.checkCollision = function(targets, obstacles) {
 			if(dist < ((moverRadius+obstacleRadius)*(moverRadius+obstacleRadius))) {
 				this.moverCollided(obstacles, mover);
 			}
-		});
+		}, this);
 
-		targets.forEach( (target)=> {
+		targets.forEach(function (target) {
 
 			var targetRadius = target.radius;
-			var dist = mover.pos.distanceSq(target.position);	
+			var dist = mover.pos.distanceSq(target.position);
 
 			if(dist < (moverRadius+targetRadius)*(moverRadius+targetRadius)) {
 				this.foundTarget(target, mover);
 			}
-		});
+		}, this);
 
-	});
+	}, this);
 };
 // the sort population function needs to be done before this!
 Population.prototype.bestMover = function() {
@@ -68,7 +69,7 @@ Population.prototype.bestMover = function() {
 
 // This function will move everything depending on the obstacles/target to sense
 Population.prototype.update = function(obstacles, targets, stage, dt) {
-	this.groupMover.forEachAlive( (mover)=>{
+	this.groupMover.forEachAlive(function (mover) {
 		// gets an array of values (1/0) which indicates how that sensor has sensed the environment.
 		// 1 = obstacle, 0 = no obstacle
 		var brainInput = mover.senseEnvironment(obstacles, targets, stage);
@@ -81,7 +82,7 @@ Population.prototype.update = function(obstacles, targets, stage, dt) {
 			mover.die(); 				// do something meaningfull in the mover?
 			mover.setFitness(this.timer); 	// will set how long it survived. 
 		}
-	});
+	}, this);
 
 	this.timer++;
 };
@@ -182,19 +183,19 @@ Population.prototype.nextPopulation = function() {
 //  if we want it to die or not at the walls.
 Population.prototype.checkBoundary = function(stage) {
 
-	stage.forEach((wall) => {
+	stage.forEach(function (wall) {
 		var n = wall.wallVector // normalized vector in the direction of line
 			.clone()
 			.norm();
-		this.groupMover.forEachAlive((mover) => {
+		this.groupMover.forEachAlive(function (mover) {
 			var projectedVector = projectPointOnLine(mover.pos, wall.wallPoint, n);
 			if(projectedVector.length() < mover.r + wall.thickness){
 				this.alivePopulationSize--;
 				mover.die();
 				mover.setFitness(this.timer);
 			}
-		});
-	});
+		}, this);
+	}, this);
 }
 // All individuals constantly fight for a position in the hall of fame
 // Only the most fit and muscular gain entrance
