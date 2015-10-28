@@ -42,7 +42,6 @@ Obstacle.prototype.setRandomPosition = function(){
 	var direction = new Victor(getRandom(-1, 1), getRandom(-1, 1))
 		.norm()
 		.multiplyScalar(this.spawnRadius);
-	console.log(this.position)
 	this.position = direction.add(new Victor(this.game.world.centerX, this.game.world.centerY));
 }
 Obstacle.prototype.setRandomDirection = function(){
