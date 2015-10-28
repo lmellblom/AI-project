@@ -20,10 +20,11 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	this.speed = 120;
 	this.vel = new Victor(this.speed, 0);
 
+	this.surviveTime = 60 * 15; // should survive 15 seconds wihtout food for example
+	this.energy = this.surviveTime; // set the start energy to the survive time
+
 	this.sensorLength = 180;
 	this.numSensors = numInputs/2;
-
-	this.targetsCollected = 0;
 
 	// scale the sprite down a bit
 	this.scale.setTo(0.2);
@@ -101,10 +102,9 @@ Mover.prototype.updateBrain = function() {
 };
 
 Mover.prototype.setFitness = function(timer) {
-	var fit = timer;
-	fit += this.targetsCollected*200;
-	this.DNA.setFitness(fit); // set fitness smallest to 1
-	this.targetsCollected = 0;
+	this.DNA.setFitness(timer); 	// set the fitness value how long they survived. 
+	console.log("energy when died: " + this.energy); 
+	this.energy = this.surviveTime; // reset the survive time
 }
 
 Mover.prototype.died = function() {
