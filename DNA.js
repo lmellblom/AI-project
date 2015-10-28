@@ -49,7 +49,7 @@ DNA.prototype.mutate = function() {
 DNA.crossover = function(billy, bob, crossoverType) {
 	var newGenes = [];
 	var i;
-	if(crossoverType === undefined || crossoverType === 'cutoff'){
+	if(crossoverType === undefined || crossoverType === 'split'){
 		/*   INDEX CUTOFF  */
 		var crossIndex = Math.floor(getRandom(1,bob.genes.length-2));
 		for (i=0; i<crossIndex; i++){
