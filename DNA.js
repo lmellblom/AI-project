@@ -75,7 +75,5 @@ DNA.crossover = function(billy, bob, crossoverType) {
 
 	var billybob = new DNA(1);
 	billybob.setGenes(newGenes);
-
-	//var billybob = new DNA(billy.genes);  // will not use any crossover, just mutation if this line is used
 	return billybob;
 };

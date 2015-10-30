@@ -121,7 +121,7 @@ var HEIGHT = 600;
 			new Wall(game, game.world.width - wallPadding, game.world.height - wallPadding, wallPadding, game.world.height - wallPadding)
 		];
 
-		stage.forEach((wall) => wall.draw());
+		stage.forEach(function(wall){wall.draw()});
 
 		// the background of everything
 		game.stage.backgroundColor = '#8BD5E6';
@@ -177,7 +177,7 @@ var HEIGHT = 600;
 
 	function setRenderLines(bool) {
 		// for each line
-		population.getGroup().forEach( (object)=> {
+		population.getGroup().forEach( function(object){
 			object.lines.forEach(function(line){
 				line.renderable = bool;
 				line.visible = bool;
@@ -187,13 +187,13 @@ var HEIGHT = 600;
 
 	function setRender(bool){
 		// Objects are rendered on screen
-		population.getGroup().forEach( (object)=> {
+		population.getGroup().forEach(function(object) {
 			object.renderable = bool;
 		});
-		allTargets.getGroup().forEach( (object)=> {
+		allTargets.getGroup().forEach(function(object) {
 			object.renderable = bool;
 		});
-		allObstacles.getGroup().forEach( (object)=> {
+		allObstacles.getGroup().forEach(function(object) {
 			object.renderable = bool;
 		});
 	}
