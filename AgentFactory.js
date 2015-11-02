@@ -44,7 +44,6 @@ AgentFactory.prototype.createAgent = function(options, index) {
 		theDNA = new DNA(numWeights);
 		theDNA.setGenes(genes);
 	}
-	console.log(index%4);
 	var x = (index%2 === 0) ? this.game.world.centerX-300 : this.game.world.centerX+300;
 	var y = (index%4 === 0 || index%4 === 1) ? this.game.world.centerY-200 : this.game.world.centerY+200;
 	return new Mover(
