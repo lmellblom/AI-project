@@ -1,9 +1,5 @@
 var Mover = function (game, theDNA, brain, numInputs, x, y) {
 
-	// now the mover will spawn outside everything first, just quick fix
-	x = game.world.centerX;
-	y = game.world.centerY;
-
 	// Inherit from sprite (call its constructor)
 	Phaser.Sprite.call(this, game, x, y, 'octopus');
 	//  Create an animation called 'swim',
@@ -70,9 +66,11 @@ Mover.prototype.updateCounter = function() {
 	this.timer++;
 }
 
-Mover.prototype.setPositionInMiddle = function() {
-	this.pos.x = this.game.world.centerX;//this.game.width*Math.random();
-	this.pos.y = this.game.world.centerY;//this.game.height*Math.random();
+Mover.prototype.setStartPosition = function(index) {
+	//this.pos.x = this.game.world.centerX;//this.game.width*Math.random();
+	//this.pos.y = this.game.world.centerY;//this.game.height*Math.random();
+	var x = (index%2 === 0) ? this.game.world.centerX-300 : this.game.world.centerX+300;
+	var y = (index%4 === 0 || index%4 === 1) ? this.game.world.centerY-200 : this.game.world.centerY+200;
 }
 
 Mover.prototype.setRandomPosition = function() {

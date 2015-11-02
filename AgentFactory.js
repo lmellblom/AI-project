@@ -2,7 +2,7 @@ var AgentFactory = function (game) {
 	this.game = game;
 };
 
-AgentFactory.prototype.createAgent = function(options) {
+AgentFactory.prototype.createAgent = function(options, index) {
 	var numWeights;
 	var numInputs = options.numInputs;
 	var theDNA;
@@ -44,14 +44,18 @@ AgentFactory.prototype.createAgent = function(options) {
 		theDNA = new DNA(numWeights);
 		theDNA.setGenes(genes);
 	}
-
+	console.log(index%4);
+	var x = (index%2 === 0) ? this.game.world.centerX-300 : this.game.world.centerX+300;
+	var y = (index%4 === 0 || index%4 === 1) ? this.game.world.centerY-200 : this.game.world.centerY+200;
 	return new Mover(
 		this.game,
 		theDNA,
 		brain,
 		numInputs, // number of sensors
-		getRandomInt(40, WIDTH-40),
-		getRandomInt(40, HEIGHT-40)
+		//getRandomInt(40, WIDTH-40),
+		//getRandomInt(40, HEIGHT-40)
+		x,
+		y
 	);
 };
 
