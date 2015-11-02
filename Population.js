@@ -19,6 +19,7 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.selectionType = "rank";
 
 	this.averageFitness = [];
+	this.bestFitness = [];
 
 	// add population text top of screen
 	var style = { font: "20px Times", fill: "#000", align: "right" };
@@ -150,6 +151,7 @@ Population.prototype.nextPopulation = function() {
 
 	// get the average of the population and push it to a list
 	this.calcAverageFitness(); 
+	this.bestFitness.push(this.bestMover().DNA.fitness);
 
 	// Elitism, This is the number of individuals that will go straight to the next generation
 	var elitismNumber = Math.ceil(this.numMovers*this.elitism);

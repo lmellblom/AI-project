@@ -152,6 +152,7 @@ var HEIGHT = 600;
 			if (TESTINGMODE && population.generationNr == maxGenerationTesting+1) {
 				console.log("Reached testing max generation");
 				console.log(population.averageFitness);
+				console.log(population.bestFitness);
 			}
 
 			// revive the target also maybe??
