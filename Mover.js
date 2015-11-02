@@ -1,16 +1,20 @@
-var Mover = function (game, theDNA, brain, numInputs, x, y) {
+var Mover = function (game, theDNA, brain, numInputs, x, y, textureName) {
 
 	// now the mover will spawn outside everything first, just quick fix
 	x = game.world.centerX;
 	y = game.world.centerY;
 
 	// Inherit from sprite (call its constructor)
-	Phaser.Sprite.call(this, game, x, y, 'octopus');
+	var textName = textureName || 'octopus';
+	Phaser.Sprite.call(this, game, x, y, textName);
 	//  Create an animation called 'swim',
 	//  the fact we don't specify any frames means it will use all frames in the atlas
-	this.animations.add('swim');
-	//  Play the animation at 30fps on a loop
-	this.animations.play('swim', 30, true);
+
+	if(textName=="octopus") {
+		this.animations.add('swim');
+		//  Play the animation at 30fps on a loop
+		this.animations.play('swim', 30, true);
+	}
 
 	// DNA is where the neural networks weights are
 	this.DNA = theDNA;
@@ -26,7 +30,11 @@ var Mover = function (game, theDNA, brain, numInputs, x, y) {
 	this.numSensors = numInputs/2;
 
 	// scale the sprite down a bit
-	this.scale.setTo(0.2);
+	if(textName=="octopus"){
+		this.scale.setTo(0.2);
+	}else {
+		this.scale.setTo(0.5);
+	}
 
 	this.r = Math.max(this.height,this.width)/2.0; // the sprite itself has a width and a height
 														// use this in order to determine the radius

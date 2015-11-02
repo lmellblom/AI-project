@@ -23,10 +23,10 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	document.getElementById("genNumber").innerHTML = this.generationNr;
 };
 
-Population.prototype.initPopulation = function(options) {
+Population.prototype.initPopulation = function(options, texure) {
 	var agentFactory = new AgentFactory(this.game);
 	this.groupMover.addMultiple(
-		Array.from(new Array(this.numMovers), () => agentFactory.createAgent(options) )
+		Array.from(new Array(this.numMovers), () => agentFactory.createAgent(options, texure) )
 	);
 	this.sortPopulation();
 };

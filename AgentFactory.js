@@ -2,7 +2,7 @@ var AgentFactory = function (game) {
 	this.game = game;
 };
 
-AgentFactory.prototype.createAgent = function(options) {
+AgentFactory.prototype.createAgent = function(options, textName) {
 	var numWeights;
 	var numInputs = options.numInputs;
 	var theDNA;
@@ -51,7 +51,8 @@ AgentFactory.prototype.createAgent = function(options) {
 		brain,
 		numInputs, // number of sensors
 		getRandomInt(40, WIDTH-40),
-		getRandomInt(40, HEIGHT-40)
+		getRandomInt(40, HEIGHT-40), 
+		textName
 	);
 };
 

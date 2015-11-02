@@ -9,8 +9,9 @@ var HEIGHT = 600;
 	var simulationSpeed = 1; // How fast the simulation should be
 	var renderObj = true;
 	var reachedSkipGeneration = true;
-	var populationSize = 80;
+	var populationSize = 50;
 	var population;
+	var population2;
 	var allObstacles;
 	var allTargets;
 	var stage;
@@ -88,7 +89,7 @@ var HEIGHT = 600;
     	// load assets into the game
 		game.load.image('diamond', 'assets/star.png');
 		game.load.image('obstacle', 'assets/shark.png');
-		game.load.image('mover', 'assets/fish.png');
+		game.load.image('fish', 'assets/fish.png');
 		game.load.image('background', 'assets/water2.png');
 		game.load.atlasXML('seacreatures', 'assets/seacreatures.png', 'assets/seacreatures.xml');
 
@@ -105,9 +106,11 @@ var HEIGHT = 600;
 		allTargets = new Groups(game, this.numTargets, Target);
 
 		population = new Population(game, populationSize);
+		population2 = new Population(game, populationSize);
 
 		// init pop, obstacles and targets with elements
 		population.initPopulation(MLPConfig);
+		population2.initPopulation(recurrentConfig, "fish");
 		allObstacles.initObjects();
 		allTargets.initObjects();
 
@@ -135,16 +138,20 @@ var HEIGHT = 600;
 	// will update the sceen, simulates everything
 	function simulate() {
 		population.update(allObstacles.getGroup(), allTargets.getGroup(), stage, dt);
+		population2.update(allObstacles.getGroup(), allTargets.getGroup(), stage, dt);
 		allObstacles.update(dt);
 		allTargets.update(dt);
 
 		population.checkCollision(allTargets.getGroup(), allObstacles.getGroup());
+		population2.checkCollision(allTargets.getGroup(), allObstacles.getGroup());
 		// check if the population is out of the field
 		population.checkBoundary(stage);
+		population2.checkBoundary(stage);
 
 		// check if existing movers? if everyone died we should call the next generation
-		if (population.alivePopulationSize < 1) {
+		if (population.alivePopulationSize < 1 && population2.alivePopulationSize<1) {
 			population.revivePopulation();
+			population2.revivePopulation();
 			// revive the target also maybe??
 			allTargets.revive();
 			allObstacles.reposition();
@@ -183,11 +190,21 @@ var HEIGHT = 600;
 				line.visible = bool;
 			})
 		});
+
+		population2.getGroup().forEach( (object)=> {
+			object.lines.forEach(function(line){
+				line.renderable = bool;
+				line.visible = bool;
+			})
+		});
 	}
 
 	function setRender(bool){
 		// Objects are rendered on screen
 		population.getGroup().forEach( (object)=> {
+			object.renderable = bool;
+		});
+		population2.getGroup().forEach( (object)=> {
 			object.renderable = bool;
 		});
 		allTargets.getGroup().forEach( (object)=> {
