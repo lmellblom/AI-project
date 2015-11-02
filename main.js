@@ -17,6 +17,9 @@ var HEIGHT = 600;
 	var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, 'canvasContainer',
 		{ preload: preload, create: create, update: update});
 
+	var maxGenerationTesting = 25;
+	var TESTINGMODE = true;
+
 	/* == GUI STUFF == */
 
 	/* Getting the elements */
@@ -73,7 +76,7 @@ var HEIGHT = 600;
 	var recurrentConfig = {
 		'type': 'recurrent',
 		'numInputs': 12,
-		'numHidden': 8,
+		'numHidden': 10,
 		'numOutputs': 2
 	}
 
@@ -99,7 +102,7 @@ var HEIGHT = 600;
 
 		// Define amount of objects in game
 		this.numTargets = 20;
-		this.numObstacles = 11;
+		this.numObstacles = 12;
 		// add the obstacles, targets and the population
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);
@@ -145,6 +148,12 @@ var HEIGHT = 600;
 		// check if existing movers? if everyone died we should call the next generation
 		if (population.alivePopulationSize < 1) {
 			population.revivePopulation();
+
+			if (TESTINGMODE && population.generationNr == maxGenerationTesting+1) {
+				console.log("Reached testing max generation");
+				console.log(population.averageFitness);
+			}
+
 			// revive the target also maybe??
 			allTargets.revive();
 			allObstacles.reposition();

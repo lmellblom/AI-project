@@ -4,11 +4,11 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.groupMover = game.add.group();
 	this.alivePopulationSize = size;
 	this.game = game; // keep a reference to the game
-	this.elitism = 0.1; // 15 percent of the population size will move straight to the next generation!
-	this.championRatio = 0.1;
+	this.elitism = 0.05; // 15 percent of the population size will move straight to the next generation!
+	this.championRatio = 0.05;
 	this.championNumber = Math.ceil(this.numMovers*this.championRatio);
 	this.championDNA = [];
-	this.crossoverType = 'zigzag';
+	this.crossoverType = 'uniform';
 	for(var i = 0; i < this.championNumber; i++){
 			this.championDNA[i] = new DNA(1);
 	}
@@ -17,6 +17,8 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.timer = 0;
 
 	this.selectionType = "rank";
+
+	this.averageFitness = [];
 
 	// add population text top of screen
 	var style = { font: "20px Times", fill: "#000", align: "right" };
@@ -127,9 +129,27 @@ Population.prototype.rankSelection = function() {
 	return matingPool;
 };
 
+Population.prototype.calcAverageFitness = function () {
+	var sumFitness = 0;
+	var average = 0;
+	
+	// sum up the fitness from every individ
+	this.groupMover.forEach(function(individual){
+		sumFitness += individual.DNA.fitness;
+	});
+
+	average = sumFitness / this.groupMover.children.length;
+	this.averageFitness.push(average);
+	
+	console.log(average);
+}
+
 
 Population.prototype.nextPopulation = function() {
-	var matingPool = []; // holdes all the DNA of the indivuals to mate
+	var matingPool = []; // holds the wheel percentage of the selection method.
+
+	// get the average of the population and push it to a list
+	this.calcAverageFitness(); 
 
 	// Elitism, This is the number of individuals that will go straight to the next generation
 	var elitismNumber = Math.ceil(this.numMovers*this.elitism);

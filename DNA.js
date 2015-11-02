@@ -64,7 +64,7 @@ DNA.crossover = function(billy, bob, crossoverType) {
 			newGenes[i] = (billy.genes[i]+bob.genes[i])/2.0;
 
 		}
-	} else if(crossoverType === 'zigzag') {
+	} else if(crossoverType === 'uniform') {
 		// randomize number between 0.25 - 0.75.
 		var crossProbability = 0.25 + Math.random()*0.5;
 		// Use crossprobability to decide whether to choose weight from billy och bob
