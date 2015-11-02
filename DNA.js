@@ -1,5 +1,5 @@
 // global variables. BUT WHYYY
-var mutationRate = 0.1;
+var mutationRate = 0.03;
 var mutationSigma = 0.2;
 
 var DNA = function(numGenes) {

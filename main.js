@@ -1,5 +1,5 @@
-var WIDTH = 800;
-var HEIGHT = 600;
+var WIDTH = 1200;
+var HEIGHT = 800;
 // Self invoking function for not polluting global scope
 (function () {
 	var dt = 1/60;
@@ -101,8 +101,8 @@ var HEIGHT = 600;
 	function create() {
 
 		// Define amount of objects in game
-		this.numTargets = 20;
-		this.numObstacles = 12;
+		this.numTargets = 32;
+		this.numObstacles = 16;
 		// add the obstacles, targets and the population
 		allObstacles = new Groups(game, this.numObstacles, Obstacle);
 		allTargets = new Groups(game, this.numTargets, Target);

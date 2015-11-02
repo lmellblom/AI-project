@@ -4,7 +4,7 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.groupMover = game.add.group();
 	this.alivePopulationSize = size;
 	this.game = game; // keep a reference to the game
-	this.elitism = 0.05; // 15 percent of the population size will move straight to the next generation!
+	this.elitism = 0.1; // 15 percent of the population size will move straight to the next generation!
 	this.championRatio = 0.05;
 	this.championNumber = Math.ceil(this.numMovers*this.championRatio);
 	this.championDNA = [];
@@ -30,7 +30,7 @@ Population.prototype.initPopulation = function(options) {
 	var agentFactory = new AgentFactory(this.game);
 	this.groupMover.addMultiple(
 		Array.apply(null, {length: this.numMovers})
-			.map(function() {return agentFactory.createAgent(options);})
+			.map(function(object, i) {return agentFactory.createAgent(options, i);})
 	);
 	this.sortPopulation();
 };
@@ -301,13 +301,13 @@ Population.prototype.revivePopulation = function() {
 	this.alivePopulationSize = this.numMovers; // make the population large again
 
 	// need to update a couple of thing to the mover..
-	this.groupMover.forEach(function(mover){
+	this.groupMover.forEach(function(mover, i){
 		// need to reset it to alive!!
 		mover.isAlive = true;
 		//mover.targetsCollected = 0;
 		mover.updateBrain(); // update the brains weights
 		// need to set the x and y pos to new values?
-		mover.setPositionInMiddle();
+		mover.setStartPosition(i);
 		mover.revive(); // make the sprite alive again
 	});
 
