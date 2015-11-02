@@ -150,8 +150,10 @@ var HEIGHT = 800;
 			population.revivePopulation();
 
 			if (TESTINGMODE && population.generationNr == maxGenerationTesting+1) {
-				console.log("Reached testing max generation");
+				console.log("==== Reached testing max generation ==== ");
+				console.log("Average fitness : ");
 				console.log(population.averageFitness);
+				console.log("Best fitness: ");
 				console.log(population.bestFitness);
 			}
 
