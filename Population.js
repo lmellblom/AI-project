@@ -8,7 +8,7 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.championRatio = 0.05;
 	this.championNumber = Math.ceil(this.numMovers*this.championRatio);
 	this.championDNA = [];
-	this.crossoverType = 'uniform';
+	this.crossoverType = 'average';
 	for(var i = 0; i < this.championNumber; i++){
 			this.championDNA[i] = new DNA(1);
 	}
@@ -301,14 +301,16 @@ Population.prototype.revivePopulation = function() {
 	this.alivePopulationSize = this.numMovers; // make the population large again
 
 	// need to update a couple of thing to the mover..
-	this.groupMover.forEach(function(mover, i){
+	var index = 0;
+	this.groupMover.forEach(function(mover){
 		// need to reset it to alive!!
 		mover.isAlive = true;
 		//mover.targetsCollected = 0;
 		mover.updateBrain(); // update the brains weights
 		// need to set the x and y pos to new values?
-		mover.setStartPosition(i);
+		mover.setStartPosition(index);
 		mover.revive(); // make the sprite alive again
+		index++;
 	});
 
 	this.timer = 0;	// reset the timer

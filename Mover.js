@@ -71,6 +71,8 @@ Mover.prototype.setStartPosition = function(index) {
 	//this.pos.y = this.game.world.centerY;//this.game.height*Math.random();
 	var x = (index%2 === 0) ? this.game.world.centerX-300 : this.game.world.centerX+300;
 	var y = (index%4 === 0 || index%4 === 1) ? this.game.world.centerY-200 : this.game.world.centerY+200;
+	this.pos.x = x;
+	this.pos.y = y;
 }
 
 Mover.prototype.setRandomPosition = function() {
