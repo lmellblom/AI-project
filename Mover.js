@@ -1,28 +1,31 @@
-var Mover = function (game, theDNA, brain, numSensors, x, y) {
+var Mover = function (game, theDNA, brain, numInputs, x, y) {
 
 	// Inherit from sprite (call its constructor)
-	Phaser.Sprite.call(this, game, x, y, 'mover');
-
-
-	//this.points = 0;
+	Phaser.Sprite.call(this, game, x, y, 'octopus');
+	//  Create an animation called 'swim',
+	//  the fact we don't specify any frames means it will use all frames in the atlas
+	this.animations.add('swim');
+	//  Play the animation at 30fps on a loop
+	this.animations.play('swim', 30, true);
 
 	// DNA is where the neural networks weights are
 	this.DNA = theDNA;
-
 	this.brain = brain; // the learning constant is the 0.01 n är hur många..
 	this.pos = new Victor(x, y);
 	this.speed = 120;
 	this.vel = new Victor(this.speed, 0);
 
-	this.sensorLength = 150;
-	this.numSensors = numSensors/2;
+	this.surviveTime = 60 * 17; // should survive 15 seconds wihtout food for example
+	this.energy = this.surviveTime; // set the start energy to the survive time
 
-	this.targetsCollected = 0;
+	this.sensorLength = 180;
+	this.numSensors = numInputs/2;
 
-	// Leave out acceleration for the time being, dont need to add complexity right now.
-	//this.a = new Victor(0.0, 0.0);
-	this.r = 3.0;
+	// scale the sprite down a bit
+	this.scale.setTo(0.2);
 
+	this.r = Math.max(this.height,this.width)/2.0; // the sprite itself has a width and a height
+														// use this in order to determine the radius
 	// rotate the sprite correctly
 	this.angle = this.getRotation();
 
@@ -30,21 +33,12 @@ var Mover = function (game, theDNA, brain, numSensors, x, y) {
 	this.anchor.x = 0.5;
 	this.anchor.y = 0.4;
 
-	// scale the sprite down a bit
-	this.scale.setTo(0.15);
-
-	// arbitrary values (not used at the momemt)
-	//this.maxForce = theDNA.maxForce || 0.4;
-	//this.maxSpeed = theDNA.maxSpeed || 3.0;
-
+	this.graphics = this.game.add.graphics(0,0);
 	//lines for sensing - for debugging
-	this.lines = Array.from({length: this.numSensors}, () => new Phaser.Line(0, 0, 0, 0));
-
-	// TESTING WITH TIMER!!
-	//game.time.events.loop(Phaser.Timer.SECOND, this.updateCounter, this);
-	//this.timer = 0; // how long it survived?
-
-	//this.avoidedFitness = 0;
+	this.lines = [];
+	for(var i=0; i< this.numSensors; i++){
+		this.lines.push(new Phaser.Line(0, 0, 0, 0))
+	}
 
 	this.inputEnabled = true;
 	this.events.onInputDown.add(this.moverClicked, this);
@@ -54,46 +48,51 @@ var Mover = function (game, theDNA, brain, numSensors, x, y) {
 Mover.prototype = Object.create(Phaser.Sprite.prototype);
 Mover.prototype.constructor = Mover;
 
-// called each frame
-/*Mover.prototype.update = function() {
-	//this.steer();
-	//this.graphics.clear();
-	//this.senseEnvironment();
-
-};*/
-
 // if a mover is clicked on, this function will be called and print out the brain
 Mover.prototype.moverClicked = function() {
-	console.log(this.DNA.genes.toString());
+
+	var out = {
+		"DNA" : this.DNA,
+		"brain" : this.brain
+	};
+
+	var theMover =  JSON.stringify(out);
+
+	//infoDNA
+	document.getElementById("infoDNA").value = theMover;
 }
 
 Mover.prototype.updateCounter = function() {
 	this.timer++;
 }
 
+Mover.prototype.setStartPosition = function(index) {
+	//this.pos.x = this.game.world.centerX;//this.game.width*Math.random();
+	//this.pos.y = this.game.world.centerY;//this.game.height*Math.random();
+	var x = (index%2 === 0) ? this.game.world.centerX-300 : this.game.world.centerX+300;
+	var y = (index%4 === 0 || index%4 === 1) ? this.game.world.centerY-200 : this.game.world.centerY+200;
+	this.pos.x = x;
+	this.pos.y = y;
+}
+
 Mover.prototype.setRandomPosition = function() {
-	this.pos.x = this.game.world.centerX;//this.game.width*Math.random();
-	this.pos.y = this.game.world.centerY;//this.game.height*Math.random();
+	this.pos.x = getRandomInt(40, WIDTH-40); //this.game.width*Math.random();
+	this.pos.y = getRandomInt(40, HEIGHT-40);//this.game.height*Math.random();
 }
 Mover.prototype.updateBrain = function() {
 	// the dna should already been set on the mover. just call the brain function
-	this.brain.updateWeights(this.DNA.genes); 
+	this.brain.updateWeights(this.DNA.genes);
 };
 
 Mover.prototype.setFitness = function(timer) {
-	var fit = timer*timer;
-	fit += this.targetsCollected * 100;
-	fit = (fit < 0) ? 0 : fit;
-	this.DNA.setFitness(fit); // set fitness smallest to 1
-	this.targetsCollected = 0;
-	//this.avoidedFitness=0;
+	this.DNA.setFitness(timer); 	// set the fitness value how long they survived. 
+	this.energy = this.surviveTime; // reset the survive time
 }
 
-Mover.prototype.died = function() {
-	//console.log("survived " + this.timer);
-	// gör inget här?! kanske göra något sen... 
-	// remove the lines!!! vet inte hur??
-	//console.log("Died.. made it : " + this.timer +  " s.");
+Mover.prototype.die = function() {
+	this.graphics.clear();
+	this.isAlive = false;
+	this.kill();
 }
 
 Mover.prototype.move = function(dt, brainInput) {
@@ -101,52 +100,51 @@ Mover.prototype.move = function(dt, brainInput) {
 	var action = this.brain.feedforward(brainInput);
 
 	if (action[0]>0){
-		//this.speed = 120;
 		if(action[1]>0) {
-			this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
+			this.vel.rotate(Math.PI / 30).norm().multiplyScalar(this.speed);
 		}
 		else {
-			this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
+			this.vel.rotate(-Math.PI / 30).norm().multiplyScalar(this.speed);
 		}
 		// Euler step
 		this.pos = this.pos.add(this.vel.clone().multiplyScalar(dt));
 	}
-	// if only 1 output
-	/*	if(action[0]>0){
-		this.vel.rotate(Math.PI / 50).norm().multiplyScalar(this.speed);
+
+	//tint sprite when 10 seconds remaining of the energy
+	if(this.energy < 60*10){
+		this.tint = Phaser.Color.interpolateColor(0xffffff, 0x66AA66, 600, 600-this.energy);
 	} else {
-		this.vel.rotate(-Math.PI / 50).norm().multiplyScalar(this.speed);
-	}*/
+		this.tint = 16777215;
+	}
 	// reposition sprite
-	this.x = this.pos.x
-	this.y = this.pos.y
+	this.x = this.pos.x;
+	this.y = this.pos.y;
 	this.angle = this.getRotation();
 };
 
-Mover.prototype.senseEnvironment = function(obstacles, targets) {
+Mover.prototype.senseEnvironment = function(obstacles, targets, stage) {
 	var point;
-	var result = Array(this.numSensors * 2).fill(0);
+	//create result array filled with 0
+	var result = Array.apply(null, {length: this.numSensors * 2})
+		.map(function() {return 0;});
+	this.graphics.clear();
 	// take looking direction
 	var direction = this.vel.clone()
 	direction.normalize().multiplyScalar(this.sensorLength);
 
 	// rotate it to the left
-	//direction.rotate((Math.PI / 2) + Math.PI / (this.numSensors-1));
-	//var directionSpan = -Math.PI/3;
-	var directionSpan = - (5* Math.PI/3)/this.numSensors;
-
+	var directionSpan = - (5 * Math.PI/3) / this.numSensors;
 	direction.rotate(2 * Math.PI / 3);
 
 	// for each line, sample from its surroundings to find if it intersects any obstacles.
-	this.lines.forEach( (line, i) => {
+	this.lines.forEach( function (line, i) {
 		// for each line rotate it a bit to the right
-		//direction.rotate((-Math.PI / (this.numSensors-1) ) + getRandom(-0.5,0.5) );
 		rotation = directionSpan * getRandom(0.2,0.8);
 		direction.rotate(rotation);
 		// take the endpoint
 		point = direction.clone().add(this.pos);
 		// check if any obstacles has this point inside
-		obstacles.forEach((obstacle) => {
+		obstacles.forEach(function (obstacle) {
 
 			var sensedInfo = intersectLineCircle(
 				this.pos, // start of sensor ray
@@ -156,9 +154,9 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 				obstacle.radius //radius of obstacle
 			);
 			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-		});
+		}, this);
 
-		targets.forEach((target) => {
+		targets.forEach(function (target) {
 
 			var sensedInfo = intersectLineCircle(
 				this.pos, // start of sensor ray
@@ -169,37 +167,16 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 			);
 			result[this.numSensors + i] = (sensedInfo > result[this.numSensors + i]) ?
 				sensedInfo : result[this.numSensors + i];
-		});
+		}, this);
 
 		// checking borders
-		var overlap;
-		if (point.x > this.game.world.width){
-			var wallPoint = new Victor(this.game.world.width, 0);
-			var wallN = new Victor(0, 1);
-			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
-			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
+		stage.forEach(function (wall) {
+			var sensedInfo = intersectLineLine(wall.wallPoint, wall.wallVector, this.pos, direction);
 			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-		} else if (point.x < 0){
-			var wallPoint = new Victor(0, 0);
-			var wallN = new Victor(0, 1);
-			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
-			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
-			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-		} else if ( point.y > this.game.world.height){
-			var wallPoint = new Victor(0, this.game.world.height);
-			var wallN = new Victor(1, 0);
-			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
-			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
-			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-		} else if (point.y < 0){
-			var wallPoint = new Victor(0, 0);
-			var wallN = new Victor(1, 0);
-			var lengthToIntersect = intersectLineLine(wallPoint, wallN, this.pos, direction)
-			sensedInfo = 1 - lengthToIntersect / this.sensorLength;
-			result[i] = (sensedInfo > result[i]) ? sensedInfo : result[i];
-		}
-/*		// draw debug lines DO NOT REMOVE
-		if(result[i]){
+		}, this);
+
+		// draw debug lines
+		if(result[i] && line.renderable){
 			// if line has intersected, shorten the line appropriatly
 			direction.normalize().multiplyScalar(this.sensorLength);
 			point = direction
@@ -207,59 +184,37 @@ Mover.prototype.senseEnvironment = function(obstacles, targets) {
 				.norm()
 				.multiplyScalar(this.sensorLength * (1-result[i]))
 				.add(this.pos);
-		}
-		line.setTo(this.pos.x, this.pos.y, point.x, point.y);
-		var colors = ["#000000", "#FFFFFF", "#007829"];
-		this.game.debug.geom(line, colors[i%3]); // to show the lines or not for debbuging sort of.*/
 
+			//0 inget, 1 masssor
+			line.setTo(this.pos.x, this.pos.y, point.x, point.y);
+			this.drawLine(line, 0xFF2965);
+		}
+		if(result[this.numSensors+i] && line.renderable){
+			// if line has intersected, shorten the line appropriatly
+			direction.normalize().multiplyScalar(this.sensorLength);
+			point = direction
+				.clone()
+				.norm()
+				.multiplyScalar(this.sensorLength * (1-result[i+this.numSensors]))
+				.add(this.pos);
+
+			line.setTo(this.pos.x, this.pos.y, point.x, point.y);
+			this.drawLine(line, 0x5AFB00);
+		}
 		direction.rotate(-rotation).rotate(directionSpan);
-	})
+	}, this)
 	// return array with results
 	return result;
 };
 
-// not used at the moment
-/*Mover.prototype.applyForce = function(force) {
-	this.a.add(force);
-};*/
-
-// not used at the moment
-/*Mover.prototype.seek = function(t) {
-	var target = t.clone();
-	target.subtract(this.pos);
-	target.normalize();
-	target.multiplyScalar(this.maxSpeed);
-	var steer = target.clone();
-	steer.subtract(this.vel);
-	limitMagnitude(steer, this.maxForce);
-	//this.applyForce(steer);
-	return steer;
-};*/
-
-
-// a seek function that takes in a array instead of target vectors
-// not used at the moment
-/*Mover.prototype.steer = function(targets) {
-	var forces = [];
-	for (var i=0; i<targets.length; i++) {
-		forces[i] = this.seek(targets[i]);
-	}
-
-	//var ouput = brain.process(forces);
-	var result = this.brain.feedforward(forces);
-	this.applyForce(result);
-
-	// train the network! if we use GA instead this will not be used!!!!
-	// this will train the network to be centered in the screen
-	var desired = new Victor(gameWidth/2, gameHeight/2);
-	var error = desired.clone().subtract(this.pos);
-	error.multiplyScalar(this.points);
-	this.brain.train(forces,error);
-};*/
-
 Mover.prototype.getRotation = function() {
 	return ((this.vel.direction() + Math.PI/2)*180 )/Math.PI ;
 };
-Mover.prototype.getPosition = function() {
-	return this.pos;
-}
+
+Mover.prototype.drawLine = function(line, color) {
+	this.graphics.beginFill();
+	this.graphics.lineStyle(1, color, 1);
+	this.graphics.moveTo(line.start.x, line.start.y);
+	this.graphics.lineTo(line.end.x, line.end.y);
+	this.graphics.endFill();
+};

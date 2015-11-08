@@ -4,7 +4,7 @@
  */
 var MLP = function(weights, numInputs, numHidden, numOutputs, bias) {
 	//inherit from Network
-	Network.call(this, weights, numInputs, numOutputs);
+	Network.call(this, "mlp", weights, numInputs, numOutputs);
 	this.numHidden = numHidden;
 	this.bias = bias || 0.5;
 }
@@ -15,8 +15,10 @@ MLP.prototype.constructor = MLP;
 
 MLP.prototype.feedforward = function(sensorInput) {
 
-	var outputsHidden = Array(this.numHidden).fill(0);
-	var outputs = Array(this.numOutputs).fill(0);
+	var outputsHidden = Array.apply(null, {length: this.numHidden})
+		.map(function() {return 0;});
+	var outputs = Array.apply(null, {length: this.numOutputs})
+		.map(function() {return 0;});
 
 	// send in the sensor input to the hidden layer
 	sensorInput.forEach(function (input, i) {
@@ -27,7 +29,9 @@ MLP.prototype.feedforward = function(sensorInput) {
 	}, this);
 
 	// apply a sigmoidal activation function to all hidden layer outputs
-	outputsHidden = outputsHidden.map((hiddenOutput) => this.sigmoid(hiddenOutput, this.bias));
+	outputsHidden = outputsHidden.map(function (hiddenOutput){
+		return this.sigmoid(hiddenOutput, this.bias)
+	}, this);
 
 	// feedforward the middle layer to the output layer
 	var startWeight = this.numInputs * this.numHidden;
@@ -40,6 +44,9 @@ MLP.prototype.feedforward = function(sensorInput) {
 		}
 	}, this);
 
-	outputs = outputs.map((output) => this.stepFunction(output, this.bias));
+	outputs = outputs.map(function (output){
+		return this.stepFunction(output, this.bias)
+	}, this);
+
 	return outputs;
 }

@@ -1,5 +1,5 @@
 // global variables. BUT WHYYY
-var mutationRate = 0.2;
+var mutationRate = 0.03;
 var mutationSigma = 0.2;
 
 var DNA = function(numGenes) {
@@ -29,7 +29,8 @@ DNA.prototype.print = function() {
 DNA.prototype.mutate = function() {
 	for (var i=0; i<this.genes.length-1; i++) {
 		if(mutationRate > Math.random()) {
-			this.genes[i] = this.genes[i] + getRandom(-1.0*mutationSigma, 1.0*mutationSigma); // if over mutationrate, add something here?
+			// if over mutationrate, add something here?
+			this.genes[i] = this.genes[i] + getRandom(-1.0*mutationSigma, 1.0*mutationSigma);
 
 			// make sure that the genes stays between -1 and 1
 			if(this.genes[i]>1) {
@@ -45,23 +46,34 @@ DNA.prototype.mutate = function() {
 }
 
 // function that takes two parents and return one child
-DNA.crossover = function(billy, bob) {
-	var crossIndex = Math.floor(getRandom(1,bob.genes.length-2));
+DNA.crossover = function(billy, bob, crossoverType) {
 	var newGenes = [];
 	var i;
-
-	for (i=0; i<crossIndex; i++){
+	if(crossoverType === undefined || crossoverType === 'split'){
+		/*   INDEX CUTOFF  */
+		var crossIndex = Math.floor(getRandom(1,bob.genes.length-2));
+		for (i=0; i<crossIndex; i++){
 		newGenes[i] = billy.genes[i];
-	}
-	for(; i<bob.genes.length; i++) {
-		newGenes[i] = bob.genes[i];
+		}
+		for(; i<bob.genes.length; i++) {
+			newGenes[i] = bob.genes[i];
+		}
+	} else if(crossoverType === 'average') {
+		/*   AVERAGE  */
+		for (i=0; i<bob.genes.length; i++){
+			newGenes[i] = (billy.genes[i]+bob.genes[i])/2.0;
+
+		}
+	} else if(crossoverType === 'uniform') {
+		// randomize number between 0.25 - 0.75.
+		var crossProbability = 0.25 + Math.random()*0.5;
+		// Use crossprobability to decide whether to choose weight from billy och bob
+		for (i=0; i<bob.genes.length; i++){
+			newGenes[i] = (crossProbability>Math.random()) ? billy.genes[i] : bob.genes[i];
+		}
 	}
 
-	var billybob = new DNA(newGenes);
-	// just returns the first parent now
-
-	//var billybob = new DNA(billy.genes);  // will not use any crossover, just mutation if this line is used
+	var billybob = new DNA(1);
+	billybob.setGenes(newGenes);
 	return billybob;
-
-
 };

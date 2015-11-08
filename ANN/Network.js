@@ -1,6 +1,7 @@
 /* Artificial Neural Network Baseclass */
-var Network = function(weights, numInputs, numOutputs) {
+var Network = function(type, weights, numInputs, numOutputs) {
 	// local variabels
+	this.brainType = type;
 	this.weights = weights;
 	this.numInputs = numInputs;
 	this.numOutputs = numOutputs;

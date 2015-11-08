@@ -7,24 +7,116 @@
 	    <script type="text/javascript" src="vendor/phaser.min.js"></script>
 	    <script src="vendor/victor.js"></script>
 
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+
+
 		<script src="helpFunctions.js"></script>
 		<script type="text/javascript" src="AgentFactory.js"></script>
-		<script type="text/javascript" src="ANN/network.js"></script>
+		<script type="text/javascript" src="ANN/Network.js"></script>
 		<script type="text/javascript" src="ANN/perceptron.js"></script>
 		<script type="text/javascript" src="ANN/MLP.js"></script>
 		<script type="text/javascript" src="ANN/recurrent.js"></script>
-		<script src="DNA.js"></script>
-		<script src="Groups.js"></script>
-		<script src="Mover.js"></script>
-		<script src="Target.js"></script>
-		<script src="Obstacle.js"></script>
-		<script src="Population.js"></script>
+		<script type="text/javascript" src="DNA.js"></script>
+		<script type="text/javascript" src="Groups.js"></script>
+		<script type="text/javascript" src="Mover.js"></script>
+		<script type="text/javascript" src="Wall.js"></script>
+		<script type="text/javascript" src="Target.js"></script>
+		<script type="text/javascript" src="Obstacle.js"></script>
+		<script type="text/javascript" src="Population.js"></script>
+
+		<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css">-->
+		<link href="paper-bootstrap.css" rel="stylesheet" type="text/css">
+
+
+		<style>
+			body {
+				margin-top : 0px;
+				margin-left: auto;
+				margin-right: auto;
+				font-size: 11px;
+			}
+
+			#selectOptions {
+				text-align: left;
+				padding: 6px;
+				padding-left: 10px;
+			}
+
+			.container{
+				margin: 0px;
+			}
+
+			#canvasContainer canvas {
+				margin:0;
+
+			}
+			#canvasContainer{
+				padding: 0px;
+				margin: 0px;
+			}
+
+			.text-center {
+				text-align: center;
+			}
+		</style>
+
 	</head>
 
 	<body>
-		Speed:<input id="frameSpeed" type="range" min="0" max="40" step="1" value="1"/>
-		Render: <input type="checkbox" id="toogleRender">
-		Skip to generation: <input type="number" id="skipToGeneration" min="1">
+		<div class="container">
+			<h2 class="text-center">Surviving agents</h2>
+
+			<div class="row">
+				<div class="col-md-9" id="canvasContainer">
+				</div>
+
+				<div class="col-md-3" id="selectOptions">
+					<div class="row">
+						<div class="col-xs-12"><h4>Info</h4></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-8">Number in population</div> <div class="col-xs-4" id="numberPop"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-8">Generation number</div> <div class="col-xs-4" id="genNumber"></div>
+					</div>
+
+
+					
+					<div class="row">
+						<div class="col-xs-12"><h4>Settings</h4></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-4">Speed</div> <div class="col-xs-4"><input id="frameSpeed" type="range" min="0" max="20" step="1" value="1"/></div> <div class="col-xs-4" id="frameSpeedValue"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-4">Render</div>  <div class="col-xs-8"><input type="checkbox" id="toogleRender"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-4">Render sensors</div> <div class="col-xs-8"><input type="checkbox" id="toogleLines"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-4">Skip to generation</div>  <div class="col-xs-8"> <input type="number" id="skipToGeneration" min="1"></div>
+					</div>
+
+					<div class="row">
+						<div class="col-xs-12"><h5>Click on a Mover to get its DNA</h5></div>
+						<div class="col-xs-12"><textarea id="infoDNA"></textarea></div>
+					</div>
+
+					<div class="row">
+						<div class="col-xs-12"><h5>Paste Mover DNA here and click the button</h5></div>
+						<div class="col-xs-12"><textarea id="insertDNA"></textarea></div>
+						<div class="col-xs-12"><button type="button" class="btn btn-default" id="insertButton">Insert Mover!</button></div>
+					</div>
+
+			
+					</div>
+
+				</div>
+			</div>
+		</div>
+
 		<script src="main.js"></script>
 	</body>
 
