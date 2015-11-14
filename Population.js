@@ -8,7 +8,7 @@ var Population = function (game, size) { 	// IMPORTANT, as of now "generation" o
 	this.championRatio = 0.05;
 	this.championNumber = Math.ceil(this.numMovers*this.championRatio);
 	this.championDNA = [];
-	this.crossoverType = 'average';
+	this.crossoverType = 'uniform';
 	for(var i = 0; i < this.championNumber; i++){
 			this.championDNA[i] = new DNA(1);
 	}
